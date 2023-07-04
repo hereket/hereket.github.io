@@ -2,20 +2,20 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>hereket.com/posts/first/</loc>
+    <loc>/posts/first/</loc>
     <lastmod>2023-07-03T16:05:40+05:00</lastmod>
   </url><url>
-    <loc>hereket.com/</loc>
+    <loc>/</loc>
     <lastmod>2023-07-03T16:05:40+05:00</lastmod>
   </url><url>
-    <loc>hereket.com/posts/lorem/</loc>
+    <loc>/posts/lorem/</loc>
     <lastmod>2023-07-03T16:05:40+05:00</lastmod>
   </url><url>
-    <loc>hereket.com/posts/</loc>
+    <loc>/posts/</loc>
     <lastmod>2023-07-03T16:05:40+05:00</lastmod>
   </url><url>
-    <loc>hereket.com/categories/</loc>
+    <loc>/categories/</loc>
   </url><url>
-    <loc>hereket.com/tags/</loc>
+    <loc>/tags/</loc>
   </url>
 </urlset>
