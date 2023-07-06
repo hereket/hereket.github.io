@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" type="text/css" href="/css/base.css">
+
+    
+    
+    <title>Hereket | Web analalytics effect on a mobile page</title>
+</head>
+
+<body><div id="nav-border" class="container header">
+    <div class='page-wrap'>
+    <nav id="nav" class="nav justify-content-center">
+        
+        <a class="nav-link" href="/">
+        
+        
+        <i data-feather="home"></i> 
+        
+        
+        Home
+        </a>
+        
+        <a class="nav-link" href="/posts/">
+        
+        
+        <i data-feather="pen-tool"></i> 
+        
+        
+        Posts
+        </a>
+        
+        <a class="nav-link" href="/contact/">
+        
+        
+        <i data-feather="-"></i> 
+        
+        
+        Contact
+        </a>
+        
+    </nav>
+    </div>
+</div>
+<div id="content">
+<div class="page-wrap article">
+<h1>Web analalytics effect on a mobile page</h1>
+
+<br><br>
+<h3 id="what-happened">What happened?</h3>
+<p>So I create this site to test some ideas this time I chose to use a &lsquo;static
+site&rsquo; approach. There is no specific reason why I chose it to be this way it is
+just I wanted to try something that I have not tried before. My last test was
+with django.</p>
+<p>So one of my first experiments I wanted to do is to stack different web
+analytics tool on the page and see how they behave and report data for later
+comparison. For my first test I wanted to have 3 different web analytics
+services Google analytics, Yandex metrica and Matomo. I created tags for google
+and yandex and wanted to add Matomo a bit later just out of laziness.</p>
+<p>One of my old clients complained about site load speed degradation which after
+quick examination indeed seemed to work slower than before. In cases like this I
+like to go quick test on <a href="http://pagespeed.web.dev">http://pagespeed.web.dev</a> to see if there are any issues
+on the fronted before diving into more time consuming server investigation. It
+got a performance score of 79 for mobile but I remember it being above 95 last
+time. So before doing any other checks I wanted to compare with something that
+takes close to 0 server processing time which is this <strong>static site</strong>. The other
+site was on django.</p>
+<p>To my surprize the score for this site was 85 which was very unusal since there
+is nothing to spend time on. So the page returned only an tiny HTML and a CSS
+resources which together took about <strong>1.2 Kb</strong>. This is so tiny that it fit not only
+in recommended <strong>TCP window</strong> site but it actually could be fit into a <strong>single
+packet</strong>. So it easy to guess that the reason was from analytics. But it
+surprised me as I put all of that code into the footer and the site header as
+recomended specifically to reduce its priority. And yet it was affecting site
+quite heavily. In test I used specifically test for mobile as it was important
+to me and desktop performance was good enough.</p>
+<h3 id="site-raw-speed">Site raw speed.</h3>
+<p><img src="/images/posts/web_analytics/raw.png" alt="Raw page"></p>
+<p>I merged css with html into one files to fully minimize network effects and see
+what is the best case scenario. Here we can see that raw data is 961 bytes (compressed)
+which gives 100 performance score.</p>
+<h3 id="adding-google-analytics">Adding google analytics</h3>
+<p><img src="/images/posts/web_analytics/google.png" alt="Raw page"></p>
+<p>It looks like adding google (at least at the footer) does not affect much. It
+takes just 2 score points. For me it is a low enough price for all the <strong>free</strong> utility I
+get from using google analytics.</p>
+<h3 id="adding-yandex-metrica">Adding yandex metrica</h3>
+<p><img src="/images/posts/web_analytics/google_and_yandex.png" alt="Raw page"></p>
+<p>Here is is cumulative loss because of using google analytics and yandex metrica
+together. If I was a realy scientist and not just a lazy bypasser I would have
+created a separate case where it had only yandex metrica. But since I am not I
+will be just lazy and do it this way. It is good enough and is actully a common
+case in places where yandex is used. People who use yandex rarely use it by
+itself and rather combine together with google analytics.</p>
+<p>So here we loose about 10 points. We are still in green zone but take into
+account that this is our best case now. Everythin will go downhill from here. A
+real site would contain images, more content and be dynamic.</p>
+<h3 id="all-together">All together</h3>
+<p>So original case contained 2 resources an HTML page and a linked CSS file. Let&rsquo;s
+do one last measurement to a more usual case for this site.</p>
+<p><img src="/images/posts/web_analytics/analytics_and_css.png" alt="Raw page"></p>
+<p>This one is extremely surprising as 80 performance score is super bad. I am not
+sure why score dropped whopping 10 points just by adding one extra file but
+results are horrible. Later I will try to do a more in depth analysis and maybe
+try different tools and compare the results to verify that it is not something
+related to this specific measuring tool but hey this is the tool that google
+probably uses in its ranking algorithm. So if we care about google page rank we
+should take it into account.</p>
+<h3 id="extra-google-analytics-with-css">[Extra]: google analytics with css</h3>
+<p><img src="/images/posts/web_analytics/google_with_css.png" alt="Raw page"></p>
+<p>This is just one extra step I took just out of curiosity. I wanted to see how
+adding an extra file would affect the score with just google analytics.
+Surprisingly it dropped another 3 points. So this is our best for having tiny
+HTML and tiny CSS with google analytics. It looks like a safe assumption that 95
+is our maximum score if we add google analytics to our site.</p>
+<h3 id="conclusions">Conclusions</h3>
+<p>Most of the time when we do site measurements we usually have a lot of stuff
+going on. There is a database, an interpreter, images, custom javascript, large
+content and etc. Here I tried to measure effects of having web analytics tool on
+the site when everything else is removed and we have best possible conditions.
+As the results show adding analytics is not free and does affect our scoring.
+Even more adding more analytics willy-nilly actully could have very negative
+effects. So if you decide to add it will require some thinking if page speed is
+something that is important to you and your users.</p>
+<p>Feel free to contact me if you have any questions.</p>
+
+</div>
+
+        </div><div class='footer'>
+    <div class='page-wrap'>
+    Copyright (c) Hereket, 2023 
+    </div>
+</div>
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-7KHD5ET3Y7"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-7KHD5ET3Y7');
+</script>
+
+
+
+
+<script type="text/javascript" >
+   (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+   m[i].l=1*new Date();
+   for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+   k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+   (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+   ym(94210403, "init", {
+        clickmap:true,
+        trackLinks:true,
+        accurateTrackBounce:true,
+        webvisor:true
+   });
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/94210403" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+
+</body>
+</html>

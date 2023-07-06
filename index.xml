@@ -6,16 +6,15 @@
     <description>Recent content on Hereket</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 03 Jul 2023 16:05:40 +0500</lastBuildDate><atom:link href="/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 06 Jul 2023 20:48:32 +0500</lastBuildDate><atom:link href="/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>First Post</title>
-      <link>/posts/first/</link>
-      <pubDate>Mon, 03 Jul 2023 16:05:40 +0500</pubDate>
+      <title>Web analalytics effect on a mobile page</title>
+      <link>/posts/web_analytics_effects/</link>
+      <pubDate>Thu, 06 Jul 2023 20:48:32 +0500</pubDate>
       
-      <guid>/posts/first/</guid>
-      <description>Start Hello. Initial post in this site. Currently the plan is to use it to test diffent technologies, write some thoughts and share some hobby projects. At the same time I am planning to practice my writing skills.
-My plan is to publish a lot of raw content without deep work on it but we will see how it turns out to be.
-This is just a test page. If you somehow stumbled upon this page and have some questions you can ask me at info /at/ hereket.</description>
+      <guid>/posts/web_analytics_effects/</guid>
+      <description>What happened? So I create this site to test some ideas this time I chose to use a &amp;lsquo;static site&amp;rsquo; approach. There is no specific reason why I chose it to be this way it is just I wanted to try something that I have not tried before. My last test was with django.
+So one of my first experiments I wanted to do is to stack different web analytics tool on the page and see how they behave and report data for later comparison.</description>
     </item>
     
     <item>
@@ -27,6 +26,27 @@ This is just a test page. If you somehow stumbled upon this page and have some q
       <description>What is this It is just &amp;rsquo;lorem ipsum&amp;rsquo; text for myself to have somewhere on the web where I can easily get it when I need it.
 .
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam ut mi quis quam bibendum rutrum. Integer egestas convallis urna nec egestas. Donec metus elit, semper quis turpis at, molestie egestas erat. Quisque libero purus, dictum nec auctor quis, convallis ac leo. Morbi mollis elementum risus, sit amet finibus turpis fringilla non.</description>
+    </item>
+    
+    <item>
+      <title>Contact me</title>
+      <link>/contact/</link>
+      <pubDate>Sat, 03 Jun 2023 16:05:40 +0500</pubDate>
+      
+      <guid>/contact/</guid>
+      <description>Email: info123@hereket.com
+This email is just a trap for spammers. Once you write me I will write you back from real email.</description>
+    </item>
+    
+    <item>
+      <title>First Post</title>
+      <link>/posts/first/</link>
+      <pubDate>Sat, 03 Jun 2023 16:05:40 +0500</pubDate>
+      
+      <guid>/posts/first/</guid>
+      <description>Start Hello. Initial post in this site. Currently the plan is to use it to test diffent technologies, write some thoughts and share some hobby projects. At the same time I am planning to practice my writing skills.
+My plan is to publish a lot of raw content without deep work on it but we will see how it turns out to be.
+This is just a test page. If you somehow stumbled upon this page and have some questions you can ask me at info /at/ hereket.</description>
     </item>
     
   </channel>
