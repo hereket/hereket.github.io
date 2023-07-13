@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    
+    
+    
+    <link rel="stylesheet" type="text/css" href="/css/base.css?1689277239">
+
+    
+    
+    <title>Hereket | Building flutter android app without gradle</title>
+</head>
+
+<body><div id="nav-border" class="container header">
+    <div class='page-wrap content'>
+        <a href="/"><div class="header-logo"> Hereket </div></a>
+        <nav id="nav" class="nav">
+            
+            <a class="nav-link" href="/posts/">
+            
+            Posts
+            </a>
+            
+            <a class="nav-link" href="/contact/">
+            
+            Contact
+            </a>
+            
+        </nav>
+    </div>
+</div>
+<div id="content">
+<div class="page-wrap article">
+    <div class='main-content'>
+        <h1>Building flutter android app without gradle</h1>
+        
+        <div><time class='post-time' datetime="2023-07-13">2023-07-13</time></div>
+        
+        <br><br>
+        <h3 id="introduction">Introduction</h3>
+<p>Flutter is a very useful framework which does quite a lot of heavy lifting and
+hides all the dirty details inside a black box. It is very good when you want
+get the job done but I really like opening black boxes as I really don&rsquo;t like
+magic.</p>
+<p>The sole reasoning behind this project is to build a &lsquo;hello world&rsquo; project with
+as few steps as possible and in the end build an apk file which could be
+installed on an android phone. This will be a good starting point for other
+people to start investigating the build process, involved files and required
+tools. I will be using <strong>linux</strong> (archlinux) and build only an <strong>apk</strong> and won&rsquo;t
+cover anything related to build steps on and for other platforms. Also current
+plan is to do only <strong>debug</strong> build and ignore release build but I might add
+release version later.</p>
+<p><strong>Disclaimer</strong>: You should not use this way to build your apps. Even for you
+hobby projects. It will be slower, more error prone and just in general
+degrading experience.</p>
+<h3 id="refresher">Refresher</h3>
+<p>So the simplest way to create and build a flutter application involves these
+steps:</p>
+<pre tabindex="0"><code>flutter create app1
+cd app1
+flutter build apk --debug
+</code></pre><p>In this article I will try to replicate process done in those commands with an additonal step
+of installing resulting apk on a device. Actually all most of the time is spent
+in the last command. So in reality I will be doing the last step and you will
+see some of the tasks being done in this one line.</p>
+<h3 id="step-0">Step 0</h3>
+<h3 id="start">Start</h3>
+
+    </div>
+</div>
+
+        </div><div class='footer'>
+    <div class='page-wrap'>
+    &copy; 2023, Hereket 
+    </div>
+</div>
+
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-7KHD5ET3Y7"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-7KHD5ET3Y7');
+</script>
+
+
+
+
+<script type="text/javascript" >
+   (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+   m[i].l=1*new Date();
+   for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+   k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+   (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+   ym(94210403, "init", {
+        clickmap:true,
+        trackLinks:true,
+        accurateTrackBounce:true,
+        webvisor:true
+   });
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/94210403" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+
+
+</body>
+</html>
