@@ -45,6 +45,7 @@ pre {
     padding: 10px 15px;
     border-radius: 5px;
     /* box-shadow: 0px 5px 10px rgba(0,0,0, 0.5); */
+    overflow: auto;
 }
 pre code {
     font-size: 1.1em;
