@@ -6,7 +6,18 @@
     <description>Recent content in Posts on Hereket</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 06 Jul 2023 20:48:32 +0500</lastBuildDate><atom:link href="/posts/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 13 Jul 2023 12:01:36 +0500</lastBuildDate><atom:link href="/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Building flutter android app without gradle</title>
+      <link>/posts/flutter_without_gradle/</link>
+      <pubDate>Thu, 13 Jul 2023 12:01:36 +0500</pubDate>
+      
+      <guid>/posts/flutter_without_gradle/</guid>
+      <description>Initial draft
+Introduction Flutter is a very useful framework which does quite a lot of heavy lifting and hides all the dirty details inside a black box. It is very good when you want get the job done but I really like opening black boxes as I really don&amp;rsquo;t like magic.
+The sole reasoning behind this project is to build a &amp;lsquo;hello world&amp;rsquo; project with as few steps as possible and in the end build an apk file which could be installed on an android phone.</description>
+    </item>
+    
     <item>
       <title>Web analalytics effect on a mobile page</title>
       <link>/posts/web_analytics_effects/</link>

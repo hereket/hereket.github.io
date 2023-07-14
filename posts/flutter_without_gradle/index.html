@@ -6,7 +6,7 @@
     
     
     
-    <link rel="stylesheet" type="text/css" href="/css/base.css?1689277239">
+    <link rel="stylesheet" type="text/css" href="/css/base.css?1689295270">
 
     
     
@@ -39,7 +39,8 @@
         <div><time class='post-time' datetime="2023-07-13">2023-07-13</time></div>
         
         <br><br>
-        <h3 id="introduction">Introduction</h3>
+        <p>Initial draft</p>
+<h3 id="introduction">Introduction</h3>
 <p>Flutter is a very useful framework which does quite a lot of heavy lifting and
 hides all the dirty details inside a black box. It is very good when you want
 get the job done but I really like opening black boxes as I really don&rsquo;t like
@@ -65,8 +66,345 @@ flutter build apk --debug
 of installing resulting apk on a device. Actually all most of the time is spent
 in the last command. So in reality I will be doing the last step and you will
 see some of the tasks being done in this one line.</p>
-<h3 id="step-0">Step 0</h3>
 <h3 id="start">Start</h3>
+<p>Let&rsquo;s start with actually building a flutter/dart &lsquo;application&rsquo; not tied to any
+specific platform. Since we are starting from scratch let&rsquo;s start with creating a
+folder to contain all of our apps files. I will call it <strong>&lsquo;handmade_flutter_app&rsquo;</strong>. This
+will be our <strong>ROOT_FOLDER</strong>. Inside ROOT_FOLDER let&rsquo;s create &lsquo;__build&rsquo; and &lsquo;flutter&rsquo; folders.
+Inside &lsquo;flutter&rsquo; directory we need &rsquo;lib&rsquo; directory and pubspec.yaml file and inside &rsquo;lib&rsquo; directory
+let&rsquo;s create &lsquo;main.dart&rsquo; file.</p>
+<pre tabindex="0"><code>handmade_flutter_app
+    __build
+    flutter
+        pubspec.yaml
+        lib
+            main.dart
+</code></pre><p>pubspec.yaml file</p>
+<pre tabindex="0"><code>name: handmade_flutter
+description: Just a test in building a flutter app by hand
+publish_to: &#39;none&#39;
+
+version: 1.0.0+1
+
+environment:
+  sdk: &#39;&gt;=3.0.5 &lt;4.0.0&#39;
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+
+flutter:
+  uses-material-design: true
+</code></pre><p>main.dart file</p>
+<pre tabindex="0"><code>import &#39;package:flutter/material.dart&#39;;
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: &#39;Flutter Demo&#39;,
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        useMaterial3: true,
+      ),
+      home: const MyHomePage(title: &#39;Flutter Demo Home Page&#39;),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key, required this.title});
+
+  final String title;
+
+  @override
+  State&lt;MyHomePage&gt; createState() =&gt; _MyHomePageState();
+}
+
+class _MyHomePageState extends State&lt;MyHomePage&gt; {
+  int _counter = 0;
+
+  void _incrementCounter() {
+    setState(() {
+      _counter++;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: Text(widget.title),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: &lt;Widget&gt;[
+            const Text(
+              &#39;You have pushed the button this many times:&#39;,
+            ),
+            Text(
+              &#39;$_counter&#39;,
+              style: Theme.of(context).textTheme.headlineMedium,
+            ),
+          ],
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _incrementCounter,
+        tooltip: &#39;Increment&#39;,
+        child: const Icon(Icons.add),
+      ),
+    );
+  }
+}
+</code></pre><p>Actually it for a &lsquo;hello world&rsquo; I could have used smaller files for pubspec and
+main.dart but I chose to use exactly the same files that is used in a general
+flutter app that is created by &lsquo;flutter create app&rsquo; command. This is done just
+as an arbitrary minimum bar for my definition of proof of concept &lsquo;hello world&rsquo;.</p>
+<p>These files are enough for us to start building the project. So the first step
+to build the project is to <strong>&lsquo;get packages&rsquo;</strong>. This is similar to &lsquo;flutter pub
+get&rsquo; but I will not be using flutter for it. So from within the &lsquo;flutter&rsquo;
+directory run this command:</p>
+<pre tabindex="0"><code>dart pub get
+</code></pre><p>Actually real flutter will run this program with more options but this good
+enough for us.</p>
+<p>After this command there will be 2 new files created: &lsquo;pubspec.lock&rsquo; and
+&lsquo;.dart_tool/package_config.json&rsquo;. We run this program to download all required
+dependencies and to create package_config.json which is used by in the next
+step.</p>
+<pre tabindex="0"><code>dart \
+    --disable-dart-dev \
+    --packages=/opt/flutter/packages/flutter_tools/.dart_tool/package_config.json \
+    /opt/flutter/bin/cache/flutter_tools.snapshot \
+    --quiet \
+    assemble \
+    --no-version-check \
+    --output ../__build/assets \
+    -dTargetFile=lib/main.dart \
+    -dTargetPlatform=android \
+    -dBuildMode=debug \
+    -dTrackWidgetCreation=true \
+    debug_android_application \
+</code></pre><p>And we are done!</p>
+<p>Not really, as there are quite a lot of glue missing but this is indeed the was
+the step that was single most important step to create a flutter application.
+After it we will have all required &lsquo;flutter&rsquo; files created and ready to be
+packed inside the app. They all will be placed in <strong>&rsquo;__build/assets/flutter_assets&rsquo;</strong> folder.
+It will contain everything needed for the &lsquo;flutter app&rsquo; to run and I don&rsquo;t want
+to go into depth what those files are but it will contain compiled dart code
+with required assets.</p>
+<p>In the command above there is &lsquo;flutter_tools.snapshot&rsquo; compiled file from the
+installation location of your flutter sdk. If you want to do some &lsquo;print
+debugging or just to play around by changing source code you can change
+&lsquo;<strong>&lt;YOUR_FLUTTER_ROOT&gt;</strong>/bin/cache/flutter_tools.snapshot&rsquo; to
+&lsquo;<strong>&lt;YOUR_FLUTTER_ROOT&gt;</strong>/packages/flutter_tools/bin/flutter_tools.dart&rsquo;.
+This will compile flutter tools from scratch each time your run this command and
+will become quite slow but will give you ability to play with the tool.</p>
+<h3 id="packaging-into-an-apk">Packaging into an APK</h3>
+<p>Now since we got everything we need for for the app we need to package
+everything into a one APK file which then we can install into a real device.
+Unfortunately since there are quite a few of related dependencies I first will
+get all the dependencies into in one go and not worry about them later. Actually
+the amount of all dependencies is quite large but I tried to reduce them to
+absolute minimum require to run the app. We will need flutter engine itself and
+some android jar files required for the runtime. Here are all the links to files that
+needed.</p>
+<pre tabindex="0"><code>1. https://storage.googleapis.com/download.flutter.io/io/flutter/armeabi_v7a_debug/1.0.0-45f6e009110df4f34ec2cf99f63cf73b71b7a420/armeabi_v7a_debug-1.0.0-45f6e009110df4f34ec2cf99f63cf73b71b7a420.jar
+2. https://storage.googleapis.com/download.flutter.io/io/flutter/arm64_v8a_debug/1.0.0-45f6e009110df4f34ec2cf99f63cf73b71b7a420/arm64_v8a_debug-1.0.0-45f6e009110df4f34ec2cf99f63cf73b71b7a420.jar
+3. https://storage.googleapis.com/download.flutter.io/io/flutter/flutter_embedding_debug/1.0.0-45f6e009110df4f34ec2cf99f63cf73b71b7a420/flutter_embedding_debug-1.0.0-45f6e009110df4f34ec2cf99f63cf73b71b7a420.jar
+4. https://maven.google.com/androidx/lifecycle/lifecycle-common/2.2.0/lifecycle-common-2.2.0.jar
+5. https://maven.google.com/androidx/lifecycle/lifecycle-runtime/2.2.0/lifecycle-runtime-2.2.0.aar
+6. https://maven.google.com/androidx/arch/core/core-runtime/2.2.0/core-runtime-2.2.0.aar
+7. https://maven.google.com/androidx/arch/core/core-common/2.2.0/core-common-2.2.0.jar
+8. https://maven.google.com/androidx/core/core/1.10.0/core-1.10.0.aar
+9. https://maven.google.com/androidx/tracing/tracing/1.1.0/tracing-1.1.0.aar
+</code></pre><p>First of all create a folder &rsquo;external&rsquo; at the root of our project and inside of
+it create two folder &lsquo;jar&rsquo; and &rsquo;lib&rsquo;. Download files 1 and 2 and extract them
+inside &rsquo;external&rsquo; folder. The should fill &rsquo;lib&rsquo; folder with require files. They
+both contain libflutter.so files one for arm 32 bit and one for 64 bit. This is
+the whole flutter engine compiled into a shared library. Once android app starts
+it will load this library which in turn will load all required files from
+&lsquo;flutter_asset&rsquo; folder and start executing the app.</p>
+<p>Next download files 3-9 and put them inside &lsquo;jar&rsquo; folder. The issue here is that
+some of these files are aar files and you should extract from it &lsquo;classes.jar&rsquo;
+file, put it into the &lsquo;jar&rsquo; files and then rename it it &lsquo;&lt;package_name&gt;.jar&rsquo;. So
+let&rsquo;s take as an example &rsquo;tracing-1.1.0.aar&rsquo;. You extract the classes.jar file
+from it name it &rsquo;tracing-1.1.0.jar&rsquo;.</p>
+<p>So in the the end our &rsquo;external&rsquo; folder should look like this.</p>
+<pre tabindex="0"><code>├── jar
+│   ├── core-1.10.0.aar
+│   ├── core-1.10.0.jar
+│   ├── core-common-2.2.0.jar
+│   ├── core-runtime-2.2.0.jar
+│   ├── flutter_embedding_debug-1.0.0.jar
+│   ├── lifecycle-common-2.2.0.jar
+│   ├── lifecycle-runtime-2.2.0.jar
+│   └── tracing-1.1.0.jar
+└── lib
+    ├── arm64-v8a
+    │   └── libflutter.so
+    └── armeabi-v7a
+        └── libflutter.so
+</code></pre><p>Next we can start just simply assembly step by step our APK file. Let&rsquo;s start
+with defining some constants that will help us reduce typing. You should adjust
+it acording to your system setup.</p>
+<pre tabindex="0"><code>export SDK=&#34;/opt/Android/Sdk&#34;
+export BUILD_TOOLS=&#34;${SDK}/build-tools/29.0.2&#34;
+export PLATFORM=&#34;${SDK}/platforms/android-33&#34;
+export BUILD_DIR=$(realpath &#34;__build&#34;)
+export PROJECT_DIR=$(realpath &#34;.&#34;)
+</code></pre><p>We will need 2 java files: <strong>MainActivity.java</strong> and
+<strong>GeneratedPluginRegistrant.java</strong>. MainActivity is should be placed in our
+custom java package and GeneratedPluginRegistrant inside specific flutter
+package. In the root folder of our project create &lsquo;java&rsquo; folder and create 2
+files there:
+&ldquo;java/com/hereket/handmade_flutter/MainActivity.java&rdquo;
+&ldquo;io/flutter/plugins/GeneratedPluginRegistrant.java&rdquo;</p>
+<p>Here is com/hereket/handmade_flutter/MainActivity.java</p>
+<pre tabindex="0"><code>package com.hereket.handmade_flutter;
+import io.flutter.embedding.android.FlutterActivity;
+import io.flutter.embedding.engine.FlutterEngine;
+
+public class MainActivity extends FlutterActivity {}
+</code></pre><p>And here is io/flutter/plugins/GeneratedPluginRegistrant.java</p>
+<pre tabindex="0"><code>package io.flutter.plugins;
+import io.flutter.Log;
+import io.flutter.embedding.engine.FlutterEngine;
+
+public final class GeneratedPluginRegistrant {
+  private static final String TAG = &#34;GeneratedPluginRegistrant&#34;;
+  public static void registerWith(FlutterEngine flutterEngine) {
+  }
+}
+</code></pre><h3 id="compile-java-code">Compile java code</h3>
+<p>So we will compile java files into their bytecode with <strong>javac</strong>. For that we
+will need to add some extra files to the classpath so javac knows about extra
+information related to android in general and some info about flutter. The
+resulting files will be placed into &lsquo;__build/obj&rsquo; folder.</p>
+<pre tabindex="0"><code>CLASSPATH=&#34;${PLATFORM}/android.jar&#34;
+CLASSPATH=&#34;$CLASSPATH:${PROJECT_DIR}/external/jar/flutter_embedding_debug-1.0.0.jar&#34;
+CLASSPATH=&#34;$CLASSPATH:${PROJECT_DIR}/external/jar/androidx.lifecycle/lifecycle-common-2.5.1.jar&#34;
+
+javac \
+    -classpath &#34;$CLASSPATH&#34; \
+    -d &#34;$BUILD_DIR/obj&#34; \
+    java/com/hereket/handmade_flutter/MainActivity.java \
+    java/io/flutter/plugins/GeneratedPluginRegistrant.java \
+</code></pre><h3 id="convert-class-files-to-dex">Convert class files to dex</h3>
+<p>Android does not work with &lsquo;.class&rsquo; files directly as it is running on dalvik
+machine. Davlik requires &lsquo;.class&rsquo; files to be converted to be convert to dex
+files. In this step we will convert all our compiled java code into dex and then
+merge them with required external java code. This is separate from the step
+above as we will adding this code into one dex file which later will be used in
+runtime.</p>
+<pre tabindex="0"><code>CLASS_FILES=$(find $BUILD_DIR/obj/ -iname &#34;*.class&#34;)
+&#34;${BUILD_TOOLS}/d8&#34; $CLASS_FILES  --output $BUILD_DIR/apk/my_classes.jar
+
+pushd $BUILD_DIR/apk
+
+&#34;${BUILD_TOOLS}/d8&#34; my_classes.jar \
+    ${PLATFORM}/android.jar \
+    ${PROJECT_DIR}/external/jar/flutter_embedding_debug-1.0.0.jar \
+    ${PROJECT_DIR}/external/jar/lifecycle-common-2.2.0.jar \
+    ${PROJECT_DIR}/external/jar/lifecycle-runtime-2.2.0.jar \
+    ${PROJECT_DIR}/external/jar/core-common-2.2.0.jar \
+    ${PROJECT_DIR}/external/jar/core-1.10.0.jar \
+    ${PROJECT_DIR}/external/jar/tracing-1.1.0.jar \
+
+popd
+</code></pre><p>I run this code from &lsquo;apk&rsquo; directory and as a result we will get a &lsquo;classes.dex&rsquo;
+file which will contain all our code and all external code in one compact
+format.</p>
+<h3 id="create-apk-v1-raw">Create apk v1: Raw</h3>
+<p>Now we have all the required files and can create a first version of an apk. Apk
+is just a zip file off all the required files. Here I used &lsquo;aapt&rsquo; tool from
+andoid sdk. Now everybody uses aapt2 but since I learned this stuff at the time
+when aapt was the tool to use and I remember how to use I will go with it. From
+the the root folder of our project run this command:</p>
+<pre tabindex="0"><code>&#34;${BUILD_TOOLS}/aapt&#34; package -f -M AndroidManifest.xml -S res \
+    -A assets \
+    -A $FLUTTER_OUTPUT_DIR \
+    -I &#34;${PROJECT_DIR}/external/jar/flutter_embedding_debug-1.0.0.jar&#34; \
+    -I &#34;${PLATFORM}/android.jar&#34; \
+    -F $BUILD_DIR/handmade_flutter.unsigned.apk $BUILD_DIR/apk/
+</code></pre><p>As a result of this command we will get <strong>handmade_flutter.unsigned.apk</strong>. It is
+real apk but it won&rsquo;t run on android as it needs some processing before android
+will accept it.</p>
+<h3 id="create-apk-v2-zipalign">Create apk v2: zipalign</h3>
+<p>This step is just a an required optimization step that just aligns files inside
+the apk. It is used as an optimization on androids side to load apps faster. If
+you you want to dig deep you can look into documentation but I won&rsquo;t dive into
+it. Just run this:</p>
+<pre tabindex="0"><code>&#34;${BUILD_TOOLS}/zipalign&#34; -f -p 4 \
+    $BUILD_DIR/handmade_flutter.unsigned.apk $BUILD_DIR/handmade_flutter.aligned.apk
+</code></pre><p>The result of this command will be a new file named <strong>handmade_flutter.aligned.apk</strong> which will be used
+in the next step.</p>
+<h3 id="create-apk-v3-final-and-signed">Create apk v3: Final and signed</h3>
+<p>Everything is ready. But we need to sign the apk as it is a requirement of
+android security system. It is needed for android to verify that for example
+if android already has an app with this package name and need to overwrite it,
+it could verify that the signer of the original app and this one is the &ldquo;same&rdquo;
+person.</p>
+<pre tabindex="0"><code>&#34;${BUILD_TOOLS}/apksigner&#34; sign --ks keystore.jks \
+    --ks-key-alias androidkey --ks-pass pass:android \
+    --key-pass pass:android --out $BUILD_DIR/handmade_flutter.apk \
+    $BUILD_DIR/handmade_flutter.aligned.apk
+</code></pre><p>For this you will need to have your key to be prepare. In the command above it
+is named &lsquo;keystore.jks&rsquo;. As a result you will get an APK file <strong>handmade_flutter.aligned.apk</strong>
+inside the __build directory. This is full blow, real apk that can be installed
+and used on real devices. Of course you cannot upload to playstore as they no
+longer accept apk files. If you don&rsquo;t have a key get one in the next step.</p>
+<h3 id="extra-create-key">[Extra] Create key</h3>
+<p>Just in case if you don&rsquo;t have a key and don&rsquo;t know how to create or don&rsquo;t want to bother with here
+is a quick command to create a dummy that will work with previous command.</p>
+<pre tabindex="0"><code>keytool -genkeypair -keystore keystore.jks -alias androidkey \
+       -validity 10000 -keyalg RSA -keysize 2048 \
+       -storepass android -keypass android
+</code></pre><h3 id="running-app-on-the-device">Running app on the device</h3>
+<p>I will not be going over how to install adb if you don&rsquo;t have one then just
+upload the apk in any possible way to your device and install directly from
+device.</p>
+<p>But if you have adb installed you can run this command to install and launch
+create applition directly on your device</p>
+<pre tabindex="0"><code>adb install -r $BUILD_DIR/handmade_hero.apk
+adb shell am start -n com.hereket.handmade_hero/.MainActivity
+</code></pre><p>and you whould have a running flutter application</p>
+<p>!(Final result - running flutter app)[/images/posts/handmade_flutter/result.png]
+<img src="/images/posts/handmade_flutter/result.png" alt="Final result - running flutter app"></p>
+<h3 id="conclusion">Conclusion</h3>
+<p>Small part of &lsquo;flutter build apk &ndash;debug&rsquo; in one not small article.</p>
+<p>Without using &lsquo;flutter&rsquo; command or without any help of &lsquo;gradle&rsquo; we were able to
+create a fully funtional flutter app with just some android tools, some dart,
+java and bare hands. The idea was just to be able to put together parts and
+actually try to understand how they are funtioning. I did cheat a little bit
+and didn&rsquo;t decompose the working of flutter tool even further for the
+compilation part but the article is already to big to swallow.</p>
+<p>The initial goal was to do it myself and learn how it fits together and the
+article ti my way to help people get on track of flutter build process a bit
+faster.</p>
+<p>I decided to go with debug build just because there is more projects I want do
+try with this build like communicating with runtime server, partial
+recompilation and other procrastination topics. Hope this will help other
+procrastinators.</p>
+<p><strong>Rework</strong>: Fun part is that when I started writing the article I was testing this whole
+thing on flutter 2.19 and in the process I decided to upgrade to flutter 3.0+
+and everything stopped working as flutter moved to java 11 and I was using
+<strong>dx</strong> which didn&rsquo;t support newer java. And during rewrite the whole script
+got smaller which is a win.</p>
 
     </div>
 </div>
