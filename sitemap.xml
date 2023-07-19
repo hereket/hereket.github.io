@@ -2,32 +2,32 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>hereket.github.io/posts/android_from_command_line/</loc>
+    <loc>http://hereket.github.io/posts/android_from_command_line/</loc>
     <lastmod>2023-07-19T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>hereket.github.io/</loc>
+    <loc>http://hereket.github.io/</loc>
     <lastmod>2023-07-19T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>hereket.github.io/posts/</loc>
+    <loc>http://hereket.github.io/posts/</loc>
     <lastmod>2023-07-19T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>hereket.github.io/posts/flutter_without_gradle/</loc>
+    <loc>http://hereket.github.io/posts/flutter_without_gradle/</loc>
     <lastmod>2023-07-13T12:01:36+05:00</lastmod>
   </url><url>
-    <loc>hereket.github.io/posts/web_analytics_effects/</loc>
+    <loc>http://hereket.github.io/posts/web_analytics_effects/</loc>
     <lastmod>2023-07-06T20:48:32+05:00</lastmod>
   </url><url>
-    <loc>hereket.github.io/posts/lorem/</loc>
+    <loc>http://hereket.github.io/posts/lorem/</loc>
     <lastmod>2023-07-03T16:05:40+05:00</lastmod>
   </url><url>
-    <loc>hereket.github.io/contact/</loc>
+    <loc>http://hereket.github.io/contact/</loc>
     <lastmod>2023-06-03T16:05:40+05:00</lastmod>
   </url><url>
-    <loc>hereket.github.io/posts/first/</loc>
+    <loc>http://hereket.github.io/posts/first/</loc>
     <lastmod>2023-06-03T16:05:40+05:00</lastmod>
   </url><url>
-    <loc>hereket.github.io/categories/</loc>
+    <loc>http://hereket.github.io/categories/</loc>
   </url><url>
-    <loc>hereket.github.io/tags/</loc>
+    <loc>http://hereket.github.io/tags/</loc>
   </url>
 </urlset>
