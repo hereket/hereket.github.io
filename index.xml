@@ -8,6 +8,16 @@
     <language>en-us</language>
     <lastBuildDate>Thu, 13 Jul 2023 12:01:36 +0500</lastBuildDate><atom:link href="hereket.github.io/index.xml" rel="self" type="application/rss+xml" />
     <item>
+      <title>Build android apk from command line without gradle</title>
+      <link>hereket.github.io/posts/android_from_command_line/</link>
+      <pubDate>Thu, 13 Jul 2023 12:01:36 +0500</pubDate>
+      
+      <guid>hereket.github.io/posts/android_from_command_line/</guid>
+      <description>Introduction This is post is similar to the one about building flutter but a bit different. Actually this one was writter a few years prior to writing flutter version but just never got published. Since then some steps has changed and I moved to Java 11. But you if you still build with java 8 old build method is still surprisingly functional.
+So the idea is to build and APK file which then can be installed on an android phone without using gradle and doing each step &amp;ldquo;manually&amp;rdquo;.</description>
+    </item>
+    
+    <item>
       <title>Building flutter android app without gradle</title>
       <link>hereket.github.io/posts/flutter_without_gradle/</link>
       <pubDate>Thu, 13 Jul 2023 12:01:36 +0500</pubDate>

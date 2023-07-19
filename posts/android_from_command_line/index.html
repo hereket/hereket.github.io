@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    
+    
+    
+    <link rel="stylesheet" type="text/css" href="/css/base.css?1689809734">
+
+    
+    
+    <title>Hereket | Build android apk from command line without gradle</title>
+</head>
+
+<body><div id="nav-border" class="container header">
+    <div class='page-wrap content'>
+        <a href="/"><div class="header-logo"> Hereket </div></a>
+        <nav id="nav" class="nav">
+            
+            <a class="nav-link" href="/posts/">
+            
+            Posts
+            </a>
+            
+            <a class="nav-link" href="/contact/">
+            
+            Contact
+            </a>
+            
+        </nav>
+    </div>
+</div>
+<div id="content">
+<div class="page-wrap article">
+    <div class='main-content article'>
+        <h1>Build android apk from command line without gradle</h1>
+        
+        <div><time class='post-time' datetime="2023-07-13">2023-07-13</time></div>
+        
+        <br><br>
+        <h2 id="introduction">Introduction</h2>
+<p>This is post is similar to the one about building flutter but a bit different.
+Actually this one was writter a few years prior to writing flutter version but
+just never got published. Since then some steps has changed and I moved to Java 11.
+But you if you still build with java 8 old build method is still surprisingly
+functional.</p>
+<p>So the idea is to build and APK file which then can be installed on an android
+phone without using gradle and doing each step &ldquo;manually&rdquo;. If you are building
+regular android apps with Java/Kotlin then this is pointless. But it has a bit
+more sense when you are building game like apps with C/C++. But the most
+important thing is just to learn how this build process is working, what are its
+parts and how they stack together.</p>
+<p>Here are the files that will be used:</p>
+<ul>
+<li><a href="/posts/handmade_android_native/files/MainActivity.java">MainActivity.java</a></li>
+<li><a href="/posts/handmade_android_native/files/AndroidManifest.xml">AndroidManifest.xml</a></li>
+<li><a href="/posts/handmade_android_native/files/activity_main.xml">activity_main.xml</a></li>
+<li><a href="/posts/handmade_android_native/files/styles.xml">styles.xml</a></li>
+<li><a href="/posts/handmade_android_native/files/android_handmade.cpp">android_handmade.cpp</a></li>
+</ul>
+<h2 id="building-regular-android-app">Building regular android app</h2>
+<p>Let&rsquo;s start with building very small android app without any help of build
+tool. For the initial android build we need only 2 files: <strong>MainActivity.cpp,
+AndroidManifest.xml</strong>.  These should be enough to build the apk. We will need
+one more file <strong>keystore.jks</strong> to build to sign the apk so that android will
+allow us to install the apk on the device.</p>
+<p>So first of all let&rsquo;s create a root project folder. Name it whatever you want. I
+will name it &lsquo;handmade_native_android&rsquo; and then cd into it. Inside that folder
+create these files:</p>
+<pre tabindex="0"><code>./AndroidManifest.xml
+./......../MainActivity.java
+</code></pre><p>We put <strong>MainActivity.java</strong> in <strong>/java/com/hereket/handmade_native_android/</strong>
+folder structure. <strong>java</strong> is the place where we put all our java code and
+<strong>com/hereket/handmade_native_android/</strong> just reflects our package name
+&lsquo;com.hereket.handmade_native_android&rsquo;.</p>
+<p>These two should be enough to be and apk if we create UI programmatically. But
+I want to add some resource files so that if you want to create UI as usual or
+use resource files, you won&rsquo;t have to figure out it yourself.</p>
+<p>So for that let&rsquo;s add a little more files and folder. In the root folder of the
+project add a folder named <strong>&lsquo;res&rsquo;</strong>. Here we will put required android resources.
+Inside it lets create two more folders <strong>layout</strong> and <strong>values</strong>. And then two
+more files <strong>layout/activity_main.xml</strong> and <strong>values/styles.xml</strong>.</p>
+<p>My android SDK is installed here &ldquo;<strong>/opt/Android/Sdk</strong>&rdquo;. So for you own tests
+replace this path with the pass of android installation on your machine. Also in
+order to use android tools I added path the binaries to the path like this:</p>
+<pre tabindex="0"><code>export PATH=&#34;/opt/Android/Sdk/build-tools/33.0.2:$PATH&#34;
+</code></pre><p>We will need one more folder <strong>__build</strong>. Put it in the root folder of the
+project. It is a temporary folder which will contain all temporary files needed
+for the compilation process.</p>
+<p>So let&rsquo;s start generating intermediate files. For that run the following
+command. It will create <strong>R.java</strong>. It will contain all the resources with their
+respective ids which will be used in our activity. The file will be created in
+in __build/gen/&hellip;</p>
+<pre tabindex="0"><code>aapt package -f -m \
+    -J __build/gen \
+    -S res \
+    -M AndroidManifest.xml \
+    -I &#34;/opt/Android/Sdk/platforms/android-33/android.jar&#34;
+</code></pre><p>The next we just compile MainActivity.java and R.java into their object form.</p>
+<pre tabindex="0"><code>javac \
+    -classpath &#34;/opt/Android/Sdk/platforms/android-33/android.jar&#34; \
+    -d &#34;__build/obj&#34; \
+    &#34;__build/gen/com/hereket/handmade_native_android/R.java&#34; \
+    java/com/hereket/handmade_native_android/MainActivity.java
+</code></pre><p>This command will create MainActivity.class, R.class and class files for inner
+classes of R.java. They will be placed in &ldquo;__build/obj/&hellip;&rdquo;. Now create &lsquo;apk&rsquo;
+folder inside &lsquo;__build&rsquo; folder for the next step. In the next step let&rsquo;s
+dex all class files and merge all our class files into a my_classes.jar file.</p>
+<pre tabindex="0"><code>d8 __build/obj/**/*.class \
+    --output __build/apk/my_classes.jar \
+    --no-desugaring \
+</code></pre><p>The &ldquo;**/*.class&rdquo; is expanded int a list of class files. If you have issues with
+this method just use <strong>find</strong> utility to find a list of all class file, put it
+into a varible and pass it instead. And now let&rsquo;s merge this and android.jar and
+create <strong>classes.dex</strong> file. It is a merged &lsquo;dex&rsquo; format file that can run on
+dalvik.</p>
+<pre tabindex="0"><code>pushd __build/apk
+d8 \
+    &#34;/opt/Android/Sdk/platforms/android-33/android.jar&#34;
+    my_classes.jar
+popd
+</code></pre><p>So we got all the required files let&rsquo;s merge them into an apk. For that we again
+will use <strong>aapt</strong>:</p>
+<pre tabindex="0"><code>aapt package -f -M AndroidManifest.xml -S res \
+    -I &#34;/opt/Android/Sdk/platforms/android-33/android.jar&#34; \
+    -F __build/handmade_native_android.unsigned.apk \
+    __build/apk/
+</code></pre><p>Yay. We got our an apk file named <strong>handmade_native_android.unsigned.apk</strong>
+inside __build/apk/ folder. But we cannot run it on our device because we need a
+couple more steps in order to prepare it to to format that android actually
+accepts. The next step is to align apk and we can do with this command.</p>
+<pre tabindex="0"><code>zipalign -f -p 4 \
+    __build/handmade_native_android.unsigned.apk\
+    __build/handmade_native_android.aligned.apk
+</code></pre><p>This will create a file name <strong>handmade_native_android.aligned.apk</strong> inside
+__build/apk. The last step is to sign the apk with our key. It is a required and
+android security system will not accept an apk without beign signed first. If
+you have your key you can just drop into the root folder with the name &lsquo;keystore.jks&rsquo;
+of this project or you just want to follow along just run this:</p>
+<pre tabindex="0"><code>keytool -genkeypair -keystore keystore.jks -alias androidkey \
+      -dname &#34;CN=hereket.com, OU=ID, O=HEREKET, L=Abc, S=Xyz, C=GB&#34; \
+      -validity 10000 -keyalg RSA -keysize 2048 \
+      -storepass android -keypass android
+</code></pre><p>So after you copied key or generated key we can need to sign the apk.</p>
+<pre tabindex="0"><code>apksigner sign --ks keystore.jks \
+    --ks-key-alias androidkey \
+    --ks-pass pass:android \
+    --key-pass pass:android \
+    --out __build/handmade_native_android.apk \
+    __build/handmade_native_android.aligned.apk
+</code></pre><p>And here created a file <strong>handmade_native_android.apk</strong>. This is a final apk
+that could be run a device.</p>
+<h2 id="adding-jni-support">Adding JNI support</h2>
+<p>We have achieve our goal of creating a runnable apk but let&rsquo;s add a little bit
+of JNI support. It is not required.</p>
+<p>For this to work let&rsquo;s first and some code. Inside the root folder add <strong>&lsquo;jni&rsquo;</strong>
+folder and inside of it add a file named <strong>android_handmade.cpp</strong> .</p>
+<p>In order for the JNI actually do something that we can see let&rsquo;s change our
+MainActivity.java file slightly to actually call JNI code. You can see the new
+code here: <strong><a href="/posts/handmade_android_native/files/MainActivity_jni.java">New MainActivity.java</a></strong></p>
+<pre tabindex="0"><code>ARMV7=&#34;/opt/Android/Sdk/ndk/r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi23-clang++&#34;
+MY_LOCAL_LDFLAGS=&#39;-ljnigraphics -llog -landroid&#39;
+CFLAGS=&#34;-g -O0 -fPIC -shared -static-libstdc++&#34;
+
+&#34;${ARMV7}&#34; $CFLAGS \
+    -o __build/apk/lib/armeabi-v7a/libandroid_handmade.so \
+    jni/android_handmade.cpp \
+    $MY_LOCAL_LDFLAGS
+</code></pre><p>Here we just create a shared library named <strong>libandroid_handmade.so</strong> inside
+&lsquo;__build/apk/lib/armeabi-v7a&rsquo;. In reality I should have create a separate shared
+library for 64 bit arm and maybe a version for x86 but since I am targetting
+just android and 64 bit arm can execute 32 bit code I can just skip those steps.</p>
+<p>So now we have to redo all the steps above starting from the place where are
+starting to create apk, align and sign it. After that we should have an apk that
+is using C/C++ code.</p>
+<p>As a result we will get this app.</p>
+<!-- raw HTML omitted -->
+
+    
+<iframe class="full-width" height="615" src="https://www.youtube.com/embed/V3HmOz3emOg" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
+
+
+<h2 id="conclusions">Conclusions</h2>
+<p>In this article we created a fully functional apk that runs on a real device.
+The only reason to do so was to look at pieces used to create an apk and the
+processes used to put those pieces together.</p>
+<p>I do not recommend building <strong>real</strong> android apps using this way but you should
+try to do this process manually once just to get the grasp of what is happening
+in the build process.</p>
+<p>If you want to have a look at the full final project then go to the github page
+at <strong><a href="https://github.com/hereket/handmade_native_android">https://github.com/hereket/handmade_native_android</a></strong>.</p>
+
+    </div>
+</div>
+
+        </div><div class='footer'>
+    <div class='page-wrap'>
+    &copy; 2023, Hereket 
+    </div>
+</div>
+
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-7KHD5ET3Y7"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-7KHD5ET3Y7');
+</script>
+
+
+
+
+<script type="text/javascript" >
+   (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+   m[i].l=1*new Date();
+   for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+   k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+   (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+   ym(94210403, "init", {
+        clickmap:true,
+        trackLinks:true,
+        accurateTrackBounce:true,
+        webvisor:true
+   });
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/94210403" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+
+
+</body>
+</html>

@@ -52,6 +52,18 @@ pre code {
     line-height: 1.3em;
 }
 
+ul {
+    padding: 0px;
+    margin: 0px;
+}
+li {
+    list-style-type: none;
+}
+
+video {
+    max-width: 100%;
+}
+
 .error-message {
     background: rgba(255, 0, 0, 0.05);
     border: 1px dashed red;
@@ -66,6 +78,9 @@ pre code {
     padding: 0px 20px;
 }
 
+.full-width {
+    width: 100%;
+}
 
 /* -------------------------------------------------------------------------------- */
 
@@ -122,8 +137,8 @@ pre code {
     max-width: 100%;
     border: 1px solid rgba(0,0,0, 0.4);
 }
-.article h3 {
-    margin-top: 20px;
+.article h2, h3 {
+    margin-top: 40px;
 }
 
 .footer {
