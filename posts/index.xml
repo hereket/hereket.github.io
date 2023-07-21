@@ -6,7 +6,18 @@
     <description>Recent content in Posts on Hereket</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 19 Jul 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://hereket.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Fri, 21 Jul 2023 02:00:19 +0500</lastBuildDate><atom:link href="https://hereket.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Instant code reload in Android</title>
+      <link>https://hereket.github.io/posts/instant_code_reload/</link>
+      <pubDate>Fri, 21 Jul 2023 02:00:19 +0500</pubDate>
+      
+      <guid>https://hereket.github.io/posts/instant_code_reload/</guid>
+      <description>Introduction Here I am presenting one possible way to do &amp;ldquo;on the fly code reloading&amp;rdquo; of JNI code. The whole code is C/C++ compiled in 2 shared libraries and realoded on demand without restaring the application.
+This example uses a game tiny &amp;ldquo;game&amp;rdquo; where you just walk around space. This is just a placeholder idea borrowed from Casey Muratori&amp;rsquo;s Handmade Hero youtube series.
+The build process used in this project is described in: Build android apk from command line without gradle post.</description>
+    </item>
+    
     <item>
       <title>Build android apk from command line without gradle</title>
       <link>https://hereket.github.io/posts/android_from_command_line/</link>

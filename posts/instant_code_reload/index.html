@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    
+    
+    
+    <link rel="stylesheet" type="text/css" href="/css/base.css?1689898084">
+
+
+
+    
+    
+    <title>Hereket | Instant code reload in Android</title>
+</head>
+
+
+<body><div id="nav-border" class="container header">
+    <div class='page-wrap content'>
+        <a href="/"><div class="header-logo"> Hereket </div></a>
+        <nav id="nav" class="nav">
+            
+            <a class="nav-link" href="/posts/">
+            
+            Posts
+            </a>
+            
+            <a class="nav-link" href="/contact/">
+            
+            Contact
+            </a>
+            
+        </nav>
+    </div>
+</div>
+<div id="content">
+<div class="page-wrap article">
+    <div class='main-content article'>
+        <h1>Instant code reload in Android</h1>
+        
+        <div><time class='post-time' datetime="2023-07-21">2023-07-21</time></div>
+        
+        <br><br>
+        <h2 id="introduction">Introduction</h2>
+<p>Here I am presenting one possible way to do <strong>&ldquo;on the fly code reloading&rdquo;</strong> of
+JNI code. The whole code is C/C++ compiled in 2 shared libraries and realoded on
+demand without restaring the application.</p>
+<p>This example uses a game tiny &ldquo;game&rdquo; where you just walk around space. This is
+just a placeholder idea borrowed from Casey Muratori&rsquo;s Handmade Hero youtube
+series.</p>
+<p>The build process used in this project is described in: <strong><a href="https://hereket.github.io/posts/android_from_command_line/">Build android apk from command line without gradle </a></strong>
+post.</p>
+<p><strong>Disclaimer</strong>: This solution requires the phone to be rooted. It is still
+possible to do it without root by writing a tiny server that would listen for
+new changes and reload uploaded shared object but I was too lazy to do that
+since I already had a rooted phone and was most easy thing to do at that time.</p>
+<h2 id="method">Method</h2>
+<p>The idea behind the method is pretty simple. There is a java wrapper to load
+code from the apk which loads an intermediary shared code which in turn loads real game.</p>
+<p><img src="/posts/instant_code_reload/image/comparison.png" alt="JNI loading comparisons"></p>
+<p>In the activity that I want to load the code I just statically load my
+intermediary <strong>libandroid_handmade.so</strong> shared library and just one exported
+function <strong>drawStuff</strong>.</p>
+<pre tabindex="0"><code>static {
+    System.loadLibrary(&#34;android_handmade&#34;);
+}
+
+public native void drawStuff(Bitmap bitmap, int width, int height, MyState state);
+</code></pre><p>Inside my activity I create a canvas and bitmap that will be fully drawn on the
+canvas. It does not have to be this way to instant compilation to work but I did
+it this way because I am doing software rendered game and for that I need a
+place draw and a memory area where to &ldquo;put pixels&rdquo;.</p>
+<p>For this example I am filling the bitmap with pixel and then drawing them on the
+canvas about 30 times a second. This is all done on a separate thread where java
+call drawStuff fuction from JNI and passes to it a bitmap - an memory area where
+to put data. One pixels are put in place that thread just blits those pixels on
+the canvas. Nothing compilicated here.</p>
+<p>There is also a &lsquo;state&rsquo; class used to store and simplify passing around data
+between activity and game code. It is needed just to pack all required data.</p>
+<pre tabindex="0"><code>class MyState {
+    public float touchX;
+    public float touchY;
+
+    public int canvasWidth;
+    public int canvasHeight;
+    public double dtForFrame;
+
+    public String packageDirectory;
+
+    public AssetManager assetManager;
+}
+</code></pre><p>Here I pass just some utility data and touch positions.</p>
+<p>After the code is passed to <strong>libandroid_handmade</strong> it unpacks all the required
+data from the activity, prepares required data for the game, creates some
+virtual buttons and other not so important tasks.</p>
+<p>The main magic happens in <strong>dlopen</strong>. Everytime this function is called it
+closes the game code, loads the code again and manually maps required functions
+into correct places. In this example there is only one function called <strong>GameUpdateAndRender</strong>.</p>
+<pre tabindex="0"><code>if(GameLibrary) {
+    dlclose(GameLibrary);
+}
+GameLibrary = dlopen(&#34;libhandmade.so&#34;, RTLD_LAZY);
+if(GameLibrary) {
+    GameUpdateAndRender = (game_update_and_render *)dlsym(GameLibrary, &#34;GameUpdateAndRender&#34;);
+}
+</code></pre><p>I understand that this way of loading is inefficent and just a bad practice. But here I am doing it this way just to stress test the system and see how far I can
+push it. But if you look at the video you will see that a very underpowered
+phone can unload a library, load it again, map functions and then do CPU rendering
+and other stuff. And this is all in 1/30th of a second. <strong>I think it is a good
+test to see even old phones can do quite a bit and when normal apps cannot
+handle smooth working with the help of GPU and not being handicaped by loading
+and loading libraries it puzzles me.</strong></p>
+<p>So the correct way of realding this in debug build should have been to store and
+check timestamp of the last change to the library and if it changed do the above
+code. But it is a good &lsquo;homework&rsquo; task for the reader.</p>
+<p>The other purpose of this intermedeiate library is to store state and when we
+reload real game it will pass it old state and it will continues as if nothing
+happened. When the state is passed to <strong>libhandmade.so</strong> library it will do it
+game stuff, do physysics, collision, rendering and create and image that is
+then rendered inside the activity on a canvas. And then the process starts over,
+does it 30 times a second.</p>
+<h2 id="reloading">Reloading</h2>
+<p>The real magic happens when we push new code to the device. First we need to
+recompile these two libraries. This task is easy. Next we need to somehow
+deliver to the application so that it can reload it.</p>
+<p>If we go the usual route of building the apk and pushing to the device then
+first off all it will be pretty slow (just below 10 seconds) and then we will
+lose all previous state which will destroy all the magic.</p>
+<p>The trick is to get the location where current loaded <strong>.so</strong> files are located
+and just replace them at runtime. First let&rsquo;s find that location as it will be
+slightly different each time we install the app. For we need to run this
+command:</p>
+<pre tabindex="0"><code>adb shell dumpsys package com.hereket.handmade_hero | grep legacyNativeLibraryDir | cut -d &#34;=&#34; -f2 | tr -d &#39;\r&#39;
+</code></pre><p>When I just run it on my machine it gave me this location: <strong>/data/app/com.hereket.handmade_hero-_nc-h7D8I7uAnTYNp3WFUw</strong>.
+It will contain <strong>base.apk</strong> file and <strong>lib</strong>, <strong>oat</strong> directories. We are
+interested in &rsquo;lib&rsquo; directory. Inside it will have arm directory which will
+contain our shared libraries that we created for the app. Next we just need to
+push our newly created <strong>libhandmade.so</strong> game code to that folder and overwrite
+old one and we are done. (This step requries root)</p>
+<pre tabindex="0"><code>adb push \
+    __build/apk/lib/armeabi-v7a/libhandmade.so \
+    /data/app/com.hereket.handmade_hero-_nc-h7D8I7uAnTYNp3WFUw/arm
+</code></pre><h2 id="result">Result</h2>
+
+    
+<iframe style="background: gray;" class="full-width" height="400" src="https://www.youtube.com/embed/ci20qYt-w6o" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
+
+
+<h2 id="conclusion">Conclusion</h2>
+<p>You can check out resulting code on github: <strong><a href="https://github.com/hereket/handmade_instant_reload">https://github.com/hereket/handmade_instant_reload</a></strong></p>
+<p>Here in this article I tried to show how to achieve instant code reloading using
+just java and C/C++. This type of realding is faster that flutter and react
+native and shows that this is possible to do even when you are ahead of time
+compilation into machine code.</p>
+<p>Here for this project I am not using standart android build system system of
+gradle with cmake but rather a custom script which does pretty much the same
+thing but heavily stripped down. I did this just to test different ideas and
+gradle with cmake were standing on my way most of the time. But you could
+replicate this process with those tools if needed.</p>
+<p>I am not advocating that this is the superior way to build as this is just and
+exploration into the places that are usually left behind. I used code and ideas
+from Casey Muratori. Go buy his course -  it is awesome.</p>
+
+    </div>
+</div>
+
+        </div><div class='footer'>
+    <div class='page-wrap'>
+    &copy; 2023, Hereket 
+    </div>
+</div>
+
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-7KHD5ET3Y7"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-7KHD5ET3Y7');
+</script>
+
+
+
+
+<script type="text/javascript" >
+   (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+   m[i].l=1*new Date();
+   for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+   k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+   (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+   ym(94210403, "init", {
+        clickmap:true,
+        trackLinks:true,
+        accurateTrackBounce:true,
+        webvisor:true
+   });
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/94210403" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+
+
+</body>
+</html>
