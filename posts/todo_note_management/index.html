@@ -6,7 +6,7 @@
     
     
     
-    <link rel="stylesheet" type="text/css" href="/css/base.css?1689981652">
+    <link rel="stylesheet" type="text/css" href="/css/base.css?1689985217">
 
 
 
@@ -48,6 +48,8 @@ google docs, obsidian, OneNote, regular files and quite a few others. The same
 goes for todo lists. I probably used everything from top 20 list for apps for
 todo management (even taskwarrior). But in the end I ended up using just <strong>neovim</strong>,
 <strong>dmenu</strong> and a little bit of <strong>shell magic</strong>.</p>
+<p><strong>Disclaimer</strong>: If you are not a proficient vim user this probably won&rsquo;t be
+helpful for you.</p>
 <p>This setup is not for everyone and it is not the best way to solve this issues
 for everybody but currently it the most efficient but more importantly most
 enjoyable way for me personally. If you want to feel the same you at least need
@@ -96,8 +98,44 @@ shell could find them for execution and them make them launch somehow. One way
 was just open a terminal and type the script names to open correct file. But
 that is too slow. At the time I was using dwm and as a result <strong>dmenu</strong>. I have
 been launching apps with dmenu for years now and thus it was a natural for me to
-go with dmenu (but any suitable launcher will be just as good).</p>
+go with dmenu (but any suitable launcher will be just as good). So my process
+became pressing <strong>Win+P</strong> (dmenu is bind to it), typing the name of script and
+voila I am can write my todo/notes. When I am done &ldquo;:wq&rdquo; just dismisses them.</p>
+<p>This way all my writing process get unified I don&rsquo;t have to think about it. In
+reality from the time something comes to my mind to the time I start writing it
+takes less that a second. And it does not matter what I was doing at the moment,
+writing a android app in android studio, drawing in inkscape or just doing
+regular browsing. This way ideas don&rsquo;t get in the working process anymore as I
+just quickly jot them down and continue doing whatever I was doing.</p>
+<p>This way I can use all my vim and unix tools that I use regularly on the tasks
+of note taking and task manament. For exampel I can easily quickly grep for
+something or format content is a specific way.</p>
+<p>Here is how it looks like for <strong>todo browsing</strong>.</p>
+<p><img src="/posts/todo_note_management/image/todo.png" alt="Todo browsing"></p>
+<p>As you can see split my tasks in categories like reaseach, wants, read and etc.
+_blackhole.txt is for stuff that been processed from inbox and I don&rsquo;t know when
+and if I will do them. _skip is for tasks that I decided never do but log them
+there just for fun. Others are self explanatory.</p>
+<p><img src="/posts/todo_note_management/image/note.png" alt="Todo browsing"></p>
+<p>Notes folder is smaller because I have not yet fully decided where I want to
+store the notes. Currently all notes related to a project I store within that
+project but will be moving quite some of them into this folder.</p>
+<p>You don&rsquo;t need any plugins for this system to work but something like a nerdtree
+or ctrl-p could be quite useful if you have a lot of files.</p>
+<h2 id="video">Video</h2>
+<p>In order to show how it could work in real life I recorded a short video of
+using both notes and a todo. Of course when I am recording for some reason I
+forgot how to type but if you don&rsquo;t pay attention to my slow typing you can see
+that this system is really quite fast and does not break though process when you
+need it.</p>
+
+    
+<iframe style="background: gray;" class="full-width" height="400" src="https://www.youtube.com/embed/2PP_qDbFkIA" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
+
+
 <hr>
+<h2 id="sidenote">Sidenote</h2>
 <p>One the most influential stuff that changed my life was reading David Allens
 book &ldquo;Getting things done&rdquo; and learning about the idea of inbox. I cannot say
 that I am true GTD user and that I follow everything that is there but I
