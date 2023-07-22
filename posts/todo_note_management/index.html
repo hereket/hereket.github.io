@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    
+    
+    
+    <link rel="stylesheet" type="text/css" href="/css/base.css?1689981652">
+
+
+
+    
+    
+    <title>Hereket | Easy todo and notes management with VIM, dmenu and bash</title>
+</head>
+
+
+<body><div id="nav-border" class="container header">
+    <div class='page-wrap content'>
+        <a href="/"><div class="header-logo"> Hereket </div></a>
+        <nav id="nav" class="nav">
+            
+            <a class="nav-link" href="/posts/">
+            
+            Posts
+            </a>
+            
+            <a class="nav-link" href="/contact/">
+            
+            Contact
+            </a>
+            
+        </nav>
+    </div>
+</div>
+<div id="content">
+<div class="page-wrap article">
+    <div class='main-content article'>
+        <h1>Easy todo and notes management with VIM, dmenu and bash</h1>
+        
+        <div><time class='post-time' datetime="2023-07-22">2023-07-22</time></div>
+        
+        <br><br>
+        <p>I have been taking notes and managing my todo lists for quite some time. During
+this time I have used different tools for both. For note taking I tried evernote,
+google docs, obsidian, OneNote, regular files and quite a few others. The same
+goes for todo lists. I probably used everything from top 20 list for apps for
+todo management (even taskwarrior). But in the end I ended up using just <strong>neovim</strong>,
+<strong>dmenu</strong> and a little bit of <strong>shell magic</strong>.</p>
+<p>This setup is not for everyone and it is not the best way to solve this issues
+for everybody but currently it the most efficient but more importantly most
+enjoyable way for me personally. If you want to feel the same you at least need
+to be good with vim and keyboard.</p>
+<p>I don&rsquo;t want to dig deep into why other methods didn&rsquo;t work for me much but main
+reasons were that some were forcing me to use mouse, some were slow, some were
+too strict and forcing me to do things their way and all of them were not good
+with editing text. And since I have been using for at least 10 years it is
+natural that I slowly gravitated towards using vim for my note taking and todo
+list management since these are text editing tasks and vim is is my goto tool
+for that.</p>
+<p>So three or four years ago I first started with creating a <strong>todo.txt</strong> and
+after some time <strong>Notes.txt</strong> at my home directory. These were my <strong>inboxes</strong> as
+in David Allens inbox terminology. The process was like this if I wanted to
+write some todo I just opened a terminal then I would type &ldquo;nvim
+todo.txt&rdquo;, press &lsquo;G&rsquo; to go to bottom write down whatever I wanted, save and
+quit with &ldquo;:wq&rdquo; and close terminal. Even though it seems like a lot of stuff
+happening this process was faster than anything that I used before.</p>
+<p>A few month ago this files started to get a little too big for me to handle as I
+was using them not only as inboxes but also to contain other stuff. Like for
+todo The top of the file contained everything I needed to do today and bottom
+contained my inbox (and other stuff in between). The same problem was with
+Notes.txt file. So I decided to split them into separate files but the I will
+lose my advantage of quickly openining them.</p>
+<h2 id="solution">Solution</h2>
+<p>The solution was to move files in their corresponding folders, write a script
+that will load vim with correct file and path set and use something that will
+help me with launching that script. I chose to put all my todos in
+<strong>&rsquo;~/Documents/todo/&rsquo;</strong> and notes in <strong>&rsquo;~/Documents/notes/&rsquo;</strong>. The exact locations
+does not matter as long they are accessible.</p>
+<p>todo.sh</p>
+<pre tabindex="0"><code>cd /home/hereket/Documents/todo
+st -e nvim -c &#34;normal! Gzz&#34; todo.txt 
+</code></pre><p>notes.sh</p>
+<pre tabindex="0"><code>cd /home/hereket/Documents/notes
+st -e nvim -c &#34;normal! Gzz&#34; note.txt 
+</code></pre><p>At the beginning the scripts were a bit larger as I was trying to be too smart
+and didn&rsquo;t know what I was doing but later it distilled to this short commands.
+The idea is that I first cd into the correct folder and launch vim with correct
+file. Later I added a normal mode command to move to the end of file (<strong>G</strong>) and
+then vertically center last line (<strong>zz</strong>). One more addition could to be to
+enter insert mode but in my use cases I open these files for slightly more for
+reading that for writing so it was not needed.</p>
+<p>The next step is to make these scripts executable to put them somewhere where
+shell could find them for execution and them make them launch somehow. One way
+was just open a terminal and type the script names to open correct file. But
+that is too slow. At the time I was using dwm and as a result <strong>dmenu</strong>. I have
+been launching apps with dmenu for years now and thus it was a natural for me to
+go with dmenu (but any suitable launcher will be just as good).</p>
+<hr>
+<p>One the most influential stuff that changed my life was reading David Allens
+book &ldquo;Getting things done&rdquo; and learning about the idea of inbox. I cannot say
+that I am true GTD user and that I follow everything that is there but I
+definetely use inbox quite heavy. I literaly use if for everythiin. The is mail
+inbox, there is todo inbox, notes inbox, inbox for files and etc. This simple
+idea helped remove clutter from my head so much and I recommend everybody at
+least to try it</p>
+
+    </div>
+</div>
+
+        </div><div class='footer'>
+    <div class='page-wrap'>
+    &copy; 2023, Hereket 
+    </div>
+</div>
+
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-7KHD5ET3Y7"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-7KHD5ET3Y7');
+</script>
+
+
+
+
+<script type="text/javascript" >
+   (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+   m[i].l=1*new Date();
+   for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+   k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+   (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+   ym(94210403, "init", {
+        clickmap:true,
+        trackLinks:true,
+        accurateTrackBounce:true,
+        webvisor:true
+   });
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/94210403" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+
+
+</body>
+</html>
