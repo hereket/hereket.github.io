@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    
+    
+    
+    <link rel="stylesheet" type="text/css" href="/css/base.css?1690116934">
+
+
+
+    
+    
+    <title>Hereket | VIM and Tmux as a tiny quasi IDE</title>
+</head>
+
+
+<body><div id="nav-border" class="container header">
+    <div class='page-wrap content'>
+        <a href="/"><div class="header-logo"> Hereket </div></a>
+        <nav id="nav" class="nav">
+            
+            <a class="nav-link" href="/posts/">
+            
+            Posts
+            </a>
+            
+            <a class="nav-link" href="/contact/">
+            
+            Contact
+            </a>
+            
+        </nav>
+    </div>
+</div>
+<div id="content">
+<div class="page-wrap article">
+    <div class='main-content article'>
+        <h1>VIM and Tmux as a tiny quasi IDE</h1>
+        
+        <div><time class='post-time' datetime="2023-07-22">2023-07-22</time></div>
+        
+        <br><br>
+        <p><strong><a href="#video">watch video</a></strong></p>
+<p>There are multiple approaches to development and everyone has a some style of
+how they like to approach this process. Every task requires could require
+totally different approach and different IDE. So if I do native Android or Flutter
+developemnt  it is natural for me to Android Stuio, for Java code it is
+Intellij, for Qt it is more comforatable if Qt Creator is used.</p>
+<p>Here I use pharase <strong>&ldquo;quasi IDE&rdquo;</strong> to separate from trandional understanding of
+an IDE. Usually IDE is something that can autocomplete, do debugging, version
+controll and billion other things. The only requirement for our &ldquo;tiny IDE&rdquo; is to
+efficiently write code, then run it, see results and do all this seamlessly.
+(Although you could easily add autocomplete with vim plugins). I use this setup
+without any plugins and you can spice it more if you need.</p>
+<p>The idea is super simple but yet I have never seen this being used anywhere.
+What I see from presentations and videos is that people write code, exit vim,
+execute it find errors, reenter vim then rinse and repeat. I myself just open a
+new pane and send commands with vim to it. It works very good when you are
+working on tiny projects or single files.</p>
+<p><img src="/posts/vim_tmux_ide/image/calc.png" alt="Vim and tmux as fancy calculator"></p>
+<p>So image above you can see a session of python developement I did a few days ago.
+In this setup is like a fancy calculator. I was reading a book on networking where
+it claimed that 100Gb link needs five nanosecods of processing time for a 64
+byte payload before there will be another bit knocking on the door. Me be being
+me of corse didn&rsquo;t trust and didn&rsquo;t fully understand the reasoning so I opened
+tmux/vim to do this calculation. You might argue that you can do the same
+calculation in python terminal but for me it is easier to jump around the the
+vim buffer and send the whole buffer to python for execution. Thih way I can
+quickly change variable and can see them all at the same time.</p>
+<p>To do this I just use &lsquo;<strong>autocmd</strong>&rsquo; inside vim to create a map that sends command
+to the other pane and execute whatever we want. This is how it works for python.</p>
+<pre tabindex="0"><code>autocmd FileType python nnoremap &lt;leader&gt;m :!tmux send-keys -t .+ &#34;python &#34; % c-l Enter &lt;enter&gt; &lt;c-l&gt;
+</code></pre><p>Here I create a mapping to <!-- raw HTML omitted -->m to execute tmux command that sends &ldquo;text&rdquo;
+to other pane. This text is <strong>&ldquo;python &quot; %</strong> and then press enter. &lt;Control-l&gt; is
+used to clear screen so that I see only latest output. Percent is expanded into
+the name of current file. So in the example above vim will send &ldquo;python
+test<!-- raw HTML omitted -->&rdquo; to other pane everytime I press &lt;leader&gt;m.</p>
+<pre tabindex="0"><code>autocmd FileType python nnoremap &lt;leader&gt;m :w&lt;enter&gt;:!tmux send-keys -t .+ &#34;python &#34; % c-l Enter &lt;enter&gt; &lt;c-l&gt;
+autocmd FileType dart   nnoremap &lt;leader&gt;m :w&lt;enter&gt;:!tmux send-keys -t .+ &#34;dart &#34; % c-l Enter &lt;enter&gt; &lt;c-l&gt;
+autocmd FileType cpp    nnoremap &lt;leader&gt;m :w&lt;enter&gt;:!tmux send-keys -t .+ &#34;./run.sh &#34; c-l Enter &lt;enter&gt; &lt;c-l&gt;
+autocmd FileType sh     nnoremap &lt;leader&gt;m :w&lt;enter&gt;:!tmux send-keys -t .+ &#34;./% &#34; c-l Enter &lt;enter&gt; &lt;c-l&gt;
+autocmd FileType groovy nnoremap &lt;leader&gt;m :w&lt;enter&gt;:!tmux send-keys -t .+ &#34;groovy %&#34;  c-l Enter &lt;enter&gt; &lt;c-l&gt;
+</code></pre><p>For each filetype I create the same mapping <strong>&lt;leader&gt;m</strong>. It is very
+conviniet as I can press the same combo to execute pretty much any code, similar
+to F5 in real IDE. It does not have to be code execution. For example for the
+C++ code I use this method to <strong>send compiled shared library to remote android
+phone</strong> via a script, pretty handy.</p>
+<p>One neat feature feature that you can add additionaly to that is to send
+whole buffer or just a clipboard to the other pane. I almost never use it as it
+all the programming languages that I used are good with sending files. But there
+is one way where it is useful in my work - it is sql. On the other pane I can
+open postgres/mysql/sqlite terminal and send commands directly there. It is
+quite useful. I know that there are more functionality in real IDE&rsquo;s but this
+one closes 90% of usecases and pretty good for simple tasks.</p>
+<p>But this one requires a bit more fiddling. First of all I add a couple functions
+to my vimrc. Here they are:</p>
+<pre tabindex="0"><code>function! SendSelection()
+    let l:buffer = GetVisualSelection()
+    let l:buffer = substitute(l:buffer, &#34;\n&#34;, &#34;\r&#34;, &#34;g&#34;)
+    exec &#34;silent !tmux send-keys -t .+ C-l \&#34;&#34; . l:buffer . &#34;;\&#34;&#34;
+    exec &#34;silent !tmux send-keys -t .+ Enter&#34;
+endfunction
+
+function! GetVisualSelection()
+    let [line_start, column_start] = getpos(&#34;&#39;&lt;&#34;)[1:2]
+    let [line_end, column_end] = getpos(&#34;&#39;&gt;&#34;)[1:2]
+    let lines = getline(line_start, line_end)
+
+    if len(lines) == 0
+        &#34; let [line_end, column_end] = getpos(&#34;$&#34;)[1:2]
+        &#34; let lines = getline(0, line_end)
+
+        echo &#34;--------------------------------&#34;
+        echo &#34;-   Select lines to send       -&#34;
+        echo &#34;--------------------------------&#34;
+        return &#34;&#34;
+    endif
+    return join(lines, &#34;\n&#34;)
+endfunction
+</code></pre><p>And then I just add one more autocmd like this:</p>
+<pre tabindex="0"><code>autocmd FileType sql    noremap &lt;leader&gt;m :&lt;c-u&gt;call SendSelection()&lt;CR&gt;
+</code></pre><p>This will send selected lines to the other pane and press enter to execute it.
+You can go to town with and send exactly selected text or do formatting before
+sendin and et. I used to send whole buffer if it didn&rsquo;t have a selection but
+then I removed it since I often sent whole buffer by forgetting to select. Since
+I rarely send in full and when I need I can just <strong>ggVG</strong> I dicided to remove
+it.</p>
+<p>Apart from this I use this method and it does quite a lot for me. As long as I
+don&rsquo;t need a real debugger and can get by with printf debugging this is very useful.</p>
+<h2 id="video">Video</h2>
+<p>I recorded a short video where I demo doing small tasks with dart, bash script,
+groovy, sql and python to show how it all work together and how unified workflow
+for different languages becomes.</p>
+
+    
+<iframe style="background: gray;" class="full-width" height="400" src="https://www.youtube.com/embed/yJy4jpQ8riA" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
+
+
+
+    </div>
+</div>
+
+        </div><div class='footer'>
+    <div class='page-wrap'>
+    &copy; 2023, Hereket 
+    </div>
+</div>
+
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-7KHD5ET3Y7"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-7KHD5ET3Y7');
+</script>
+
+
+
+
+<script type="text/javascript" >
+   (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+   m[i].l=1*new Date();
+   for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+   k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+   (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+   ym(94210403, "init", {
+        clickmap:true,
+        trackLinks:true,
+        accurateTrackBounce:true,
+        webvisor:true
+   });
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/94210403" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+
+
+</body>
+</html>

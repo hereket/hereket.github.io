@@ -6,7 +6,18 @@
     <description>Recent content in Posts on Hereket</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 22 Jul 2023 02:24:15 +0500</lastBuildDate><atom:link href="https://hereket.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sat, 22 Jul 2023 17:22:46 +0500</lastBuildDate><atom:link href="https://hereket.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>VIM and Tmux as a tiny quasi IDE</title>
+      <link>https://hereket.github.io/posts/vim_tmux_ide/</link>
+      <pubDate>Sat, 22 Jul 2023 17:22:46 +0500</pubDate>
+      
+      <guid>https://hereket.github.io/posts/vim_tmux_ide/</guid>
+      <description>watch video
+There are multiple approaches to development and everyone has a some style of how they like to approach this process. Every task requires could require totally different approach and different IDE. So if I do native Android or Flutter developemnt it is natural for me to Android Stuio, for Java code it is Intellij, for Qt it is more comforatable if Qt Creator is used.
+Here I use pharase &amp;ldquo;quasi IDE&amp;rdquo; to separate from trandional understanding of an IDE.</description>
+    </item>
+    
     <item>
       <title>Easy todo and notes management with VIM, dmenu and bash</title>
       <link>https://hereket.github.io/posts/todo_note_management/</link>
