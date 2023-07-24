@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    
+    
+    
+    <link rel="stylesheet" type="text/css" href="/css/base.css?1690225546">
+
+    
+    
+    <title>Vim tiny IDE: edit-compile-edit cyle for fast error browsing | Hereket</title>
+</head>
+
+
+<body><div id="nav-border" class="container header">
+    <div class='page-wrap content'>
+        <a href="/"><div class="header-logo"> Hereket </div></a>
+        <nav id="nav" class="nav">
+            
+            <a class="nav-link" href="/posts/">
+            
+            Posts
+            </a>
+            
+            <a class="nav-link" href="/contact/">
+            
+            Contact
+            </a>
+            
+        </nav>
+    </div>
+</div>
+<div id="content">
+<div class="page-wrap article">
+    <div class='main-content article'>
+        <h1>Vim tiny IDE: edit-compile-edit cyle for fast error browsing</h1>
+        
+        <div><time class='post-time' datetime="2023-07-24">2023-07-24</time></div>
+        
+        <br><br>
+        <p><strong>TLDR</strong>: There is a video at the bottom that showcases this method if you don&rsquo;t
+want to read: <strong><a href="#video">watch video</a></strong></p>
+<h2 id="intro">Intro</h2>
+<p>Normal IDE show errors at the time when you are typing. I don&rsquo;t really like
+especially for static pages since compiler can do find all the stupid syntax
+errors. I don&rsquo;t like them because it is the same as writing in prose in MS Word.
+It always annoys you with not important errors like misspellings, comma and
+other stuff that is not integral part of the story. For me the same goes with
+programming. Once I am working on solving problem and have some thought process
+I don&rsquo;t want to be disrupted by missed semicolon or some syntax error. And thus
+one I think I filled my context buffer in my head and need to &ldquo;save&rdquo; I just
+compile the program and let compiler tell where I messed up.</p>
+<p>This way I can pipeline my work instead of doing thinking about the problem,
+fixing silly typos, formating my code to some style and etc. I do coding for
+some time, then fix errors, then program, then fix errors and so on. But in vim
+usual process was that I write some code, compile it in another window, then
+find the line number of error and go back to the vim and try manually to find
+it. It was very tedious and made vim very troublesome to use since it did help
+me speed typing but then stole back that time during error fixing time.</p>
+<p>Around 2014 I came across Casey Muratori video series where he develops a game from
+scratch and there I have seen a setup where compiler returns errors to his <strong>emacs</strong>
+and he with simple shortcuts could navigate between errors. I was so jealous
+that almost switched to emacs but workload at the time stopped me. Then I
+learned a bit of vimscript and wrote a little function which does the same
+thing and is pretty usefull.</p>
+<p><strong>Disclaimer:</strong> This is just one of the ways to approach it. I do not endorse it
+or say that it is better than anyther way. Whatever way you use is the best but
+this one pretty good for me and maybe someone else might like it.</p>
+<h2 id="the-process">The process</h2>
+<p>First of all in my case for every project or task I prefer to create a <strong>build.sh</strong>
+script which does the building. The process to launching it is the same across
+all projects but it might contain a lot of different things. For C++ it will
+compile it (and sometimes might launch it), for dart it will use dart toolchain,
+for android I might build JNI code and push it to remote phone and etc. But in
+order not be abstract let&rsquo;s focus on simpole C++ project.</p>
+<p>For this I will need two files <strong>main.cpp</strong> and <strong>build.sh</strong>. I will put
+main.cpp and build.cpp in &ldquo;project1/src&rdquo; location. Then cd into &lsquo;project1/src&rsquo;
+and fill in contents for those files.</p>
+<p>main.cpp</p>
+<pre tabindex="0"><code>int main(int argc, char **argv) {
+    printf(&#34;Hello world!\n&#34;);
+
+    action();
+}
+</code></pre><p>build.sh</p>
+<pre tabindex="0"><code>mkdir -p ../build/
+pushd ../build/
+
+gcc ../src/main.cpp -o main
+
+popd
+</code></pre><p>This version of main.cpp won&rsquo;t work because it has invocation of a function
+<strong>action()</strong> and is missing include of &ldquo;stdio.h&gt; (or <!-- raw HTML omitted -->) but it is what we
+need. Also we need to make our build.sh file executable.</p>
+<pre tabindex="0"><code>chmod +x build.sh
+</code></pre><p>Maybe for this setup you might argue that build.sh is not needed but usually
+projects are a bit more involved and always using this script just unifies
+everything. The the build script is creating a build directory inside root
+directory and then &ldquo;cd&rdquo; into it. It is good as all intermediary files will be
+created there and not mess our source directory. All this is regular stuff and
+everybody does this, some might use make, some cmake but steps are quite
+similar. What makes it better is special function that we add in our vimrc.</p>
+<h2 id="vim-setup">Vim setup</h2>
+<p>The trick is already built in into vim and is called <strong>quickfix</strong> window. You
+can read more about it with &ldquo;:h quickfix&rdquo;. It is used to populate with a list of
+file locations and can be later used to quickly jump between those. There is a
+way to tell vim compile code within vim but using a build script give a more
+flexibility for pre and post processing. So in the vimrc file we will add this
+function:</p>
+<pre tabindex="0"><code>function! CompileProgram()
+    if !exists(&#34;g:MyQuickFixIsOpen&#34;)
+	let g:MyQuickFixIsOpen = 0
+    endif
+
+    if g:MyQuickFixIsOpen == 0
+
+	let current_filename = expand(&#34;%:p&#34;)
+	let current_folder = current_filename
+	let script_name=&#34;build.sh&#34;
+	let foundFile = 0
+
+	while(len(current_folder) &gt; 1)
+	    let current_folder = fnamemodify(current_folder, &#34;:h&#34;)
+	    let build_file = current_folder . &#34;/&#34; . script_name
+
+	    if current_folder == &#34;/&#34;
+            let build_file = current_folder . script_name
+	    else
+            let build_file = current_folder . &#34;/&#34; . script_name
+	    endif
+
+	    if filereadable(build_file)
+            let foundFile = 1
+            let result = setqflist([], &#34; &#34;, {&#39;lines&#39; : systemlist(build_file)})
+            botright copen
+            let g:MyQuickFixIsOpen = 1
+            break
+	    endif
+	endwhile
+
+	if !foundFile
+	    echom &#34;This is no build.sh up till /&#34;
+	endif
+    else
+	let g:MyQuickFixIsOpen = 0
+	cclose
+    endif
+endfunction
+</code></pre><p>It is simple function that will start searching for a file name <strong>build.sh</strong>
+starting from current directory all the way up to the <strong>/</strong> (you might say that
+it is a security issue but it is not a problem for me since if there is anybody
+that can put build.sh in those directory already has all the access). When it
+finds, it executse the files and load result into quicklist window on the
+bottom. And that is almost it you got yourself a good enought edit-compile-edit
+cycle.</p>
+<p>But let&rsquo;s take it a little further to make it more easy to use. First of all we
+bind a shortcut so that we will not have to call it by typing function name.
+Then I bind ctrl-j and ctrl-k keys to move up and down of the quick list (which
+is also has a neet side effect).</p>
+<pre tabindex="0"><code>nnoremap &lt;Space&gt; :call CompileProgram()&lt;enter&gt;
+
+nnoremap &lt;C-j&gt; :cnext&lt;CR&gt;
+nnoremap &lt;C-k&gt; :cprevious&lt;CR&gt;
+</code></pre><p>I bound <strong>space</strong> key to launch compilation but I also map <!-- raw HTML omitted -->, <!-- raw HTML omitted --> and
+<!-- raw HTML omitted -->m to the same function. I used to test all these combination but space
+one is the most comfortable for me these days.</p>
+<p>We are fully done now and can use this sytem and if we <strong>cd</strong> into &ldquo;project1/src&rdquo;
+and from there launch <strong>&ldquo;vim main.cpp&rdquo;</strong> we can start editing. Then in normal
+mode just press <strong>space</strong> and will compile it with errors and show this screen:</p>
+<p><img src="/posts/vim_ide_compile_cycle/image/result1.png" alt="Result of running build.sh step1"></p>
+<p>It opened &rsquo;error window&rsquo; and put cursor on the first error. Now if we press
+<strong>enter</strong> it will jump to correct location. Then you can jump up and down error
+list by pressing <!-- raw HTML omitted --> and <!-- raw HTML omitted -->. When done you can press space again and
+it will close quickfix window. So the process is edit text, press space, edit
+text, press space and so on.</p>
+<p><img src="/posts/vim_ide_compile_cycle/image/result2.png" alt="Result of running build.sh step2"></p>
+<p>And this is how the quick windows look once we fixed all the errors. So in my
+case when I am done with some small portion of code I begin this
+edit-compile-edit cycle until I see this window and then I can go safely launch
+the program. Of course it does not mean that there are not bugs but for that
+ther is a different process and it is totally different story.</p>
+<h2 id="extra-helpful-side-effect">Extra helpful side effect</h2>
+<p>One additinal feature is that these introduced shortcuts for move up and down
+the error list could be used for searching. It works because when you grep (or
+any other searching tool) for something it will populate this exact same
+quickfix window with a list of file locations. It is totally accidental found
+for me and I already got so used to that I cannot imagine going back to using
+<strong>:cn</strong> and <strong>:cp</strong>.</p>
+<h2 id="speed">Speed</h2>
+<p>This method is ofcourse pretty slow when you try to build a usual C++ project
+because I use a synchronous method to compile and will block ui for the time of
+compilation. There is a way to do it asynchronously but I didn&rsquo;t do it as I was
+a bit lazy. If I ever decide to add async way I will add it here.</p>
+<h2 id="what-about-lua">What about lua</h2>
+<p>I tried moving to lua and now moved back vimscript as my vim needs are pretty
+minimal and I don&rsquo;t have time to fully utilize lua but I have a function I wrote
+for nvim/lua version and if you are lazy to write you own you can copy this one:</p>
+<pre tabindex="0"><code>GetContainingDir = function(Path)
+    return vim.fn.fnamemodify(Path, &#34;:h&#34;)
+end
+
+function CompileProgram()
+    local windowinfo = vim.call(&#34;getwininfo&#34;)
+    for i, window in pairs(windowinfo) do 
+        local is_quickfix_open = window[&#39;quickfix&#39;]
+        if is_quickfix_open == 1  then
+            vim.cmd(&#39;cclose&#39;)
+            return
+        end
+    end
+
+    local BuildFileName = &#34;build.sh&#34;
+    local CurrentFilename = vim.api.nvim_buf_get_name(0)
+    local WorkingDir = CurrentFilename
+
+    while string.len(WorkingDir) &gt; 1 do
+        WorkingDir = GetContainingDir(WorkingDir)
+
+        if WorkingDir == &#34;/&#34; then
+            BuildFile = WorkingDir .. BuildFileName
+            WorkingDir = &#34;&#34;
+        else
+            BuildFile = WorkingDir .. &#34;/&#34; .. BuildFileName
+        end
+
+        local IsFileReadable = vim.fn.filereadable(BuildFile)
+
+        if IsFileReadable == 1 then
+            local ListOfLines = vim.fn.systemlist(BuildFile)
+            vim.fn.setqflist({}, &#34; &#34;, {lines = ListOfLines})
+            vim.cmd(&#39;botright copen&#39;)
+            return 
+        end
+    end
+    print(&#34;There is not build.sh found.&#34;)
+end
+</code></pre><p>My knowledge of lua is few hours so it is probably bad and inefficent so use
+with caution.</p>
+<h1 id="video">Video</h1>
+<p>Here is a short video where I used this method to do simple c++ compilation, a
+a little dart AOT compilation and java build process. Then I run on a bit small
+software renderer project where I put errors before hand then then found them
+with compilation script. At the very end I show how searching works with using
+<!-- raw HTML omitted --> and <!-- raw HTML omitted -->.</p>
+
+    
+<iframe style="background: gray;" class="full-width" height="400" src="https://www.youtube.com/embed/yJy4jpQ8riA" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
+
+
+
+    </div>
+</div>
+
+        </div><div class='footer'>
+    <div class='page-wrap'>
+    &copy; 2023, Hereket 
+    </div>
+</div>
+
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-7KHD5ET3Y7"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-7KHD5ET3Y7');
+</script>
+
+
+
+
+<script type="text/javascript" >
+   (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+   m[i].l=1*new Date();
+   for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+   k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+   (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+   ym(94210403, "init", {
+        clickmap:true,
+        trackLinks:true,
+        accurateTrackBounce:true,
+        webvisor:true
+   });
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/94210403" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+
+
+</body>
+</html>

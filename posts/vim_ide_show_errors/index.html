@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    
+    
+    
+    <link rel="stylesheet" type="text/css" href="/css/base.css?1690203085">
+
+    
+    
+    <title>Vim tiny IDE: easy way to show errors and jump between them | Hereket</title>
+</head>
+
+
+<body><div id="nav-border" class="container header">
+    <div class='page-wrap content'>
+        <a href="/"><div class="header-logo"> Hereket </div></a>
+        <nav id="nav" class="nav">
+            
+            <a class="nav-link" href="/posts/">
+            
+            Posts
+            </a>
+            
+            <a class="nav-link" href="/contact/">
+            
+            Contact
+            </a>
+            
+        </nav>
+    </div>
+</div>
+<div id="content">
+<div class="page-wrap article">
+    <div class='main-content article'>
+        <h1>Vim tiny IDE: easy way to show errors and jump between them</h1>
+        
+        <div><time class='post-time' datetime="2023-07-24">2023-07-24</time></div>
+        
+        <br><br>
+        <h2 id="intro">Intro</h2>
+<p>edit-compile-edit cycle</p>
+<p>Normal IDE show errors at the time when you are typing. I don&rsquo;t really like
+especially for static pages since compiler can do find all the stupid syntax
+errors. I don&rsquo;t like them because it is the same as writing in prose in MS Word.
+It always annoys you with not important errors like misspellings, comma and
+other stuff that is not integral part of the story. For me the same goes with
+programming. Once I am working on solving problem and have some thought process
+I don&rsquo;t want to be disrupted by missed semicolon or some syntax error. And thus
+one I think I filled my context buffer in my head and need to &ldquo;save&rdquo; I just
+compile the program and let compiler tell where I messed up.</p>
+<p>This way I can pipeline my work instead of doing thinking about the problem,
+fixing silly typos, formating my code to some style and etc. I do coding for
+some time, then fix errors, then program, then fix errors and so on. But in vim
+usual process was that I write some code, compile it in another window, then
+find the line number of error and go back to the vim and try manually to find
+it. It was very tedious and made vim very troublesome to use since it did help
+me speed typing but then stole back that time during error fixing time.</p>
+<p>Around 2014 I came across Casey Muratori video series where he develops a game from
+scratch and there I have seen a setup where compiler returns errors to his <strong>emacs</strong>
+and he with simple shortcuts could navigate between errors. I was so jealous
+that almost switched to emacs but workload at the time stopped me. Then I
+learned a bit of vimscript and wrote a little function which does the same
+thing and is pretty usefull.</p>
+<h2 id="the-process">The process</h2>
+<p>First of all in my case for every project or task I prefer to create a <strong>build.sh</strong>
+script which does the building. The process to launching it is the same across
+all projects but it might contain a lot of different things. For C++ it will
+compile it (and sometimes might launch it), for dart it will use dart toolchain,
+for android I might build JNI code and push it to remote phone and etc. But in
+order not be abstract let&rsquo;s focus on simpole C++ project.</p>
+<p>For this I will need two files <strong>main.cpp</strong> and <strong>build.sh</strong>. I will put
+main.cpp and build.cpp in &ldquo;project1/src&rdquo; location. Then cd into &lsquo;project1/src&rsquo;
+and fill in contents for those files.</p>
+<p>main.cpp</p>
+<pre tabindex="0"><code>int main(int argc, char **argv) {
+    printf(&#34;Hello world!\n&#34;);
+
+    action();
+}
+</code></pre><p>build.sh</p>
+<pre tabindex="0"><code>mkdir -p ../build/
+pushd ../build/
+
+gcc ../src/main.cpp -o main
+
+popd
+</code></pre><p>This version of main.cpp won&rsquo;t work because it has invocation of a function
+<strong>action()</strong> and is missing include of &ldquo;stdio.h&gt; (or <!-- raw HTML omitted -->) but it is what we
+need. Also we need to make our build.sh file executable.</p>
+<pre tabindex="0"><code>chmod +x build.sh
+</code></pre><p>Maybe for this setup you might argue that build.sh is not needed but usually
+projects are a bit more involved and always using this script just unifies
+everything. The the build script is creating a build directory inside root
+directory and then &ldquo;cd&rdquo; into it. It is good as all intermediary files will be
+created there and not mess our source directory. All this is regular stuff and
+everybody does this, some might use make, some cmake but steps are quite
+similar. What makes it better is special function that we add in our vimrc.</p>
+<h2 id="vim-setup">Vim setup</h2>
+<p>The trick is already built in into vim and is called <strong>quickfix</strong> window. You
+can read more about it with &ldquo;:h quickfix&rdquo;. It is used to populate with a list of
+file locations and can be later used to quickly jump between those.</p>
+
+    </div>
+</div>
+
+        </div><div class='footer'>
+    <div class='page-wrap'>
+    &copy; 2023, Hereket 
+    </div>
+</div>
+
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-7KHD5ET3Y7"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-7KHD5ET3Y7');
+</script>
+
+
+
+
+<script type="text/javascript" >
+   (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+   m[i].l=1*new Date();
+   for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+   k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+   (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+   ym(94210403, "init", {
+        clickmap:true,
+        trackLinks:true,
+        accurateTrackBounce:true,
+        webvisor:true
+   });
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/94210403" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+
+
+</body>
+</html>

@@ -6,7 +6,17 @@
     <description>Recent content on Hereket</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 22 Jul 2023 17:22:46 +0500</lastBuildDate><atom:link href="https://hereket.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 24 Jul 2023 15:25:51 +0500</lastBuildDate><atom:link href="https://hereket.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Vim tiny IDE: edit-compile-edit cyle for fast error browsing</title>
+      <link>https://hereket.github.io/posts/vim_ide_compile_cycle/</link>
+      <pubDate>Mon, 24 Jul 2023 15:25:51 +0500</pubDate>
+      
+      <guid>https://hereket.github.io/posts/vim_ide_compile_cycle/</guid>
+      <description>TLDR: There is a video at the bottom that showcases this method if you don&amp;rsquo;t want to read: watch video
+Intro Normal IDE show errors at the time when you are typing. I don&amp;rsquo;t really like especially for static pages since compiler can do find all the stupid syntax errors. I don&amp;rsquo;t like them because it is the same as writing in prose in MS Word. It always annoys you with not important errors like misspellings, comma and other stuff that is not integral part of the story.</description>
+    </item>
+    
     <item>
       <title>VIM and Tmux as a tiny quasi IDE</title>
       <link>https://hereket.github.io/posts/vim_tmux_ide/</link>
