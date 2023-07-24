@@ -14,7 +14,8 @@
       
       <guid>https://hereket.github.io/posts/vim_ide_compile_cycle/</guid>
       <description>TLDR: There is a video at the bottom that showcases this method if you don&amp;rsquo;t want to read: watch video
-Intro Normal IDE show errors at the time when you are typing. I don&amp;rsquo;t really like especially for static pages since compiler can do find all the stupid syntax errors. I don&amp;rsquo;t like them because it is the same as writing in prose in MS Word. It always annoys you with not important errors like misspellings, comma and other stuff that is not integral part of the story.</description>
+This is continuation of previous post: VIM and Tmux as a tiny quasi IDE
+Intro Normal IDE show errors at the time when you are typing. I don&amp;rsquo;t really like especially for static pages since compiler can do find all the stupid syntax errors. I don&amp;rsquo;t like them because it is the same as writing in prose in MS Word.</description>
     </item>
     
     <item>
