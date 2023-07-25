@@ -6,7 +6,7 @@
     
     
     
-    <link rel="stylesheet" type="text/css" href="/css/base.css?1690229186">
+    <link rel="stylesheet" type="text/css" href="/css/base.css?1690276620">
 
     
     
@@ -40,36 +40,54 @@
         <div><time class='post-time' datetime="2023-07-24">2023-07-24</time></div>
         
         <br><br>
-        <p><strong>TLDR</strong>: There is a video at the bottom that showcases this method if you don&rsquo;t
-want to read: <strong><a href="#video">watch video</a></strong></p>
+        <!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
 <p>This is continuation of previous post:
 <strong><a href="/posts/vim_tmux_ide/">VIM and Tmux as a tiny quasi IDE</a></strong></p>
 <h2 id="intro">Intro</h2>
-<p>Normal IDE show errors at the time when you are typing. I don&rsquo;t really like
-especially for static pages since compiler can do find all the stupid syntax
-errors. I don&rsquo;t like them because it is the same as writing in prose in MS Word.
-It always annoys you with not important errors like misspellings, comma and
-other stuff that is not integral part of the story. For me the same goes with
-programming. Once I am working on solving problem and have some thought process
-I don&rsquo;t want to be disrupted by missed semicolon or some syntax error. And thus
-one I think I filled my context buffer in my head and need to &ldquo;save&rdquo; I just
-compile the program and let compiler tell where I messed up.</p>
-<p>This way I can pipeline my work instead of doing thinking about the problem,
-fixing silly typos, formating my code to some style and etc. I do coding for
-some time, then fix errors, then program, then fix errors and so on. But in vim
-usual process was that I write some code, compile it in another window, then
-find the line number of error and go back to the vim and try manually to find
-it. It was very tedious and made vim very troublesome to use since it did help
-me speed typing but then stole back that time during error fixing time.</p>
-<p>Around 2014 I came across Casey Muratori video series where he develops a game from
-scratch and there I have seen a setup where compiler returns errors to his <strong>emacs</strong>
-and he with simple shortcuts could navigate between errors. I was so jealous
-that almost switched to emacs but workload at the time stopped me. Then I
-learned a bit of vimscript and wrote a little function which does the same
-thing and is pretty usefull.</p>
+<p>Here in this post I will show you how I use a bit of scripting together with
+vim&rsquo;s quickfix window to speed up my workflow of finding compilation errors.
+There reason to use bash instead of makefiles is because it is easier for me to
+reason what is happening in bash script than in makefile and it is just easier
+to debug when compared to makefiles.</p>
+<p>Here is a short video where I used this method to do simple c++ compilation, a
+a little dart AOT compilation and java build process. Then I run on a bit small
+software renderer project where I put errors before hand then then found them
+with compilation script. At the very end I show how searching works with using
+<!-- raw HTML omitted --> and <!-- raw HTML omitted -->.</p>
+
+    
+<iframe style="background: gray;" class="full-width" height="400" src="https://www.youtube.com/embed/LpGWNAxxVuQ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
+
+
 <p><strong>Disclaimer:</strong> This is just one of the ways to approach it. I do not endorse it
 or say that it is better than anyther way. Whatever way you use is the best but
 this one pretty good for me and maybe someone else might like it.</p>
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
 <h2 id="the-process">The process</h2>
 <p>First of all in my case for every project or task I prefer to create a <strong>build.sh</strong>
 script which does the building. The process to launching it is the same across
@@ -241,17 +259,6 @@ end
 </code></pre><p>My knowledge of lua is few hours so it is probably bad and inefficent so use
 with caution.</p>
 <h1 id="video">Video</h1>
-<p>Here is a short video where I used this method to do simple c++ compilation, a
-a little dart AOT compilation and java build process. Then I run on a bit small
-software renderer project where I put errors before hand then then found them
-with compilation script. At the very end I show how searching works with using
-<!-- raw HTML omitted --> and <!-- raw HTML omitted -->.</p>
-
-    
-<iframe style="background: gray;" class="full-width" height="400" src="https://www.youtube.com/embed/LpGWNAxxVuQ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
-
-
-
 
     </div>
 </div>
