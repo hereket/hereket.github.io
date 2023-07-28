@@ -1,0 +1,24 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    /* background: red; */
+}
+
+.main-container {
+    /* background: blue; */
+    display: flex;
+    height: 100vh;
+}
+
+#sphere {
+    /* background: orange; */
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+}
+
+

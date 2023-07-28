@@ -1,0 +1,36 @@
+
+body {
+    background: #f2b421;
+    margin: 0;
+}
+
+
+
+.top    { background: white; height: 700px; }
+.bottom { background: white; height: 700px; }
+
+.gearbox {
+    position: relative;
+}
+
+.gearbox,
+.gearbox .one,
+.gearbox .two {
+    height: 500px;
+}
+
+.gearbox .one {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.gearbox .two {
+    position: absolute;
+    right: 0;
+}
+
+.gearbox svg {
+    height: 100%;
+}
+

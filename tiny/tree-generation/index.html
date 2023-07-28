@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html><head>
     <meta charset="utf-8">
@@ -12,44 +13,31 @@
 
     
     
-    <title>Tags | Hereket</title>
+    <title>Dynamic tree generation | Hereket</title>
 </head>
 
 
-<body><div id="nav-border" class="container header">
-    <div class='page-wrap content'>
-        <a href="/"><div class="header-logo"> Hereket </div></a>
-        <nav id="nav" class="nav">
-            
-            <a class="nav-link" href="/">
-            
-            Posts
-            </a>
-            
-            <a class="nav-link" href="/tiny/">
-            
-            Tiny
-            </a>
-            
-            <a class="nav-link" href="/contact/">
-            
-            Contact
-            </a>
-            
-        </nav>
-    </div>
-</div>
-<div id="content">
-<div class='page-wrap main-content'>
-<h1>Tags</h1>
+<body>
+        
 
+        <div style="background: black; color: white; padding: 5px;">
+            <a href="#" onclick="goBack();">Go back main site</a>
+        </div>
+
+        <div id="content">
+            
+
+<script src="js/tree.js"></script>
+<link rel="stylesheet" type="text/css" href="styles.css">
+
+<div class="section_tree" id="section_tree">
+    <div class="click disable-select">Click the tree</div>
+    <canvas id="canvas_tree" class="canvas_tree" ></canvas>
 </div>
 
-        </div><div class='footer'>
-    <div class='page-wrap'>
-    &copy; 2023, Hereket 
-    </div>
-</div>
+
+
+        </div>
 
 
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-7KHD5ET3Y7"></script>
@@ -81,34 +69,5 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-</body>
+    </body>
 </html>

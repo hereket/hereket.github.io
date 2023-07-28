@@ -110,6 +110,24 @@ Once you write me I will write you back from real email.</description>
     </item>
     
     <item>
+      <title>Dynamic sphere generation</title>
+      <link>https://hereket.github.io/tiny/sphere-generation/</link>
+      <pubDate>Sat, 03 Jun 2023 16:05:40 +0500</pubDate>
+      
+      <guid>https://hereket.github.io/tiny/sphere-generation/</guid>
+      <description> &lt;!DOCTYPE html&gt; Moving points on a sphere </description>
+    </item>
+    
+    <item>
+      <title>Dynamic tree generation</title>
+      <link>https://hereket.github.io/tiny/tree-generation/</link>
+      <pubDate>Sat, 03 Jun 2023 16:05:40 +0500</pubDate>
+      
+      <guid>https://hereket.github.io/tiny/tree-generation/</guid>
+      <description> Click the tree </description>
+    </item>
+    
+    <item>
       <title>First Post</title>
       <link>https://hereket.github.io/posts/first/</link>
       <pubDate>Sat, 03 Jun 2023 16:05:40 +0500</pubDate>
@@ -117,6 +135,24 @@ Once you write me I will write you back from real email.</description>
       <guid>https://hereket.github.io/posts/first/</guid>
       <description>Start Hello. Initial post in this site. Currently the plan is to use it to test diffent technologies, write some thoughts and share some hobby projects. At the same time I am planning to practice my writing skills.
 My plan is to publish a lot of raw content without deep work on it but we will see how it turns out to be.</description>
+    </item>
+    
+    <item>
+      <title>Rotating gear on scroll</title>
+      <link>https://hereket.github.io/tiny/gears-rotation/</link>
+      <pubDate>Sat, 03 Jun 2023 16:05:40 +0500</pubDate>
+      
+      <guid>https://hereket.github.io/tiny/gears-rotation/</guid>
+      <description> &lt;!DOCTYPE html&gt; Gear drawing image/svg+xml image/svg+xml </description>
+    </item>
+    
+    <item>
+      <title>Simple lighting test</title>
+      <link>https://hereket.github.io/tiny/light/</link>
+      <pubDate>Sat, 03 Jun 2023 16:05:40 +0500</pubDate>
+      
+      <guid>https://hereket.github.io/tiny/light/</guid>
+      <description> &lt;!DOCTYPE html&gt; Lighting polygons </description>
     </item>
     
   </channel>
