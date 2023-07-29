@@ -35,6 +35,24 @@
     </item>
     
     <item>
+      <title>Labyrinth lighting</title>
+      <link>https://hereket.github.io/tiny/labyrinth-lighting/</link>
+      <pubDate>Sat, 03 Jun 2023 16:05:40 +0500</pubDate>
+      
+      <guid>https://hereket.github.io/tiny/labyrinth-lighting/</guid>
+      <description> </description>
+    </item>
+    
+    <item>
+      <title>Optical illusion pyramid or tunnel?</title>
+      <link>https://hereket.github.io/tiny/optical-illusion-pyramid/</link>
+      <pubDate>Sat, 03 Jun 2023 16:05:40 +0500</pubDate>
+      
+      <guid>https://hereket.github.io/tiny/optical-illusion-pyramid/</guid>
+      <description> </description>
+    </item>
+    
+    <item>
       <title>Rotating gear on scroll</title>
       <link>https://hereket.github.io/tiny/gears-rotation/</link>
       <pubDate>Sat, 03 Jun 2023 16:05:40 +0500</pubDate>
@@ -50,6 +68,15 @@
       
       <guid>https://hereket.github.io/tiny/light/</guid>
       <description> &lt;!DOCTYPE html&gt; Lighting polygons </description>
+    </item>
+    
+    <item>
+      <title>Tree generation with leaves</title>
+      <link>https://hereket.github.io/tiny/tree-generation-leaves/</link>
+      <pubDate>Sat, 03 Jun 2023 16:05:40 +0500</pubDate>
+      
+      <guid>https://hereket.github.io/tiny/tree-generation-leaves/</guid>
+      <description> </description>
     </item>
     
   </channel>
