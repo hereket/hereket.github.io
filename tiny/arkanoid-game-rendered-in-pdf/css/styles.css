@@ -42,3 +42,22 @@ body, html {
 .hidden {
     display: none;
 }
+
+@media screen and (max-width: 850px) {
+    body {
+        /* width: 100px; */
+    }
+
+    .phones {
+        background: rgba(255,0,0, 0.4);;
+        padding: 20px;
+    }
+    .phones div{
+        margin-bottom: 10px;
+    }
+    .phones .link{
+        display: block;
+        padding: 10px;
+        background: rgba(0,0,0, 0.1);
+    }
+}
