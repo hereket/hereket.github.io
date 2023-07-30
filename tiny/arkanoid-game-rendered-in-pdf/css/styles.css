@@ -43,6 +43,10 @@ body, html {
     display: none;
 }
 
+.phones {
+    display: none;
+}
+
 @media screen and (max-width: 850px) {
     body {
         /* width: 100px; */
