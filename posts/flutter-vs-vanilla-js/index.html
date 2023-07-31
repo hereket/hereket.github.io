@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    
+    
+    
+    <link rel="stylesheet" type="text/css" href="/css/base.css?1690847963">
+
+    <script type="text/javascript" src="/js/base.js?" ></script>
+
+    
+    
+    <title>Flutter vs Vanilla javascript | Hereket</title>
+</head>
+
+
+<body><div id="nav-border" class="container header">
+    <div class='page-wrap content'>
+        <a href="/"><div class="header-logo"> Hereket </div></a>
+        <nav id="nav" class="nav">
+            
+            <a class="nav-link" href="/">
+            
+            Posts
+            </a>
+            
+            <a class="nav-link" href="/tiny/">
+            
+            Tiny
+            </a>
+            
+            <a class="nav-link" href="/contact/">
+            
+            Contact
+            </a>
+            
+        </nav>
+    </div>
+</div>
+<div id="content">
+<div class="page-wrap article">
+    <div class='main-content article'>
+        <h1>Flutter vs Vanilla javascript</h1>
+        
+        <div><time class='post-time' datetime="2023-08-01">2023-08-01</time></div>
+        
+        <br><br>
+        <p><strong>tldr:</strong> Compare flutter with js for web dev. Here js wins.</p>
+<p>You can play with <strong><a href="/tiny/dna-color-app/">vanila js</a></strong> or with <strong><a href="/tiny/dna-color-app-flutter/">flutter web</a></strong> version.</p>
+<p>If you are on mobile and whant to see how they look go to <a href="#video">Vidoeo
+section</a></p>
+<h2 id="introduction">Introduction</h2>
+<p>Flutter is framework to develop apps for android and ios. It is also a pretty
+good one. I have been developing apps using flutter for quite some time and it
+really helped me to work faster (compared to native development that I used to
+do) and my clients save money. For 99% of the projects that I see I recommend
+flutter without hesitation as most works required by people that approach could
+be easily and efficiently done in flutter.</p>
+<p>But I often get questions about using flutter for web as it could simplify
+development even more because of web, android and ios could be developed at the
+same time. Every single time my answer is &ldquo;If you care about your customers then
+don&rsquo;t use flutter&rdquo;. Flutter for small and medium sized projects is not ready for
+web. I could say that because I have long experience with web, built quite a few
+backends and frontends and have a specific view of how websites should function.
+The should be light, user friendly and don&rsquo;t be polite with search engines.
+Flutter is not delivering this for the web.</p>
+<p>I have created several test web apps with flutter before just to see if anything
+has changed and everytime saw that flutter is not ready yet. And even though I
+was sure in my reasoning I had little itching that I never did one to one
+comparison.</p>
+<p>Recently I have been cleaning my computer from old junk and came across a tiny
+app I have built in few hours several years ago. It is a super niche app that
+helps to color code DNA sequences and manipuate its presentation to assist in
+finding patterns and was created to help some scientists automate boring manual
+work.</p>
+<p>This app is badly written as it was intended to be written in few hours as proof
+of concept and later rewritten but it never was. I am saying this just to say
+that the code had zero optimizaion, no clear structure and just sloppy. So I
+dicided to write similar solution in flutter for web and compare the results. Of
+course it is not sientific research but better than nothing.</p>
+<p>You might say why vanilla javascript and not some framework like react, vue or
+angular and that it would make a better comparision. The answer is simple - I am
+lazy. I didn&rsquo;t want to spend much time on and since I already had one version
+written in raw javascript then let that be it.</p>
+<h2 id="comparison">Comparison</h2>
+<p>Here is how they look:</p>
+<p><img src="/posts/flutter-vs-vanilla-js/flutter-and-js.png" alt="Flutter and Javascript version of the app"></p>
+<p>They are almost identical in functionality and just slightly differ in looks.
+For flutter I specifically used only &ldquo;native&rdquo; widgets and I didn&rsquo;t even change
+any styles. There is nothing in this build that does not come with flutter when
+you install it. Also there are no packages for state management, everything is
+don with naive setState(&hellip;) calls. Before you say that this is inefficient
+please consider that naive javascript version goes through the same pass, so
+comparison is fair.</p>
+<h3 id="time-to-develop">Time to develop</h3>
+<p>To be hones I didn&rsquo;t measure timing for both of these because I didn&rsquo;t care at
+the time of the development. From what I recall, javascript took several hours.
+I dod&rsquo;t remember how much exactly but definetly more than five and less that 20.
+For flutter version it also took several hours but I didn&rsquo;t develop it in one
+go. During working on flutter version I had some time with family, spent some
+time arguing with somebody wrong on the internet, went shopping and had dinner.
+So it took definetly more that 2.5 hours and less that 8 hours.</p>
+<p>If just comparing my feeling flutter version felt like way more faster than js
+version. But keep in mind that when I was building flutter version I already
+knew how everything should work and flutter is a framework which has prebuilt
+components.</p>
+<h3 id="development-experience">Development experience</h3>
+<p>Even though I do a lot of flutter development for mobile and like it, developing
+for web is horrible. I have good enough machine to handle different workload but
+with android-studio having a code and chrome rendering output it is the first
+time that my machine actually froze.</p>
+<p><img src="/posts/flutter-vs-vanilla-js/freeze.png" alt="Flutter web dev ate all memroy"></p>
+<p>You might say that I need to enable swap but I turned swap off specifically to
+know when I rich my <strong>32 Gb</strong> memory limit and I never did in a year since I bought
+this computer. For comparison I run Macintosh and Windows in qemu at the same
+time, run all types of android developement and quite a few other stuff. I guess
+if I ever decide to create flutter web apps I will need to upgrade to <strong>64 Gb</strong>.</p>
+<p>Javascript version was created on some 10 years old with <strong>8 Gb</strong> of memory, vim and
+chrome with zero lag (at least that is how I remember it).</p>
+<h3 id="size">Size</h3>
+<p>Javascript version when everything is combined weighs <strong>48 Kb</strong>. There are only
+3 files: styles.css, index.html and dna.js.</p>
+<p>Flutter version if you go to build/web directory and measure all the files
+weighs <strong>19.8 Mb</strong>. When I ran <strong>&lsquo;find . -type f | wc -l&rsquo;</strong> in that directory it
+showed 27 files. All this was created by <strong>&lsquo;flutter build web&rsquo;</strong> command. Here is
+what ncdu thinks about it:</p>
+<p><img src="/posts/flutter-vs-vanilla-js/flutter-web-ncdu.png" alt="Flutter web dev ate all memroy"></p>
+<h3 id="site-speed">Site speed</h3>
+<p><strong>Vanilla</strong></p>
+<p><img src="/posts/flutter-vs-vanilla-js/sitespeed-vanilla.png" alt="Flutter web dev ate all memory"></p>
+<p>I think it is pretty expected for this to be fast due to small sizes and few
+files.</p>
+<h3 id="ux">UX</h3>
+<p>As for UX it is hard to say as it is could be unique for each individual but
+from my perspective using flutter version felt worse. It was slower, rendering
+of text was bad for my eyes, it felt sluggish at times and in general felt a bit
+off.</p>
+<h3 id="memory">Memory</h3>
+<p>Javascript tab: <strong>37_984 Kb</strong> of memory</p>
+<p>Flutter version varied a lot depending on being idle for some time or being
+used few seconds ago. The lowest I have seen was about <strong>400_000 Kb</strong> and as
+much as <strong>900_000 Kb</strong>;</p>
+<p><img src="/posts/flutter-vs-vanilla-js/flutter-tab-memory.png" alt="Flutter tab memory"></p>
+<h3 id="rendering-speed">Rendering speed.</h3>
+<p>If you played with it a bit you probably have see that vanilla version is way
+faster that flutter version. They both are unoptimized (I did tiny optimization
+to move creating some objects out of loops but not more that that). For flutter
+if you turn off rendering text it becomes significantly faster. It is due to
+creation of TextSpan, then TextPainter, then layouting and finaly painting it on
+canvas. Maybe there is a way to do that out of loop but this is how I knew it is
+done and didn&rsquo;t spend any time reasearching how to do it faster. Javascript
+version does not have this issues as it renders text directly.</p>
+<p><strong>Flutter web</strong></p>
+<p><img src="/posts/flutter-vs-vanilla-js/sitespeed-flutter.png" alt="Flutter web dev ate all memroy"></p>
+<p>This one surprezed me a little as I think that 60 is too generous. In my
+opinion is should be around 40 but I guess due to me loading some static content
+before flutter starts loading it got good <strong>FCP</strong> and <strong>LCP</strong> scores and it tricked
+the system a bit.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>First of all I want to mention that flutter is awsome tool for android and ios
+development. The team did a great job and it gave a lot of pleasure to create
+some interesting projects with it.</p>
+<p>But let&rsquo;s be fair and accept that at the current state flutter is not suited for
+web apps that are small to medium sizes. I cannot say anything about big
+projects as the overhead discussed above might be tiny compared to benefits it
+would bring over othet stuff.</p>
+<p>I wrote the first to check my feelings and compare with some real numbers. Also
+this will be an easy answer to people who never tried flutter for web and ask
+why it is not ready yet for production.</p>
+<p>Flutter code is horrible and I din&rsquo;t put it anywhere online for beginner to copy
+and learn from it but if you want it and email me, then I will send you a zip file.</p>
+<h1 id="video">Video</h1>
+<p>In case you are on mobile and what to see how they look here are some videos:</p>
+<p>Javascript:
+
+    
+<iframe style="background: gray;" class="full-width" height="400" src="https://www.youtube.com/embed/Vc2j5vZM5Bs" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
+
+</p>
+<p>Flutter
+
+    
+<iframe style="background: gray;" class="full-width" height="400" src="https://www.youtube.com/embed/--4ygdUtn7U" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
+
+</p>
+
+    </div>
+</div>
+
+        </div><div class='footer'>
+    <div class='page-wrap'>
+    &copy; 2023, Hereket 
+    </div>
+</div>
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-7KHD5ET3Y7"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-7KHD5ET3Y7');
+</script>
+
+
+
+
+<script type="text/javascript" >
+   (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+   m[i].l=1*new Date();
+   for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+   k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+   (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+   ym(94210403, "init", {
+        clickmap:true,
+        trackLinks:true,
+        accurateTrackBounce:true,
+        webvisor:true
+   });
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/94210403" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

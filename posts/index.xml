@@ -6,7 +6,19 @@
     <description>Recent content in Posts on Hereket</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 24 Jul 2023 15:25:51 +0500</lastBuildDate><atom:link href="https://hereket.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 01 Aug 2023 02:37:38 +0500</lastBuildDate><atom:link href="https://hereket.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Flutter vs Vanilla javascript</title>
+      <link>https://hereket.github.io/posts/flutter-vs-vanilla-js/</link>
+      <pubDate>Tue, 01 Aug 2023 02:37:38 +0500</pubDate>
+      
+      <guid>https://hereket.github.io/posts/flutter-vs-vanilla-js/</guid>
+      <description>tldr: Compare flutter with js for web dev. Here js wins.
+You can play with vanila js or with flutter web version.
+If you are on mobile and whant to see how they look go to Vidoeo section
+Introduction Flutter is framework to develop apps for android and ios. It is also a pretty good one. I have been developing apps using flutter for quite some time and it really helped me to work faster (compared to native development that I used to do) and my clients save money.</description>
+    </item>
+    
     <item>
       <title>Vim tiny IDE: edit-compile-edit cycle for fast error browsing</title>
       <link>https://hereket.github.io/posts/vim_ide_compile_cycle/</link>
