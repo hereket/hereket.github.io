@@ -6,7 +6,7 @@
     
     
     
-    <link rel="stylesheet" type="text/css" href="/css/base.css?1690878665">
+    <link rel="stylesheet" type="text/css" href="/css/base.css?1690898214">
 
     <script type="text/javascript" src="/js/base.js?" ></script>
 
@@ -155,10 +155,18 @@ download. Both &lsquo;release&rsquo; versions.</p>
 
 
 <h3 id="site-speed">Site speed</h3>
+<p>For testing these I used <a href="https://pagespeed.web.dev/">https://pagespeed.web.dev/</a>. You are encouraged to go to
+it and test yourself.</p>
 <p><strong>Vanilla</strong></p>
 <p><img src="/posts/flutter-vs-vanilla-js/sitespeed-vanilla.png" alt="Flutter web dev ate all memory"></p>
 <p>I think it is pretty expected for this to be fast due to small sizes and few
 files.</p>
+<p><strong>Flutter web</strong></p>
+<p><img src="/posts/flutter-vs-vanilla-js/sitespeed-flutter.png" alt="Flutter web dev ate all memroy"></p>
+<p>This one surprezed me a little as I think that 60 is too generous. In my
+opinion is should be around 40 but I guess due to me loading some static content
+before flutter starts loading it got good <strong>FCP</strong> and <strong>LCP</strong> scores and it tricked
+the system a bit.</p>
 <h3 id="ux">UX</h3>
 <p>As for UX it is hard to say as it is could be unique for each individual but
 from my perspective using flutter version felt worse. It was slower, rendering
@@ -179,12 +187,6 @@ creation of TextSpan, then TextPainter, then layouting and finaly painting it on
 canvas. Maybe there is a way to do that out of loop but this is how I knew it is
 done and didn&rsquo;t spend any time reasearching how to do it faster. Javascript
 version does not have this issues as it renders text directly.</p>
-<p><strong>Flutter web</strong></p>
-<p><img src="/posts/flutter-vs-vanilla-js/sitespeed-flutter.png" alt="Flutter web dev ate all memroy"></p>
-<p>This one surprezed me a little as I think that 60 is too generous. In my
-opinion is should be around 40 but I guess due to me loading some static content
-before flutter starts loading it got good <strong>FCP</strong> and <strong>LCP</strong> scores and it tricked
-the system a bit.</p>
 <h2 id="conclusion">Conclusion</h2>
 <p>First of all I want to mention that flutter is awsome tool for android and ios
 development. The team did a great job and it gave a lot of pleasure to create
