@@ -6,7 +6,7 @@
     
     
     
-    <link rel="stylesheet" type="text/css" href="/css/base.css?1690847963">
+    <link rel="stylesheet" type="text/css" href="/css/base.css?1690878665">
 
     <script type="text/javascript" src="/js/base.js?" ></script>
 
@@ -85,6 +85,11 @@ angular and that it would make a better comparision. The answer is simple - I am
 lazy. I didn&rsquo;t want to spend much time on and since I already had one version
 written in raw javascript then let that be it.</p>
 <h2 id="comparison">Comparison</h2>
+<h2 id="setup">Setup</h2>
+<p>I am working an linux desktop machine with 32 Gb of fast memory. Javascript
+version was developed using vim/chrome and flutter version with
+android-studio/chrome. Here is my flutter version:</p>
+<p><img src="/posts/flutter-vs-vanilla-js/flutter-version.png" alt="Flutter and Javascript version of the app"></p>
 <p>Here is how they look:</p>
 <p><img src="/posts/flutter-vs-vanilla-js/flutter-and-js.png" alt="Flutter and Javascript version of the app"></p>
 <p>They are almost identical in functionality and just slightly differ in looks.
@@ -119,14 +124,36 @@ time, run all types of android developement and quite a few other stuff. I guess
 if I ever decide to create flutter web apps I will need to upgrade to <strong>64 Gb</strong>.</p>
 <p>Javascript version was created on some 10 years old with <strong>8 Gb</strong> of memory, vim and
 chrome with zero lag (at least that is how I remember it).</p>
-<h3 id="size">Size</h3>
-<p>Javascript version when everything is combined weighs <strong>48 Kb</strong>. There are only
-3 files: styles.css, index.html and dna.js.</p>
+<h3 id="output-size">Output size</h3>
+<p>Here were are looking at how much output after we &ldquo;compile and postprocess&rdquo; both
+versions.</p>
+<p>Javascript as it is raw does not need no compilation or post processing and in total weighs
+<strong>48 Kb</strong>. There are only 3 files: styles.css, index.html and dna.js.</p>
 <p>Flutter version if you go to build/web directory and measure all the files
 weighs <strong>19.8 Mb</strong>. When I ran <strong>&lsquo;find . -type f | wc -l&rsquo;</strong> in that directory it
-showed 27 files. All this was created by <strong>&lsquo;flutter build web&rsquo;</strong> command. Here is
-what ncdu thinks about it:</p>
+showed 27 files. All this was created by <strong>&lsquo;flutter build web&rsquo;</strong> command. I want
+to clear that is not what will get downloaded inside the browser but this is what
+we will have to &ldquo;carry around&rdquo; (move to servers and etc).Here is what ncdu thinks
+about it:</p>
 <p><img src="/posts/flutter-vs-vanilla-js/flutter-web-ncdu.png" alt="Flutter web dev ate all memroy"></p>
+<h3 id="download-size">Download size</h3>
+<p>For javascript version nothing changes and there were extra processing done and
+no compression was used. It got a bit larger on the sample site where I put it
+because that site has its onw javascript and background image. But let&rsquo;s not
+remove it and still count it. So in total we get <strong>69.1 kb</strong>. If you are curious
+how much it will be once compressed - it is 24 Kb.</p>
+<p>For flutter it is <strong>7.8 Mb</strong> resources but after compression only <strong>3.8 Mb</strong>.
+I include here uncompressed version because this is the size your clients
+browser will have to deal with - load it, parse it and display it, ocupy memory.
+For comparison gmail on first load downloads 1.2 Mb of resources (14.2 Mb uncompressed).</p>
+<p>In the bellow video you can see how they both behave on a <strong>LOCAL</strong> computer
+download. Both &lsquo;release&rsquo; versions.</p>
+
+    
+<iframe style="background: gray;" class="full-width" height="400" src="https://www.youtube.com/embed/WJ-AW73OLSA" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
+
+
 <h3 id="site-speed">Site speed</h3>
 <p><strong>Vanilla</strong></p>
 <p><img src="/posts/flutter-vs-vanilla-js/sitespeed-vanilla.png" alt="Flutter web dev ate all memory"></p>
