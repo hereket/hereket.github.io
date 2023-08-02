@@ -6,7 +6,17 @@
     <description>Recent content in Posts on Hereket</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 01 Aug 2023 02:37:38 +0500</lastBuildDate><atom:link href="https://hereket.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Wed, 02 Aug 2023 14:01:14 +0500</lastBuildDate><atom:link href="https://hereket.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Flutter Embedded Certificate Authorities</title>
+      <link>https://hereket.github.io/posts/flutter-embedded-ca/</link>
+      <pubDate>Wed, 02 Aug 2023 14:01:14 +0500</pubDate>
+      
+      <guid>https://hereket.github.io/posts/flutter-embedded-ca/</guid>
+      <description>Flutter apps in contrast to general approch embeds CAs (Certificate Authority) right into the app and do not rely on operating system to verify the validity of an SSL certificate. At first I thought that this was &amp;ldquo;feature&amp;rdquo; of the flutter framework when I first encountered some issues with it but upon investigation I found that this part of dart language implementation.
+If you want to see it yourself, you can just compile a hello world dart program with dart compile exe hello.</description>
+    </item>
+    
     <item>
       <title>Flutter vs Vanilla javascript</title>
       <link>https://hereket.github.io/posts/flutter-vs-vanilla-js/</link>
