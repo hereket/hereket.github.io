@@ -6,7 +6,7 @@
     
     
     
-    <link rel="stylesheet" type="text/css" href="/css/base.css?1690976526">
+    <link rel="stylesheet" type="text/css" href="/css/base.css?1691024078">
 
     <script type="text/javascript" src="/js/base.js?" ></script>
 
@@ -84,6 +84,8 @@ course it is not sientific research but better than nothing.</p>
 angular and that it would make a better comparision. The answer is simple - I am
 lazy. I didn&rsquo;t want to spend much time on and since I already had one version
 written in raw javascript then let that be it.</p>
+<p>By popular demand I am adding flutter &ldquo;html&rdquo; rendering engine because it
+drastically reduces file sizes.</p>
 <h2 id="comparison">Comparison</h2>
 <h2 id="setup">Setup</h2>
 <p>I am working an linux desktop machine with 32 Gb of fast memory. Javascript
@@ -136,16 +138,22 @@ to clear that is not what will get downloaded inside the browser but this is wha
 we will have to &ldquo;carry around&rdquo; (move to servers and etc).Here is what ncdu thinks
 about it:</p>
 <p><img src="/posts/flutter-vs-vanilla-js/flutter-web-ncdu.png" alt="Flutter web dev ate all memroy"></p>
+<p>When building with html renderer the output dir is exactly the same and contains
+(it looks like) all the files that were created when building with canvaskit
+renderer. The only file that changes is main.dart.js and it looses about 200 Kb
+and becomes 1.8 Mb.</p>
 <h3 id="download-size">Download size</h3>
 <p>For javascript version nothing changes and there were extra processing done and
 no compression was used. It got a bit larger on the sample site where I put it
 because that site has its onw javascript and background image. But let&rsquo;s not
 remove it and still count it. So in total we get <strong>69.1 kb</strong>. If you are curious
 how much it will be once compressed - it is 24 Kb.</p>
-<p>For flutter it is <strong>7.8 Mb</strong> resources but after compression only <strong>3.8 Mb</strong>.
+<p>For flutter (canvaskit) it is <strong>7.8 Mb</strong> resources but after compression only <strong>3.8 Mb</strong>.
 I include here uncompressed version because this is the size your clients
 browser will have to deal with - load it, parse it and display it, ocupy memory.
 For comparison gmail on first load downloads 1.2 Mb of resources (14.2 Mb uncompressed).</p>
+<p>For flutter (html renderer) it is <strong>1.9 Mb</strong> when all files combined with almost
+all the of the weight contribution done by main.dart.js</p>
 <p>In the bellow video you can see how they both behave on a <strong>LOCAL</strong> computer
 download. Both &lsquo;release&rsquo; versions.</p>
 

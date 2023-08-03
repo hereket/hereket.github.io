@@ -6,7 +6,7 @@
     
     
     
-    <link rel="stylesheet" type="text/css" href="/css/base.css?1690976526">
+    <link rel="stylesheet" type="text/css" href="/css/base.css?1691024078">
 
     <script type="text/javascript" src="/js/base.js?" ></script>
 
@@ -61,6 +61,20 @@ find a list of embeded certificates.</p>
 <p>Considering that flutter apps are not proxy aware by default I can assume that
 reasoning is to make harder MITM attacks on apps. It might help agains lazy
 script kiddies so I think it is a win.</p>
+<p>First when I was investigating it I got all they keys and got metadata with
+<strong>openssl</strong> tool from command line by writing a script. But there is a simpler
+and more straitforward approach to this. If you have dart source code you can
+just go to <strong>./sdk/third_party/root_certificates/certdata.pem</strong>. And if you want
+to check it online then you can look here:</p>
+<p><a href="https://github.com/dart-lang/root_certificates/blob/master/certdata.pem">https://github.com/dart-lang/root_certificates/blob/master/certdata.pem</a>.</p>
+<p>The list of trusted CA certificates is based on Mozillas&rsquo;s NSS library located
+at: <a href="https://hg.mozilla.org/mozilla-central/raw-file/tip/security/nss/lib/ckfw/builtins/certdata.txt">https://hg.mozilla.org/mozilla-central/raw-file/tip/security/nss/lib/ckfw/builtins/certdata.txt</a></p>
+<p>In the readme the note that this list is used only in <strong>&ldquo;for operating systems
+that don&rsquo;t have a supported certificate store&rdquo;</strong>. So either they have not
+updated their documentation or I am misreading it but I couldn&rsquo;t find what they
+mean by saying &ldquo;supported certificate store&rdquo;. Android and iOS both have cecurity
+stores but looks like dart do not support them (maybe they support only
+Fuchsia?).</p>
 <h3 id="list-of-cas-embedded-within-flutter-app">List of CAs embedded within flutter app</h3>
 <p>Two lists bellow are just certificate metadata about eache certificate within
 the app. They are split into different list just to group related information
