@@ -29,7 +29,8 @@ vanilla js or
 flutter web (canvaskit) or
 flutter web (html renderer)
 If you are on mobile and whant to see how they look go to Video section
-Introduction Flutter is framework to develop apps for android and ios. It is also a pretty good one. I have been developing apps using flutter for quite some time and it really helped me to work faster (compared to native development that I used to do) and my clients save money.</description>
+Important: When used with flutter html renderer this app became about 2 Mb in size and just over 500 Kb compressed. Go the apps above look around.
+Introduction Flutter is framework to develop apps for android and ios.</description>
     </item>
     
     <item>
