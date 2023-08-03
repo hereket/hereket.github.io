@@ -6,7 +6,7 @@
     
     
     
-    <link rel="stylesheet" type="text/css" href="/css/base.css?1691024078">
+    <link rel="stylesheet" type="text/css" href="/css/base.css?1691025763">
 
     <script type="text/javascript" src="/js/base.js?" ></script>
 
@@ -47,9 +47,12 @@
         <div><time class='post-time' datetime="2023-08-01">2023-08-01</time></div>
         
         <br><br>
-        <p><strong>tldr:</strong> Compare flutter with js for web dev. Here js wins.</p>
-<p>You can play with <strong><a href="/tiny/dna-color-app/">vanila js</a></strong> or with <strong><a href="/tiny/dna-color-app-flutter/">flutter web</a></strong> version.</p>
-<p>If you are on mobile and whant to see how they look go to <a href="#video">Vidoeo
+        <p><strong>tldr:</strong> Compare flutter with js for web dev.</p>
+<p>You can play with:</p>
+<p><strong><a href="/tiny/dna-color-app/">vanilla js</a></strong> or</p>
+<p><strong><a href="/other/dna-color-app-flutter/">flutter web (canvaskit)</a></strong>  or</p>
+<p><strong><a href="/other/dna-app-flutter-html-renderer/">flutter web (html renderer)</a></strong></p>
+<p>If you are on mobile and whant to see how they look go to <a href="#video">Video
 section</a></p>
 <h2 id="introduction">Introduction</h2>
 <p>Flutter is framework to develop apps for android and ios. It is also a pretty
@@ -155,7 +158,8 @@ For comparison gmail on first load downloads 1.2 Mb of resources (14.2 Mb uncomp
 <p>For flutter (html renderer) it is <strong>1.9 Mb</strong> when all files combined with almost
 all the of the weight contribution done by main.dart.js</p>
 <p>In the bellow video you can see how they both behave on a <strong>LOCAL</strong> computer
-download. Both &lsquo;release&rsquo; versions.</p>
+download. Both &lsquo;release&rsquo; versions (these one is missing flutter with html
+renderer which is doing pretty good. Go check example app and see for yourself).</p>
 
     
 <iframe style="background: gray;" class="full-width" height="400" src="https://www.youtube.com/embed/WJ-AW73OLSA" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
@@ -169,12 +173,14 @@ it and test yourself.</p>
 <p><img src="/posts/flutter-vs-vanilla-js/sitespeed-vanilla.png" alt="Flutter web dev ate all memory"></p>
 <p>I think it is pretty expected for this to be fast due to small sizes and few
 files.</p>
-<p><strong>Flutter web</strong></p>
+<p><strong>Flutter web (canvaskit renderer)</strong></p>
 <p><img src="/posts/flutter-vs-vanilla-js/sitespeed-flutter.png" alt="Flutter web dev ate all memroy"></p>
 <p>This one surprezed me a little as I think that 60 is too generous. In my
 opinion is should be around 40 but I guess due to me loading some static content
 before flutter starts loading it got good <strong>FCP</strong> and <strong>LCP</strong> scores and it tricked
 the system a bit.</p>
+<p><strong>Flutter web (html renderer)</strong></p>
+<p><img src="/posts/flutter-vs-vanilla-js/sitespeed-flutter-html.png" alt="Flutter web dev ate all memroy"></p>
 <h3 id="ux">UX</h3>
 <p>As for UX it is hard to say as it is could be unique for each individual but
 from my perspective using flutter version felt worse. It was slower, rendering
@@ -185,6 +191,10 @@ off.</p>
 <p>Flutter version varied a lot depending on being idle for some time or being
 used few seconds ago. The lowest I have seen was about <strong>400_000 Kb</strong> and as
 much as <strong>900_000 Kb</strong>;</p>
+<p>For html renderer I didn&rsquo;t see much difference. Which leads me to a conclusion
+that it has to do with problems of rendering individual letters on a canvas
+because I didn&rsquo;t have much memory problems with &lsquo;hello world&rsquo; applicationn. So
+these are results for this app, don&rsquo;t forget to make your own experiments.</p>
 <p><img src="/posts/flutter-vs-vanilla-js/flutter-tab-memory.png" alt="Flutter tab memory"></p>
 <h3 id="rendering-speed">Rendering speed.</h3>
 <p>If you played with it a bit you probably have see that vanilla version is way
@@ -195,6 +205,12 @@ creation of TextSpan, then TextPainter, then layouting and finaly painting it on
 canvas. Maybe there is a way to do that out of loop but this is how I knew it is
 done and didn&rsquo;t spend any time reasearching how to do it faster. Javascript
 version does not have this issues as it renders text directly.</p>
+<p>Web version is way better due to smaller size and consequent loads do it close
+to instant. I still have some issues with rendering individual characters
+(without it it runs faster).</p>
+<p>Also html renderer rendered was a bit off with problems of centering icon and
+some weird artifacts on outer edges.</p>
+<p><img src="/posts/flutter-vs-vanilla-js/html-vs-canvaskit-rendering.png" alt="html vs canvaskit renderer"></p>
 <h2 id="conclusion">Conclusion</h2>
 <p>First of all I want to mention that flutter is awsome tool for android and ios
 development. The team did a great job and it gave a lot of pleasure to create
@@ -203,13 +219,17 @@ some interesting projects with it.</p>
 web apps that are small to medium sizes. I cannot say anything about big
 projects as the overhead discussed above might be tiny compared to benefits it
 would bring over othet stuff.</p>
+<p><strong>Raw javascript is of course unbeatable in speed and size. Flutter with canvas
+kits was pretty bad but used with &ldquo;html&rdquo; renderer was doing pretty reasonable
+with about 2 Mb asset size and 500kb when compressed.</strong></p>
 <p>I wrote the first to check my feelings and compare with some real numbers. Also
 this will be an easy answer to people who never tried flutter for web and ask
 why it is not ready yet for production.</p>
 <p>Flutter code is horrible and I din&rsquo;t put it anywhere online for beginner to copy
 and learn from it but if you want it and email me, then I will send you a zip file.</p>
 <h1 id="video">Video</h1>
-<p>In case you are on mobile and what to see how they look here are some videos:</p>
+<p>In case you are on mobile and what to see how they look here are some videos
+(these include only js and flutter canvaskit and no html renderer):</p>
 <p>Javascript:
 
     
