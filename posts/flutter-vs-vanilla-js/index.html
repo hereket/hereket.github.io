@@ -6,7 +6,7 @@
     
     
     
-    <link rel="stylesheet" type="text/css" href="/css/base.css?1691028144">
+    <link rel="stylesheet" type="text/css" href="/css/base.css?1691195473">
 
     <script type="text/javascript" src="/js/base.js?" ></script>
 
@@ -152,12 +152,13 @@ no compression was used. It got a bit larger on the sample site where I put it
 because that site has its onw javascript and background image. But let&rsquo;s not
 remove it and still count it. So in total we get <strong>69.1 kb</strong>. If you are curious
 how much it will be once compressed - it is 24 Kb.</p>
-<p>For flutter (canvaskit) it is <strong>7.8 Mb</strong> resources but after compression only <strong>3.8 Mb</strong>.
+<p>For flutter (canvaskit) it is <strong>7.8 Mb</strong> resources but after compression only <strong>2.8 Mb</strong>.
 I include here uncompressed version because this is the size your clients
 browser will have to deal with - load it, parse it and display it, ocupy memory.
 For comparison gmail on first load downloads 1.2 Mb of resources (14.2 Mb uncompressed).</p>
-<p>For flutter (html renderer) it is <strong>1.9 Mb</strong> when all files combined with almost
-all the of the weight contribution done by main.dart.js</p>
+<p>For flutter (html renderer) it is <strong>1.9 Mb</strong> (a bit more thatn 500 Kb when
+compressed) when all files combined with almost all the of the weight contribution
+done by main.dart.js</p>
 <p>In the bellow video you can see how they both behave on a <strong>LOCAL</strong> computer
 download. Both &lsquo;release&rsquo; versions (these one is missing flutter with html
 renderer which is doing pretty good. Go check example app and see for yourself).</p>

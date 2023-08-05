@@ -1,0 +1,2219 @@
+{
+    "return": "Display *",
+    "name": "XOpenDisplay",
+    "params": "char *display_name",
+},
+{
+    "return": "unsigned long ",
+    "name": "XAllPlanes",
+    "params": "void",
+},
+{
+    "return": "unsigned long ",
+    "name": "XBlackPixel",
+    "params": "Display *display, int screen_number",
+},
+{
+    "return": "unsigned long ",
+    "name": "XWhitePixel",
+    "params": "Display *display, int screen_number",
+},
+{
+    "return": "int ",
+    "name": "XConnectionNumber",
+    "params": "Display *display",
+},
+{
+    "return": "Colormap ",
+    "name": "XDefaultColormap",
+    "params": "Display *display, int screen_number",
+},
+{
+    "return": "int ",
+    "name": "XDefaultDepth",
+    "params": "Display *display, int screen_number",
+},
+{
+    "return": "int *",
+    "name": "XListDepths",
+    "params": "Display *display, int screen_number, int *count_return",
+},
+{
+    "return": "GC ",
+    "name": "XDefaultGC",
+    "params": "Display *display, int screen_number",
+},
+{
+    "return": "Window ",
+    "name": "XDefaultRootWindow",
+    "params": "Display *display",
+},
+{
+    "return": "Screen *",
+    "name": "XDefaultScreenOfDisplay",
+    "params": "Display *display",
+},
+{
+    "return": "Screen *",
+    "name": "XScreenOfDisplay",
+    "params": "Display *display, int screen_number",
+},
+{
+    "return": "int ",
+    "name": "XDefaultScreen",
+    "params": "Display *display",
+},
+{
+    "return": "Visual *",
+    "name": "XDefaultVisual",
+    "params": "Display *display, int screen_number",
+},
+{
+    "return": "int ",
+    "name": "XDisplayCells",
+    "params": "Display *display, int screen_number",
+},
+{
+    "return": "int ",
+    "name": "XDisplayPlanes",
+    "params": "Display *display, int screen_number",
+},
+{
+    "return": "char *",
+    "name": "XDisplayString",
+    "params": "Display *display",
+},
+{
+    "return": "long ",
+    "name": "XExtendedMaxRequestSize",
+    "params": "Display *display",
+},
+{
+    "return": "long ",
+    "name": "XMaxRequestSize",
+    "params": "Display *display",
+},
+{
+    "return": "unsigned long ",
+    "name": "XLastKnownRequestProcessed",
+    "params": "Display *display",
+},
+{
+    "return": "unsigned long ",
+    "name": "XNextRequest",
+    "params": "Display *display",
+},
+{
+    "return": "int ",
+    "name": "XProtocolVersion",
+    "params": "Display *display",
+},
+{
+    "return": "int ",
+    "name": "XProtocolRevision",
+    "params": "Display *display",
+},
+{
+    "return": "int ",
+    "name": "XQLength",
+    "params": "Display *display",
+},
+{
+    "return": "Window ",
+    "name": "XRootWindow",
+    "params": "Display *display, int screen_number",
+},
+{
+    "return": "int ",
+    "name": "XScreenCount",
+    "params": "Display *display",
+},
+{
+    "return": "char *",
+    "name": "XServerVendor",
+    "params": "Display *display",
+},
+{
+    "return": "int ",
+    "name": "XVendorRelease",
+    "params": "Display *display",
+},
+{
+    "return": "XPixmapFormatValues *",
+    "name": "XListPixmapFormats",
+    "params": "Display *display, int *count_return",
+},
+{
+    "return": "int ",
+    "name": "XImageByteOrder",
+    "params": "Display *display",
+},
+{
+    "return": "int ",
+    "name": "XBitmapUnit",
+    "params": "Display *display",
+},
+{
+    "return": "int ",
+    "name": "XBitmapBitOrder",
+    "params": "Display *display",
+},
+{
+    "return": "int ",
+    "name": "XBitmapPad",
+    "params": "Display *display",
+},
+{
+    "return": "int ",
+    "name": "XDisplayHeight",
+    "params": "Display *display, int screen_number",
+},
+{
+    "return": "int ",
+    "name": "XDisplayHeightMM",
+    "params": "Display *display, int screen_number",
+},
+{
+    "return": "int ",
+    "name": "XDisplayWidth",
+    "params": "Display *display, int screen_number",
+},
+{
+    "return": "int ",
+    "name": "XDisplayWidthMM",
+    "params": "Display *display, int screen_number",
+},
+{
+    "return": "unsigned long ",
+    "name": "XBlackPixelOfScreen",
+    "params": "Screen *screen",
+},
+{
+    "return": "unsigned long ",
+    "name": "XWhitePixelOfScreen",
+    "params": "Screen *screen",
+},
+{
+    "return": "int ",
+    "name": "XCellsOfScreen",
+    "params": "Screen *screen",
+},
+{
+    "return": "Colormap ",
+    "name": "XDefaultColormapOfScreen",
+    "params": "Screen *screen",
+},
+{
+    "return": "int ",
+    "name": "XDefaultDepthOfScreen",
+    "params": "Screen *screen",
+},
+{
+    "return": "GC ",
+    "name": "XDefaultGCOfScreen",
+    "params": "Screen *screen",
+},
+{
+    "return": "Visual *",
+    "name": "XDefaultVisualOfScreen",
+    "params": "Screen *screen",
+},
+{
+    "return": "int ",
+    "name": "XDoesBackingStore",
+    "params": "Screen *screen",
+},
+{
+    "return": "Bool ",
+    "name": "XDoesSaveUnders",
+    "params": "Screen *screen",
+},
+{
+    "return": "Display *",
+    "name": "XDisplayOfScreen",
+    "params": "Screen *screen",
+},
+{
+    "return": "long ",
+    "name": "XScreenNumberOfScreen",
+    "params": "Screen *screen",
+},
+{
+    "return": "long ",
+    "name": "XEventMaskOfScreen",
+    "params": "Screen *screen",
+},
+{
+    "return": "int ",
+    "name": "XWidthOfScreen",
+    "params": "Screen *screen",
+},
+{
+    "return": "int ",
+    "name": "XHeightOfScreen",
+    "params": "Screen *screen",
+},
+{
+    "return": "int ",
+    "name": "XWidthMMOfScreen",
+    "params": "Screen *screen",
+},
+{
+    "return": "int ",
+    "name": "XHeightMMOfScreen",
+    "params": "Screen *screen",
+},
+{
+    "return": "int ",
+    "name": "XMaxCmapsOfScreen",
+    "params": "Screen *screen",
+},
+{
+    "return": "int ",
+    "name": "XMinCmapsOfScreen",
+    "params": "Screen *screen",
+},
+{
+    "return": "int ",
+    "name": "XPlanesOfScreen",
+    "params": "Screen *screen",
+},
+{
+    "return": "Window ",
+    "name": "XRootWindowOfScreen",
+    "params": "Screen *screen",
+},
+{
+    "return": "Status ",
+    "name": "XInitThreads",
+    "params": "void",
+},
+{
+    "return": "typedef ",
+    "name": "void",
+    "params": "*XConnectionWatchProc",
+},
+{
+    "return": "Status ",
+    "name": "XAddConnectionWatch",
+    "params": "Display *display, XConnectionWatchProc procedure, XPointer client_data",
+},
+{
+    "return": "Status ",
+    "name": "XRemoveConnectionWatch",
+    "params": "Display *display, XConnectionWatchProc procedure, XPointer client_data",
+},
+{
+    "return": "void ",
+    "name": "XProcessInternalConnection",
+    "params": "Display *display, int fd",
+},
+{
+    "return": "Status ",
+    "name": "XInternalConnectionNumbers",
+    "params": "Display *display, int ** fd, int * count_return",
+},
+{
+    "return": "VisualID ",
+    "name": "XVisualIDFromVisual",
+    "params": "Visual *visual",
+},
+{
+    "return": "Window ",
+    "name": "XCreateWindow",
+    "params": "Display *display, Window parent, int x, int y, unsigned int width, unsigned int height, unsigned int border_width, int depth, unsigned int class, Visual *visual, unsigned long valuemask, XSetWindowAttributes *attributes",
+},
+{
+    "return": "Window ",
+    "name": "XCreateSimpleWindow",
+    "params": "Display *display, Window parent, int x, int y, unsigned int width, unsigned int height, unsigned int border_width, unsigned long border, unsigned long background",
+},
+{
+    "return": "Status ",
+    "name": "XQueryTree",
+    "params": "Display *display, Window w, Window *root_return, Window *parent_return, Window **children_return, unsigned int *nchildren_return",
+},
+{
+    "return": "Status ",
+    "name": "XGetWindowAttributes",
+    "params": "Display *display, Window w, XWindowAttributes *window_attributes_return",
+},
+{
+    "return": "Status ",
+    "name": "XGetGeometry",
+    "params": "Display *display, Drawable d, Window *root_return, int *x_return, int *y_return, unsigned int *width_return, unsigned int *height_return, unsigned int *border_width_return, unsigned int *depth_return",
+},
+{
+    "return": "Bool ",
+    "name": "XTranslateCoordinates",
+    "params": "Display *display, Window src_w, Window dest_w, int src_x, int src_y, int *dest_x_return, int *dest_y_return, Window *child_return",
+},
+{
+    "return": "Bool ",
+    "name": "XQueryPointer",
+    "params": "Display *display, Window w, Window *root_return, Window *child_return, int *root_x_return, int *root_y_return, int *win_x_return, int *win_y_return, unsigned int *mask_return",
+},
+{
+    "return": "Atom ",
+    "name": "XInternAtom",
+    "params": "Display *display, char *atom_name, Bool only_if_exists",
+},
+{
+    "return": "Status ",
+    "name": "XInternAtoms",
+    "params": "Display *display, char **names, int count, Bool only_if_exists, Atom *atoms_return",
+},
+{
+    "return": "char *",
+    "name": "XGetAtomName",
+    "params": "Display *display, Atom atom",
+},
+{
+    "return": "Status ",
+    "name": "XGetAtomNames",
+    "params": "Display *display, Atom *atoms, int count, char **names_return",
+},
+{
+    "return": "int ",
+    "name": "XGetWindowProperty",
+    "params": "Display *display, Window  w, Atom property, long long_offset, long long_length, Bool delete, Atom req_type, Atom *actual_type_return, int *actual_format_return, unsigned long *nitems_return, unsigned long *bytes_after_return, unsigned char **prop_return",
+},
+{
+    "return": "Atom *",
+    "name": "XListProperties",
+    "params": "Display *display, Window w, int *num_prop_return",
+},
+{
+    "return": "Window ",
+    "name": "XGetSelectionOwner",
+    "params": "Display *display, Atom selection",
+},
+{
+    "return": "Pixmap ",
+    "name": "XCreatePixmap",
+    "params": "Display *display, Drawable d, unsigned int width, unsigned int height, unsigned int depth",
+},
+{
+    "return": "Cursor ",
+    "name": "XCreateFontCursor",
+    "params": "Display *display, unsigned int shape",
+},
+{
+    "return": "Cursor ",
+    "name": "XCreateGlyphCursor",
+    "params": "Display *display, Font source_font, Font mask_font, unsigned int source_char, unsigned int mask_char, XColor *foreground_color, XColor *background_color",
+},
+{
+    "return": "Cursor ",
+    "name": "XCreatePixmapCursor",
+    "params": "Display *display, Pixmap source, Pixmap mask, XColor *foreground_color, XColor *background_color, unsigned int x, unsigned int y",
+},
+{
+    "return": "Status ",
+    "name": "XQueryBestCursor",
+    "params": "Display *display, Drawable d, unsigned int width, unsigned int height, unsigned int *width_return, unsigned int *height_return",
+},
+{
+    "return": "Colormap ",
+    "name": "XCreateColormap",
+    "params": "Display *display, Window w, Visual *visual, int alloc",
+},
+{
+    "return": "Colormap ",
+    "name": "XCopyColormapAndFree",
+    "params": "Display *display, Colormap colormap",
+},
+{
+    "return": "Status ",
+    "name": "XLookupColor",
+    "params": "Display *display, Colormap colormap, char *color_name, XColor *exact_def_return, XColor *screen_def_return",
+},
+{
+    "return": "Status ",
+    "name": "XParseColor",
+    "params": "Display *display, Colormap colormap, char *spec, XColor *exact_def_return",
+},
+{
+    "return": "Status ",
+    "name": "XcmsLookupColor",
+    "params": "Display *display, Colormap colormap, char *color_string, XcmsColor *color_exact_return, XcmsColor *color_screen_return, XcmsColorFormat result_format",
+},
+{
+    "return": "Status ",
+    "name": "XAllocColor",
+    "params": "Display *display, Colormap colormap, XColor *screen_in_out",
+},
+{
+    "return": "Status ",
+    "name": "XcmsAllocColor",
+    "params": "Display *display, Colormap colormap, XcmsColor *color_in_out, XcmsColorFormat result_format",
+},
+{
+    "return": "Status ",
+    "name": "XAllocNamedColor",
+    "params": "Display *display, Colormap colormap, char *color_name, XColor *screen_def_return, XColor *exact_def_return",
+},
+{
+    "return": "Status ",
+    "name": "XcmsAllocNamedColor",
+    "params": "Display *display, Colormap colormap, char *color_string, XcmsColor *color_screen_return, XcmsColor *color_exact_return, XcmsColorFormat result_format",
+},
+{
+    "return": "Status ",
+    "name": "XAllocColorCells",
+    "params": "Display *display, Colormap colormap, Bool contig, unsigned long plane_masks_return[], unsigned int nplanes, unsigned long pixels_return[], unsigned int npixels",
+},
+{
+    "return": "Status ",
+    "name": "XAllocColorPlanes",
+    "params": "Display *display, Colormap colormap, Bool contig, unsigned long pixels_return[], int ncolors, int nreds, int ngreens, int nblues, unsigned long *rmask_return, unsigned long *gmask_return, unsigned long *bmask_return",
+},
+{
+    "return": "Status ",
+    "name": "XcmsStoreColor",
+    "params": "Display *display, Colormap colormap, XcmsColor *color",
+},
+{
+    "return": "Status ",
+    "name": "XcmsStoreColors",
+    "params": "Display *display, Colormap colormap, XcmsColor colors[], int ncolors, Bool compression_flags_return[]",
+},
+{
+    "return": "Status ",
+    "name": "XcmsQueryColor",
+    "params": "Display *display, Colormap colormap, XcmsColor *color_in_out, XcmsColorFormat result_format",
+},
+{
+    "return": "Status ",
+    "name": "XcmsQueryColors",
+    "params": "Display *display, Colormap colormap, XcmsColor colors_in_out[], unsigned int ncolors, XcmsColorFormat result_format",
+},
+{
+    "return": "XcmsCCC ",
+    "name": "XcmsCCCOfColormap",
+    "params": "Display *display, Colormap colormap",
+},
+{
+    "return": "XcmsCCC ",
+    "name": "XcmsSetCCCOfColormap",
+    "params": "Display *display, Colormap colormap, XcmsCCC ccc",
+},
+{
+    "return": "XcmsCCC ",
+    "name": "XcmsDefaultCCC",
+    "params": "Display *display, int screen_number",
+},
+{
+    "return": "Display *",
+    "name": "XcmsDisplayOfCCC",
+    "params": "XcmsCCC ccc",
+},
+{
+    "return": "Visual *",
+    "name": "XcmsVisualOfCCC",
+    "params": "XcmsCCC ccc",
+},
+{
+    "return": "int ",
+    "name": "XcmsScreenNumberOfCCC",
+    "params": "XcmsCCC ccc",
+},
+{
+    "return": "XcmsColor ",
+    "name": "XcmsScreenWhitePointOfCCC",
+    "params": "XcmsCCC ccc",
+},
+{
+    "return": "XcmsColor *",
+    "name": "XcmsClientWhitePointOfCCC",
+    "params": "XcmsCCC ccc",
+},
+{
+    "return": "Status ",
+    "name": "XcmsSetWhitePoint",
+    "params": "XcmsCCC ccc, XcmsColor *color",
+},
+{
+    "return": "XcmsCompressionProc ",
+    "name": "XcmsSetCompressionProc",
+    "params": "XcmsCCC ccc, XcmsCompressionProc compression_proc, XPointer client_data",
+},
+{
+    "return": "XcmsWhiteAdjustProc ",
+    "name": "XcmsSetWhiteAdjustProc",
+    "params": "XcmsCCC ccc, XcmsWhiteAdjustProc white_adjust_proc, XPointer client_data",
+},
+{
+    "return": "XcmsCCC ",
+    "name": "XcmsCreateCCC",
+    "params": "Display *display, int screen_number, Visual *visual, XcmsColor *client_white_point, XcmsCompressionProc compression_proc, XPointer compression_client_data, XcmsWhiteAdjustProc white_adjust_proc, XPointer white_adjust_client_data",
+},
+{
+    "return": "void ",
+    "name": "XcmsFreeCCC",
+    "params": "XcmsCCC ccc",
+},
+{
+    "return": "Status ",
+    "name": "XcmsConvertColors",
+    "params": "XcmsCCC ccc, XcmsColor colors_in_out[], unsigned int ncolors, XcmsColorFormat target_format, Bool compression_flags_return[]",
+},
+{
+    "return": "typedef ",
+    "name": "Status",
+    "params": "*XcmsCompressionProc",
+},
+{
+    "return": "typedef ",
+    "name": "Status",
+    "params": "*XcmsWhiteAdjustProc",
+},
+{
+    "return": "Status ",
+    "name": "XcmsQueryBlack",
+    "params": "XcmsCCC ccc, XcmsColorFormat target_format, XcmsColor *color_return",
+},
+{
+    "return": "Status ",
+    "name": "XcmsQueryBlue",
+    "params": "XcmsCCC ccc, XcmsColorFormat target_format, XcmsColor *color_return",
+},
+{
+    "return": "Status ",
+    "name": "XcmsQueryGreen",
+    "params": "XcmsCCC ccc, XcmsColorFormat target_format, XcmsColor *color_return",
+},
+{
+    "return": "Status ",
+    "name": "XcmsQueryRed",
+    "params": "XcmsCCC ccc, XcmsColorFormat target_format, XcmsColor *color_return",
+},
+{
+    "return": "Status ",
+    "name": "XcmsQueryWhite",
+    "params": "XcmsCCC ccc, XcmsColorFormat target_format, XcmsColor *color_return",
+},
+{
+    "return": "Status ",
+    "name": "XcmsCIELabQueryMaxC",
+    "params": "XcmsCCC ccc, XcmsFloat hue_angle, XcmsFloat L_star, XcmsColor *color_return",
+},
+{
+    "return": "Status ",
+    "name": "XcmsCIELabQueryMaxL",
+    "params": "XcmsCCC ccc, XcmsFloat hue_angle, XcmsFloat chroma, XcmsColor *color_return",
+},
+{
+    "return": "Status ",
+    "name": "XcmsCIELabQueryMaxLC",
+    "params": "XcmsCCC ccc, XcmsFloat hue_angle, XcmsColor *color_return",
+},
+{
+    "return": "Status ",
+    "name": "XcmsCIELabQueryMinL",
+    "params": "XcmsCCC ccc, XcmsFloat hue_angle, XcmsFloat chroma, XcmsColor *color_return",
+},
+{
+    "return": "Status ",
+    "name": "XcmsCIELuvQueryMaxC",
+    "params": "XcmsCCC ccc, XcmsFloat hue_angle, XcmsFloat L_star, XcmsColor *color_return",
+},
+{
+    "return": "Status ",
+    "name": "XcmsCIELuvQueryMaxL",
+    "params": "XcmsCCC ccc, XcmsFloat hue_angle, XcmsFloat chroma, XcmsColor *color_return",
+},
+{
+    "return": "Status ",
+    "name": "XcmsCIELuvQueryMaxLC",
+    "params": "XcmsCCC ccc, XcmsFloat hue_angle, XcmsColor *color_return",
+},
+{
+    "return": "Status ",
+    "name": "XcmsCIELuvQueryMinL",
+    "params": "XcmsCCC ccc, XcmsFloat hue_angle, XcmsFloat chroma, XcmsColor *color_return",
+},
+{
+    "return": "Status ",
+    "name": "XcmsTekHVCQueryMaxC",
+    "params": "XcmsCCC ccc, XcmsFloat hue, XcmsFloat value, XcmsColor *color_return",
+},
+{
+    "return": "Status ",
+    "name": "XcmsTekHVCQueryMaxV",
+    "params": "XcmsCCC ccc, XcmsFloat hue, XcmsFloat chroma, XcmsColor *color_return",
+},
+{
+    "return": "Status ",
+    "name": "XcmsTekHVCQueryMaxVC",
+    "params": "XcmsCCC ccc, XcmsFloat hue, XcmsColor *color_return",
+},
+{
+    "return": "Status ",
+    "name": "XcmsTekHVCQueryMaxVSamples",
+    "params": "XcmsCCC ccc, XcmsFloat hue, XcmsColor colors_return[], unsigned int nsamples",
+},
+{
+    "return": "Status ",
+    "name": "XcmsTekHVCQueryMinV",
+    "params": "XcmsCCC ccc, XcmsFloat hue, XcmsFloat chroma, XcmsColor *color_return",
+},
+{
+    "return": "Status ",
+    "name": "XcmsAddColorSpace",
+    "params": "XcmsColorSpace *color_space",
+},
+{
+    "return": "XcmsColorFormat ",
+    "name": "XcmsFormatOfPrefix",
+    "params": "char *prefix",
+},
+{
+    "return": "char *",
+    "name": "XcmsPrefixOfFormat",
+    "params": "XcmsColorFormat format",
+},
+{
+    "return": "Status ",
+    "name": "XcmsParseStringProc",
+    "params": "char *color_string, XcmsColor *color_return",
+},
+{
+    "return": "Status ",
+    "name": "ConversionProc",
+    "params": "XcmsCCC ccc, XcmsColor *white_point, XcmsColor *colors_in_out, unsigned int ncolors",
+},
+{
+    "return": "Status ",
+    "name": "ConversionProc",
+    "params": "XcmsCCC ccc, XcmsColor *colors_in_out, unsigned int ncolors, Bool compression_flags_return[]",
+},
+{
+    "return": "Status ",
+    "name": "XcmsAddFunctionSet",
+    "params": "XcmsFunctionSet *function_set",
+},
+{
+    "return": "typedef ",
+    "name": "Status",
+    "params": "*XcmsScreenInitProc",
+},
+{
+    "return": "typedef ",
+    "name": "void",
+    "params": "*XcmsScreenFreeProc",
+},
+{
+    "return": "GC ",
+    "name": "XCreateGC",
+    "params": "Display *display, Drawable d, unsigned long valuemask, XGCValues *values",
+},
+{
+    "return": "Status ",
+    "name": "XGetGCValues",
+    "params": "Display *display, GC gc, unsigned long valuemask, XGCValues *values_return",
+},
+{
+    "return": "void ",
+    "name": "XFlushGC",
+    "params": "Display *display, GC gc",
+},
+{
+    "return": "Status ",
+    "name": "XQueryBestSize",
+    "params": "Display *display, int class, Drawable which_screen, unsigned int width, unsigned int height, unsigned int *width_return, unsigned int *height_return",
+},
+{
+    "return": "Status ",
+    "name": "XQueryBestTile",
+    "params": "Display *display, Drawable which_screen, unsigned int width, unsigned int height, unsigned int *width_return, unsigned int *height_return",
+},
+{
+    "return": "Status ",
+    "name": "XQueryBestStipple",
+    "params": "Display *display, Drawable which_screen, unsigned int width, unsigned int height, unsigned int *width_return, unsigned int *height_return",
+},
+{
+    "return": "Font ",
+    "name": "XLoadFont",
+    "params": "Display *display, char *name",
+},
+{
+    "return": "XFontStruct *",
+    "name": "XQueryFont",
+    "params": "Display *display, XID font_ID",
+},
+{
+    "return": "XFontStruct *",
+    "name": "XLoadQueryFont",
+    "params": "Display *display, char *name",
+},
+{
+    "return": "Bool ",
+    "name": "XGetFontProperty",
+    "params": "XFontStruct *font_struct, Atom atom, unsigned long *value_return",
+},
+{
+    "return": "char **",
+    "name": "XListFonts",
+    "params": "Display *display, char *pattern, int maxnames, int *actual_count_return",
+},
+{
+    "return": "char **",
+    "name": "XListFontsWithInfo",
+    "params": "Display *display, char *pattern, int maxnames, int *count_return, XFontStruct **info_return",
+},
+{
+    "return": "int ",
+    "name": "XTextWidth",
+    "params": "XFontStruct *font_struct, char *string, int count",
+},
+{
+    "return": "int ",
+    "name": "XTextWidth16",
+    "params": "XFontStruct *font_struct, XChar2b *string, int count",
+},
+{
+    "return": "Status ",
+    "name": "XInitImage",
+    "params": "XImage *image",
+},
+{
+    "return": "XImage *",
+    "name": "XGetImage",
+    "params": "Display *display, Drawable d, int x, int y, unsigned int width, unsigned int height, unsigned long plane_mask, int format",
+},
+{
+    "return": "XImage *",
+    "name": "XGetSubImage",
+    "params": "Display *display, Drawable d, int x, int y, unsigned int width, unsigned int height, unsigned long plane_mask, int format, XImage *dest_image, int dest_x, int dest_y",
+},
+{
+    "return": "Colormap *",
+    "name": "XListInstalledColormaps",
+    "params": "Display *display, Window w, int *num_return",
+},
+{
+    "return": "char **",
+    "name": "XGetFontPath",
+    "params": "Display *display, int *npaths_return",
+},
+{
+    "return": "int ",
+    "name": "XEventsQueued",
+    "params": "Display *display, int mode",
+},
+{
+    "return": "int ",
+    "name": "XPending",
+    "params": "Display *display",
+},
+{
+    "return": "Bool ",
+    "name": "XCheckWindowEvent",
+    "params": "Display *display, Window w, long event_mask, XEvent *event_return",
+},
+{
+    "return": "Bool ",
+    "name": "XCheckMaskEvent",
+    "params": "Display *display, long event_mask, XEvent *event_return",
+},
+{
+    "return": "Bool ",
+    "name": "XCheckTypedEvent",
+    "params": "Display *display, int event_type, XEvent *event_return",
+},
+{
+    "return": "Bool ",
+    "name": "XCheckTypedWindowEvent",
+    "params": "Display *display, Window w, int event_type, XEvent *event_return",
+},
+{
+    "return": "Status ",
+    "name": "XSendEvent",
+    "params": "Display *display, Window w, Bool propagate, long event_mask, XEvent *event_send",
+},
+{
+    "return": "unsigned ",
+    "name": "long",
+    "params": "Display *display",
+},
+{
+    "return": "XTimeCoord *",
+    "name": "XGetMotionEvents",
+    "params": "Display *display, Window w, Time start, Time stop, int *nevents_return",
+},
+{
+    "return": "int *",
+    "name": "XSetErrorHandler",
+    "params": "int *handler",
+},
+{
+    "return": "char *",
+    "name": "XDisplayName",
+    "params": "char *string",
+},
+{
+    "return": "int ",
+    "name": "XGrabPointer",
+    "params": "Display *display, Window grab_window, Bool owner_events, unsigned int event_mask, int pointer_mode, int keyboard_mode, Window confine_to, Cursor cursor, Time time",
+},
+{
+    "return": "int ",
+    "name": "XGrabKeyboard",
+    "params": "Display *display, Window grab_window, Bool owner_events, int pointer_mode, int keyboard_mode, Time time",
+},
+{
+    "return": "int ",
+    "name": "XSetPointerMapping",
+    "params": "Display *display, unsignedchar map[], int nmap",
+},
+{
+    "return": "int ",
+    "name": "XGetPointerMapping",
+    "params": "Display *display, unsignedchar map_return[], int nmap",
+},
+{
+    "return": "KeySym *",
+    "name": "XGetKeyboardMapping",
+    "params": "Display *display, KeyCode first_keycode, int keycode_count, int *keysyms_per_keycode_return",
+},
+{
+    "return": "XModifierKeymap *",
+    "name": "XNewModifiermap",
+    "params": "int max_keys_per_mod",
+},
+{
+    "return": "XModifierKeymap *",
+    "name": "XInsertModifiermapEntry",
+    "params": "XModifierKeymap *modmap, KeyCode keycode_entry, int modifier",
+},
+{
+    "return": "XModifierKeymap *",
+    "name": "XDeleteModifiermapEntry",
+    "params": "XModifierKeymap *modmap, KeyCode keycode_entry, int modifier",
+},
+{
+    "return": "int ",
+    "name": "XSetModifierMapping",
+    "params": "Display *display, XModifierKeymap *modmap",
+},
+{
+    "return": "XModifierKeymap *",
+    "name": "XGetModifierMapping",
+    "params": "Display *display",
+},
+{
+    "return": "Bool ",
+    "name": "XSupportsLocale",
+    "params": "void",
+},
+{
+    "return": "char *",
+    "name": "XSetLocaleModifiers",
+    "params": "char *modifier_list",
+},
+{
+    "return": "XVaNestedList ",
+    "name": "XVaCreateNestedList",
+    "params": "int dummy",
+},
+{
+    "return": "XOM ",
+    "name": "XOpenOM",
+    "params": "Display *display, XrmDatabase db, char *res_name, char *res_class",
+},
+{
+    "return": "Status ",
+    "name": "XCloseOM",
+    "params": "XOM om",
+},
+{
+    "return": "char *",
+    "name": "XSetOMValues",
+    "params": "XOM om",
+},
+{
+    "return": "char *",
+    "name": "XGetOMValues",
+    "params": "XOM om",
+},
+{
+    "return": "Display *",
+    "name": "XDisplayOfOM",
+    "params": "XOM om",
+},
+{
+    "return": "char *",
+    "name": "XLocaleOfOM",
+    "params": "XOM om",
+},
+{
+    "return": "XOC ",
+    "name": "XCreateOC",
+    "params": "XOM om",
+},
+{
+    "return": "void ",
+    "name": "XDestroyOC",
+    "params": "XOC oc",
+},
+{
+    "return": "XOM ",
+    "name": "XOMOfOC",
+    "params": "XOC oc",
+},
+{
+    "return": "char *",
+    "name": "XSetOCValues",
+    "params": "XOC oc",
+},
+{
+    "return": "char *",
+    "name": "XGetOCValues",
+    "params": "XOC oc",
+},
+{
+    "return": "XFontSet ",
+    "name": "XCreateFontSet",
+    "params": "Display *display, char *base_font_name_list, char ***missing_charset_list_return, int *missing_charset_count_return, char **def_string_return",
+},
+{
+    "return": "int ",
+    "name": "XFontsOfFontSet",
+    "params": "XFontSet font_set, XFontStruct ***font_struct_list_return, char ***font_name_list_return",
+},
+{
+    "return": "char *",
+    "name": "XBaseFontNameListOfFontSet",
+    "params": "XFontSet font_set",
+},
+{
+    "return": "char *",
+    "name": "XLocaleOfFontSet",
+    "params": "XFontSet font_set",
+},
+{
+    "return": "void ",
+    "name": "XFreeFontSet",
+    "params": "Display *display, XFontSet font_set",
+},
+{
+    "return": "Bool ",
+    "name": "XDirectionalDependentDrawing",
+    "params": "XFontSet font_set",
+},
+{
+    "return": "Bool ",
+    "name": "XContextualDrawing",
+    "params": "XFontSet font_set",
+},
+{
+    "return": "Bool ",
+    "name": "XContextDependentDrawing",
+    "params": "XFontSet font_set",
+},
+{
+    "return": "XFontSetExtents *",
+    "name": "XExtentsOfFontSet",
+    "params": "XFontSet font_set",
+},
+{
+    "return": "int ",
+    "name": "XmbTextEscapement",
+    "params": "XFontSet font_set, char *string, int num_bytes",
+},
+{
+    "return": "int ",
+    "name": "XwcTextEscapement",
+    "params": "XFontSet font_set, wchar_t *string, int num_wchars",
+},
+{
+    "return": "int ",
+    "name": "XmbTextExtents",
+    "params": "XFontSet font_set, char *string, int num_bytes, XRectangle *overall_ink_return, XRectangle *overall_logical_return",
+},
+{
+    "return": "int ",
+    "name": "XwcTextExtents",
+    "params": "XFontSet font_set, wchar_t *string, int num_wchars, XRectangle *overall_ink_return, XRectangle *overall_logical_return",
+},
+{
+    "return": "Status ",
+    "name": "XmbTextPerCharExtents",
+    "params": "XFontSet font_set, char *string, int num_bytes, XRectangle *ink_array_return, XRectangle *logical_array_return, int array_size, int *num_chars_return, XRectangle *overall_ink_return, XRectangle *overall_logical_return",
+},
+{
+    "return": "Status ",
+    "name": "XwcTextPerCharExtents",
+    "params": "XFontSet font_set, wchar_t *string, int num_wchars, XRectangle *ink_array_return, XRectangle *logical_array_return, int array_size, int *num_chars_return, XRectangle *overall_ink_return, XRectangle *overall_logical_return",
+},
+{
+    "return": "void ",
+    "name": "XmbDrawText",
+    "params": "Display *display, Drawable d, GC gc, int x, int y, XmbTextItem *items, int nitems",
+},
+{
+    "return": "void ",
+    "name": "XwcDrawText",
+    "params": "Display *display, Drawable d, GC gc, int x, int y, XwcTextItem *items, int nitems",
+},
+{
+    "return": "void ",
+    "name": "XmbDrawString",
+    "params": "Display *display, Drawable d, XFontSet font_set, GC gc, int x, int y, char *string, int num_bytes",
+},
+{
+    "return": "void ",
+    "name": "XwcDrawString",
+    "params": "Display *display, Drawable d, XFontSet font_set, GC gc, int x, int y, wchar_t *string, int num_wchars",
+},
+{
+    "return": "void ",
+    "name": "XmbDrawImageString",
+    "params": "Display *display, Drawable d, XFontSet font_set, GC gc, int x, int y, char *string, int num_bytes",
+},
+{
+    "return": "void ",
+    "name": "XwcDrawImageString",
+    "params": "Display *display, Drawable d, XFontSet font_set, GC gc, int x, int y, wchar_t *string, int num_wchars",
+},
+{
+    "return": "XIM ",
+    "name": "XOpenIM",
+    "params": "Display *display, XrmDatabase db, char *res_name, char *res_class",
+},
+{
+    "return": "Status ",
+    "name": "XCloseIM",
+    "params": "XIM im",
+},
+{
+    "return": "char *",
+    "name": "XSetIMValues",
+    "params": "XIM im",
+},
+{
+    "return": "char *",
+    "name": "XGetIMValues",
+    "params": "XIM im",
+},
+{
+    "return": "Display *",
+    "name": "XDisplayOfIM",
+    "params": "XIM im",
+},
+{
+    "return": "char *",
+    "name": "XLocaleOfIM",
+    "params": "XIM im",
+},
+{
+    "return": "Bool ",
+    "name": "XRegisterIMInstantiateCallback",
+    "params": "Display *display, XrmDatabase db, char *res_name, char *res_class, XIMProc callback, XPointer *client_data",
+},
+{
+    "return": "void ",
+    "name": "IMInstantiateCallback",
+    "params": "Display *display, XPointer client_data, XPointer call_data",
+},
+{
+    "return": "Bool ",
+    "name": "XUnregisterIMInstantiateCallback",
+    "params": "Display *display, XrmDatabase db, char *res_name, char *res_class, XIMProc callback, XPointer *client_data",
+},
+{
+    "return": "void ",
+    "name": "DestroyCallback",
+    "params": "XIM im, XPointer client_data, XPointer call_data",
+},
+{
+    "return": "XIC ",
+    "name": "XCreateIC",
+    "params": "XIM im",
+},
+{
+    "return": "void ",
+    "name": "XDestroyIC",
+    "params": "XIC ic",
+},
+{
+    "return": "void ",
+    "name": "XSetICFocus",
+    "params": "XIC ic",
+},
+{
+    "return": "void ",
+    "name": "XUnsetICFocus",
+    "params": "XIC ic",
+},
+{
+    "return": "char *",
+    "name": "XmbResetIC",
+    "params": "XIC ic",
+},
+{
+    "return": "wchar_t *",
+    "name": "XwcResetIC",
+    "params": "XIC ic",
+},
+{
+    "return": "XIM ",
+    "name": "XIMOfIC",
+    "params": "XIC ic",
+},
+{
+    "return": "char *",
+    "name": "XSetICValues",
+    "params": "XIC ic",
+},
+{
+    "return": "char *",
+    "name": "XGetICValues",
+    "params": "XIC ic",
+},
+{
+    "return": "void ",
+    "name": "PreeditStateNotifyCallback",
+    "params": "XIC ic, XPointer client_data, XIMPreeditStateNotifyCallbackStruct *call_data",
+},
+{
+    "return": "void ",
+    "name": "CallbackPrototype",
+    "params": "XIC ic, XPointer client_data, SomeType call_data",
+},
+{
+    "return": "void ",
+    "name": "GeometryCallback",
+    "params": "XIC ic, XPointer client_data, XPointer call_data",
+},
+{
+    "return": "void ",
+    "name": "DestroyCallback",
+    "params": "XIC ic, XPointer client_data, XPointer call_data",
+},
+{
+    "return": "void ",
+    "name": "StringConversionCallback",
+    "params": "XIC ic, XPointer client_data, XIMStringConversionCallbackStruct *call_data",
+},
+{
+    "return": "int ",
+    "name": "PreeditStartCallback",
+    "params": "XIC ic, XPointer client_data, XPointer call_data",
+},
+{
+    "return": "void ",
+    "name": "PreeditDoneCallback",
+    "params": "XIC ic, XPointer client_data, XPointer call_data",
+},
+{
+    "return": "void ",
+    "name": "PreeditDrawCallback",
+    "params": "XIC ic, XPointer client_data, XIMPreeditDrawCallbackStruct *call_data",
+},
+{
+    "return": "void ",
+    "name": "PreeditCaretCallback",
+    "params": "XIC ic, XPointer client_data, XIMPreeditCaretCallbackStruct *call_data",
+},
+{
+    "return": "void ",
+    "name": "StatusStartCallback",
+    "params": "XIC ic, XPointer client_data, XPointer call_data",
+},
+{
+    "return": "void ",
+    "name": "StatusDoneCallback",
+    "params": "XIC ic, XPointer client_data, XPointer call_data",
+},
+{
+    "return": "void ",
+    "name": "StatusDrawCallback",
+    "params": "XIC ic, XPointer client_data, XIMStatusDrawCallbackStruct *call_data",
+},
+{
+    "return": "Bool ",
+    "name": "XFilterEvent",
+    "params": "XEvent *event, Window w",
+},
+{
+    "return": "int ",
+    "name": "XmbLookupString",
+    "params": "XIC ic, XKeyPressedEvent *event, char *buffer_return, int bytes_buffer, KeySym *keysym_return, Status *status_return",
+},
+{
+    "return": "int ",
+    "name": "XwcLookupString",
+    "params": "XIC ic, XKeyPressedEvent *event, wchar_t *buffer_return, int wchars_buffer, KeySym *keysym_return, Status *status_return",
+},
+{
+    "return": "Status ",
+    "name": "XIconifyWindow",
+    "params": "Display *display, Window w, int screen_number",
+},
+{
+    "return": "Status ",
+    "name": "XWithdrawWindow",
+    "params": "Display *display, Window w, int screen_number",
+},
+{
+    "return": "Status ",
+    "name": "XReconfigureWMWindow",
+    "params": "Display *display, Window w, int screen_number, unsigned int value_mask, XWindowChanges *values",
+},
+{
+    "return": "int ",
+    "name": "XmbTextListToTextProperty",
+    "params": "Display *display, char **list, int count, XICCEncodingStyle style, XTextProperty *text_prop_return",
+},
+{
+    "return": "int ",
+    "name": "XwcTextListToTextProperty",
+    "params": "Display *display, wchar_t **list, int count, XICCEncodingStyle style, XTextProperty *text_prop_return",
+},
+{
+    "return": "int ",
+    "name": "XmbTextPropertyToTextList",
+    "params": "Display *display, XTextProperty *text_prop, char ***list_return, int *count_return",
+},
+{
+    "return": "int ",
+    "name": "XwcTextPropertyToTextList",
+    "params": "Display *display, XTextProperty *text_prop, wchar_t ***list_return, int *count_return",
+},
+{
+    "return": "void ",
+    "name": "XwcFreeStringList",
+    "params": "wchar_t **list",
+},
+{
+    "return": "char *",
+    "name": "XDefaultString",
+    "params": "void",
+},
+{
+    "return": "Status ",
+    "name": "XStringListToTextProperty",
+    "params": "char **list, int count, XTextProperty *text_prop_return",
+},
+{
+    "return": "Status ",
+    "name": "XTextPropertyToStringList",
+    "params": "XTextProperty *text_prop, char ***list_return, int *count_return",
+},
+{
+    "return": "void ",
+    "name": "XFreeStringList",
+    "params": "char **list",
+},
+{
+    "return": "void ",
+    "name": "XSetTextProperty",
+    "params": "Display *display, Window w, XTextProperty *text_prop, Atom property",
+},
+{
+    "return": "Status ",
+    "name": "XGetTextProperty",
+    "params": "Display *display, Window w, XTextProperty *text_prop_return, Atom property",
+},
+{
+    "return": "void ",
+    "name": "XSetWMName",
+    "params": "Display *display, Window w, XTextProperty *text_prop",
+},
+{
+    "return": "Status ",
+    "name": "XGetWMName",
+    "params": "Display *display, Window w, XTextProperty *text_prop_return",
+},
+{
+    "return": "Status ",
+    "name": "XFetchName",
+    "params": "Display *display, Window w, char **window_name_return",
+},
+{
+    "return": "void ",
+    "name": "XSetWMIconName",
+    "params": "Display *display, Window w, XTextProperty *text_prop",
+},
+{
+    "return": "Status ",
+    "name": "XGetWMIconName",
+    "params": "Display *display, Window w, XTextProperty *text_prop_return",
+},
+{
+    "return": "Status ",
+    "name": "XGetIconName",
+    "params": "Display *display, Window w, char **icon_name_return",
+},
+{
+    "return": "XWMHints *",
+    "name": "XAllocWMHints",
+    "params": "void",
+},
+{
+    "return": "XWMHints *",
+    "name": "XGetWMHints",
+    "params": "Display *display, Window w",
+},
+{
+    "return": "XSizeHints *",
+    "name": "XAllocSizeHints",
+    "params": "void",
+},
+{
+    "return": "void ",
+    "name": "XSetWMNormalHints",
+    "params": "Display *display, Window w, XSizeHints *hints",
+},
+{
+    "return": "Status ",
+    "name": "XGetWMNormalHints",
+    "params": "Display *display, Window w, XSizeHints *hints_return, long *supplied_return",
+},
+{
+    "return": "void ",
+    "name": "XSetWMSizeHints",
+    "params": "Display *display, Window w, XSizeHints *hints, Atom property",
+},
+{
+    "return": "Status ",
+    "name": "XGetWMSizeHints",
+    "params": "Display *display, Window w, XSizeHints *hints_return, long *supplied_return, Atom property",
+},
+{
+    "return": "XClassHint *",
+    "name": "XAllocClassHint",
+    "params": "void",
+},
+{
+    "return": "Status ",
+    "name": "XGetClassHint",
+    "params": "Display *display, Window w, XClassHint *class_hints_return",
+},
+{
+    "return": "Status ",
+    "name": "XGetTransientForHint",
+    "params": "Display *display, Window w, Window *prop_window_return",
+},
+{
+    "return": "Status ",
+    "name": "XSetWMProtocols",
+    "params": "Display *display, Window w, Atom *protocols, int count",
+},
+{
+    "return": "Status ",
+    "name": "XGetWMProtocols",
+    "params": "Display *display, Window w, Atom **protocols_return, int *count_return",
+},
+{
+    "return": "Status ",
+    "name": "XSetWMColormapWindows",
+    "params": "Display *display, Window w, Window *colormap_windows, int count",
+},
+{
+    "return": "Status ",
+    "name": "XGetWMColormapWindows",
+    "params": "Display *display, Window w, Window **colormap_windows_return, int *count_return",
+},
+{
+    "return": "XIconSize *",
+    "name": "XAllocIconSize",
+    "params": "void",
+},
+{
+    "return": "Status ",
+    "name": "XGetIconSizes",
+    "params": "Display *display, Window w, XIconSize **size_list_return, int *count_return",
+},
+{
+    "return": "void ",
+    "name": "XmbSetWMProperties",
+    "params": "Display *display, Window w, char *window_name, char *icon_name, char *argv[], int argc, XSizeHints *normal_hints, XWMHints *wm_hints, XClassHint *class_hints",
+},
+{
+    "return": "void ",
+    "name": "XSetWMProperties",
+    "params": "Display *display, Window w, XTextProperty *window_name, XTextProperty *icon_name, char **argv, int argc, XSizeHints *normal_hints, XWMHints *wm_hints, XClassHint *class_hints",
+},
+{
+    "return": "Status ",
+    "name": "XGetCommand",
+    "params": "Display *display, Window w, char ***argv_return, int *argc_return",
+},
+{
+    "return": "void ",
+    "name": "XSetWMClientMachine",
+    "params": "Display *display, Window w, XTextProperty *text_prop",
+},
+{
+    "return": "Status ",
+    "name": "XGetWMClientMachine",
+    "params": "Display *display, Window w, XTextProperty *text_prop_return",
+},
+{
+    "return": "void ",
+    "name": "XSetRGBColormaps",
+    "params": "Display *display, Window w, XStandardColormap *std_colormap, int count, Atom property",
+},
+{
+    "return": "Status ",
+    "name": "XGetRGBColormaps",
+    "params": "Display *display, Window w, XStandardColormap **std_colormap_return, int *count_return, Atom property",
+},
+{
+    "return": "XrmQuark ",
+    "name": "XrmUniqueQuark",
+    "params": "void",
+},
+{
+    "return": "XrmQuark ",
+    "name": "XrmStringToQuark",
+    "params": "char *string",
+},
+{
+    "return": "char *",
+    "name": "XrmQuarkToString",
+    "params": "XrmQuark quark",
+},
+{
+    "return": "void ",
+    "name": "XrmStringToQuarkList",
+    "params": "char *string, XrmQuarkList quarks_return",
+},
+{
+    "return": "void ",
+    "name": "XrmInitialize",
+    "params": "void XrmInitialize(\|)",
+},
+{
+    "return": "XrmDatabase ",
+    "name": "XrmGetFileDatabase",
+    "params": "char *filename",
+},
+{
+    "return": "void ",
+    "name": "XrmPutFileDatabase",
+    "params": "XrmDatabase database, char *stored_db",
+},
+{
+    "return": "char *",
+    "name": "XResourceManagerString",
+    "params": "Display *display",
+},
+{
+    "return": "char *",
+    "name": "XScreenResourceString",
+    "params": "Screen *screen",
+},
+{
+    "return": "XrmDatabase ",
+    "name": "XrmGetStringDatabase",
+    "params": "char *data",
+},
+{
+    "return": "char *",
+    "name": "XrmLocaleOfDatabase",
+    "params": "XrmDatabase database",
+},
+{
+    "return": "void ",
+    "name": "XrmDestroyDatabase",
+    "params": "XrmDatabase database",
+},
+{
+    "return": "void ",
+    "name": "XrmSetDatabase",
+    "params": "Display *display, XrmDatabase database",
+},
+{
+    "return": "XrmDatabase ",
+    "name": "XrmGetDatabase",
+    "params": "Display *display",
+},
+{
+    "return": "Status ",
+    "name": "XrmCombineFileDatabase",
+    "params": "char *filename, XrmDatabase *target_db, Bool override",
+},
+{
+    "return": "void ",
+    "name": "XrmCombineDatabase",
+    "params": "XrmDatabase source_db, XrmDatabase *target_db, Bool override",
+},
+{
+    "return": "void ",
+    "name": "XrmMergeDatabases",
+    "params": "XrmDatabase source_db, XrmDatabase *target_db",
+},
+{
+    "return": "Bool ",
+    "name": "XrmGetResource",
+    "params": "XrmDatabase database, char *str_name, char *str_class, char **str_type_return, XrmValue *value_return",
+},
+{
+    "return": "Bool ",
+    "name": "XrmQGetResource",
+    "params": "XrmDatabase database, XrmNameList quark_name, XrmClassList quark_class, XrmRepresentation *quark_type_return, XrmValue *value_return",
+},
+{
+    "return": "Bool ",
+    "name": "XrmQGetSearchResource",
+    "params": "XrmDatabase database, XrmNameList names, XrmClassList classes, XrmSearchList list_return, int list_length",
+},
+{
+    "return": "Bool ",
+    "name": "XrmQGetSearchResource",
+    "params": "XrmSearchList list, XrmName name, XrmClass class, XrmRepresentation *type_return, XrmValue *value_return",
+},
+{
+    "return": "void ",
+    "name": "XrmPutResource",
+    "params": "XrmDatabase *database, char *specifier, char *type, XrmValue *value",
+},
+{
+    "return": "void ",
+    "name": "XrmQPutResource",
+    "params": "XrmDatabase *database, XrmBindingList bindings, XrmQuarkList quarks, XrmRepresentation type, XrmValue *value",
+},
+{
+    "return": "void ",
+    "name": "XrmPutStringResource",
+    "params": "XrmDatabase *database, char *specifier, char *value",
+},
+{
+    "return": "void ",
+    "name": "XrmQPutStringResource",
+    "params": "XrmDatabase *database, XrmBindingList bindings, XrmQuarkList quarks, char *value",
+},
+{
+    "return": "void ",
+    "name": "XrmPutLineResource",
+    "params": "XrmDatabase *database, char *line",
+},
+{
+    "return": "Bool ",
+    "name": "XrmEnumerateDatabase",
+    "params": "XrmDatabase database, XrmNameList name_prefix, XrmClassList class_prefix, int mode, Bool (*proc)(), XPointer arg",
+},
+{
+    "return": "void ",
+    "name": "XrmParseCommand",
+    "params": "XrmDatabase *database, XrmOptionDescList table, int table_count, char *name, int *argc_in_out, char **argv_in_out",
+},
+{
+    "return": "KeySym ",
+    "name": "XLookupKeysym",
+    "params": "XKeyEvent *key_event, int index",
+},
+{
+    "return": "KeySym ",
+    "name": "XKeycodeToKeysym",
+    "params": "Display *display, KeyCode keycode, int index",
+},
+{
+    "return": "KeyCode ",
+    "name": "XKeysymToKeycode",
+    "params": "Display *display, KeySym keysym",
+},
+{
+    "return": "void ",
+    "name": "XConvertCase",
+    "params": "KeySym keysym, KeySym *lower_return, KeySym *upper_return",
+},
+{
+    "return": "KeySym ",
+    "name": "XStringToKeysym",
+    "params": "char *string",
+},
+{
+    "return": "char *",
+    "name": "XKeysymToString",
+    "params": "KeySym keysym",
+},
+{
+    "return": "int ",
+    "name": "XLookupString",
+    "params": "XKeyEvent *event_struct, char *buffer_return, int bytes_buffer, KeySym *keysym_return, XComposeStatus *status_in_out",
+},
+{
+    "return": "char *",
+    "name": "Xpermalloc",
+    "params": "unsigned int size",
+},
+{
+    "return": "int ",
+    "name": "XParseGeometry",
+    "params": "char *parsestring, int *x_return, int *y_return, unsigned int *width_return, unsigned int *height_return",
+},
+{
+    "return": "int ",
+    "name": "XWMGeometry",
+    "params": "Display *display, int screen, char *user_geom, char *def_geom, unsigned int bwidth, XSizeHints *hints, int *x_return, int *y_return, int *width_return, int *height_return, int *gravity_return",
+},
+{
+    "return": "Region ",
+    "name": "XCreateRegion",
+    "params": "void",
+},
+{
+    "return": "Region ",
+    "name": "XPolygonRegion",
+    "params": "XPoint points[], int n, int fill_rule",
+},
+{
+    "return": "Bool ",
+    "name": "XEmptyRegion",
+    "params": "Region r",
+},
+{
+    "return": "Bool ",
+    "name": "XEqualRegion",
+    "params": "Region r1, Region r2",
+},
+{
+    "return": "Bool ",
+    "name": "XPointInRegion",
+    "params": "Region r, int x, int y",
+},
+{
+    "return": "int ",
+    "name": "XRectInRegion",
+    "params": "Region r, int x, int y, unsigned int width, unsigned int height",
+},
+{
+    "return": "char *",
+    "name": "XFetchBytes",
+    "params": "Display *display, int *nbytes_return",
+},
+{
+    "return": "char *",
+    "name": "XFetchBuffer",
+    "params": "Display *display, int *nbytes_return, int buffer",
+},
+{
+    "return": "Status ",
+    "name": "XMatchVisualInfo",
+    "params": "Display *display, int screen, int depth, int class, XVisualInfo *vinfo_return",
+},
+{
+    "return": "XImage *",
+    "name": "XCreateImage",
+    "params": "Display *display, Visual *visual, unsigned int depth, int format, int offset, char *data, unsigned int width, unsigned int height, int bitmap_pad, int bytes_per_line",
+},
+{
+    "return": "unsigned long ",
+    "name": "XGetPixel",
+    "params": "XImage *ximage, int x, int y",
+},
+{
+    "return": "XImage *",
+    "name": "XSubImage",
+    "params": "XImage *ximage, int x, int y, unsigned int subimage_width, unsigned int subimage_height",
+},
+{
+    "return": "int ",
+    "name": "XReadBitmapFile",
+    "params": "Display *display, Drawable d, char *filename, unsigned int *width_return, unsigned int *height_return, Pixmap *bitmap_return, int *x_hot_return, int *y_hot_return",
+},
+{
+    "return": "int ",
+    "name": "XReadBitmapFileData",
+    "params": "char *filename, unsigned int *width_return, unsigned int *height_return, unsignedchar *data_return, int *x_hot_return, int *y_hot_return",
+},
+{
+    "return": "int ",
+    "name": "XWriteBitmapFile",
+    "params": "Display *display, char *filename, Pixmap bitmap, unsigned int width, unsigned int height, int x_hot, int y_hot",
+},
+{
+    "return": "Pixmap ",
+    "name": "XCreatePixmapFromBitmapData",
+    "params": "Display *display, Drawable d, char *data, unsigned int width, unsigned int height, unsigned long fg, unsigned long bg, unsigned int depth",
+},
+{
+    "return": "Pixmap ",
+    "name": "XCreateBitmapFromData",
+    "params": "Display *display, Drawable d, char *data, unsigned int width, unsigned int height",
+},
+{
+    "return": "int ",
+    "name": "XSaveContext",
+    "params": "Display *display, XID rid, XContext context, XPointer data",
+},
+{
+    "return": "int ",
+    "name": "XFindContext",
+    "params": "Display *display, XID rid, XContext context, XPointer *data_return",
+},
+{
+    "return": "int ",
+    "name": "XDeleteContext",
+    "params": "Display *display, XID rid, XContext context",
+},
+{
+    "return": "Bool ",
+    "name": "XQueryExtension",
+    "params": "Display *display, char *name, int *major_opcode_return, int *first_event_return, int *first_error_return",
+},
+{
+    "return": "char **",
+    "name": "XListExtensions",
+    "params": "Display *display, int *nextensions_return",
+},
+{
+    "return": "XExtCodes *",
+    "name": "XInitExtension",
+    "params": "Display *display, char *name",
+},
+{
+    "return": "XExtCodes *",
+    "name": "XAddExtension",
+    "params": "Display *display",
+},
+{
+    "return": "int ",
+    "name": "XESetCloseDisplay",
+    "params": "Display *display, int extension, int (*proc)()",
+},
+{
+    "return": "int *",
+    "name": "XESetCreateGC",
+    "params": "Display *display, int extension, int (*proc)()",
+},
+{
+    "return": "int *",
+    "name": "XESetCopyGC",
+    "params": "Display *display, int extension, int (*proc)()",
+},
+{
+    "return": "int *",
+    "name": "XESetFreeGC",
+    "params": "Display *display, int extension, int (*proc)()",
+},
+{
+    "return": "int *",
+    "name": "XESetCreateFont",
+    "params": "Display *display, int extension, int (*proc)()",
+},
+{
+    "return": "int *",
+    "name": "XESetFreeFont",
+    "params": "Display *display, int extension, int (*proc)()",
+},
+{
+    "return": "int *",
+    "name": "XESetWireToEvent",
+    "params": "Display *display, int event_number, Status (*proc)()",
+},
+{
+    "return": "unsigned ",
+    "name": "long_XSetLastRequestRead",
+    "params": "Display *display, xGenericReply *rep",
+},
+{
+    "return": "Status *",
+    "name": "XESetEventToWire",
+    "params": "Display *display, int event_number, int (*proc)()",
+},
+{
+    "return": "Bool *",
+    "name": "XESetWireToError",
+    "params": "Display *display, int error_number, Bool (*proc)()",
+},
+{
+    "return": "int *",
+    "name": "XESetError",
+    "params": "Display *display, int extension, int (*proc)()",
+},
+{
+    "return": "char *",
+    "name": "XESetErrorString",
+    "params": "Display *display, int extension, char *(*proc)()",
+},
+{
+    "return": "void *",
+    "name": "XESetPrintErrorValues",
+    "params": "Display *display, int extension, void (*proc)()",
+},
+{
+    "return": "int *",
+    "name": "XESetFlushGC",
+    "params": "Display *display, int extension, int *(*proc)()",
+},
+{
+    "return": "int *",
+    "name": "XESetCopyGC",
+    "params": "Display *display, int extension, int *(*proc)()",
+},
+{
+    "return": "XExtData **",
+    "name": "XEHeadOfExtensionList",
+    "params": "XEDataObject object",
+},
+{
+    "return": "XExtData *",
+    "name": "XFindOnExtensionList",
+    "params": "struct_XExtData **structure, int number",
+},
+{
+    "return": "Status ",
+    "name": "_XReply",
+    "params": "Display *display, xReply *rep, int extra, Bool discard",
+},
+{
+    "return": "char *",
+    "name": "_XAllocScratch",
+    "params": "Display *display, unsigned long nbytes",
+},
+{
+    "return": "char *",
+    "name": "_XAllocTemp",
+    "params": "Display *display, unsigned long nbytes",
+},
+{
+    "return": "void ",
+    "name": "_XFreeTemp",
+    "params": "Display *display, char *buf, unsigned long nbytes",
+},
+{
+    "return": "Status ",
+    "name": "XGetNormalHints",
+    "params": "Display *display, Window w, XSizeHints *hints_return",
+},
+{
+    "return": "Status ",
+    "name": "XGetZoomHints",
+    "params": "Display *display, Window w, XSizeHints *zhints_return",
+},
+{
+    "return": "Status ",
+    "name": "XGetSizeHints",
+    "params": "Display *display, Window w, XSizeHints *hints_return, Atom property",
+},
+{
+    "return": "Status ",
+    "name": "XGetStandardColormap",
+    "params": "Display *display, Window w, XStandardColormap *colormap_return, Atom property",
+},
+{
+    "return": "int ",
+    "name": "XGeometry",
+    "params": "Display *display, int screen, char *position, char *default_position, unsigned int bwidth, unsigned int fwidth, unsigned int fheight, int xadder, int yadder, int *x_return, int *y_return, int *width_return, int *height_return",
+},
+{
+    "return": "char *",
+    "name": "XGetDefault",
+    "params": "Display *display, char *program, char *option",
+},
+{
+    "return": "Status ",
+    "name": "XDraw",
+    "params": "Display *display, Drawable d, GC gc, Vertex *vlist, int vcount",
+},
+{
+    "return": "Status ",
+    "name": "XDrawFilled",
+    "params": "Display *display, Drawable d, GC gc, Vertex *vlist, int vcount",
+},
+{
+    "return": "XAssocTable *",
+    "name": "XCreateAssocTable",
+    "params": "int size",
+},
+{
+    "return": "char *",
+    "name": "XLookUpAssoc",
+    "params": "Display *display, XAssocTable *table, XID x_id",
+},
+
+BlackPixel(display, screen_number);
+WhitePixel(display, screen_number);
+ConnectionNumber(display);
+DefaultColormap(display, screen_number);
+DefaultGC(display, screen_number);
+DefaultRootWindow(display);
+DefaultScreen(display);
+DefaultVisual(display, screen_number);
+DisplayCells(display, screen_number);
+DisplayPlanes(display, screen_number);
+DisplayString(display);
+LastKnownRequestProcessed(display);
+NextRequest(display);
+ProtocolVersion(display);
+ProtocolRevision(display);
+QLength(display);
+RootWindow(display, screen_number);
+ScreenCount(display);
+ServerVendor(display);
+VendorRelease(display);
+ImageByteOrder(display);
+XBitmapUnit(display);
+BitmapBitOrder(display);
+BitmapPad(display);
+DisplayHeight(display, screen_number);
+DisplayHeightMM(display, screen_number);
+DisplayWidth(display, screen_number);
+DisplayWidthMM(display, screen_number);
+BlackPixelOfScreen(screen);
+XWhitePixelOfScreen(screen);
+CellsOfScreen(screen);
+DefaultColormapOfScreen(screen);
+DefaultDepthOfScreen(screen);
+DefaultGCOfScreen(screen);
+XDefaultVisualOfScreen(screen);
+DoesBackingStore(screen);
+DoesSaveUnders(screen);
+DisplayOfScreen(screen);
+ScreenNumberOfScreen(screen);
+EventMaskOfScreen(screen);
+WidthOfScreen(screen);
+HeightOfScreen(screen);
+WidthMMOfScreen(screen);
+HeightMMOfScreen(screen);
+MaxCmapsOfScreen(screen);
+MinCmapsOfScreen(screen);
+PlanesOfScreen(screen);
+RootWindowOfScreen(screen);
+XNoOp(Display *display);
+XFree(void *data);
+XCloseDisplay(Display *display);
+XSetCloseDownMode(Display *display, int close_mode);
+XLockDisplay(Display *display);
+XUnlockDisplay(Display *display);
+XDestroyWindow(Display *display, Window w);
+XDestroySubwindows(Display *display, Window w);
+XMapWindow(Display *display, Window w);
+XMapRaised(Display *display, Window w);
+XMapSubwindows(Display *display, Window w);
+XUnmapWindow(Display *display, Window w);
+XUnmapSubwindows(Display *display, Window w);
+XConfigureWindow(Display *display, Window w, unsigned int value_mask, XWindowChanges *values);
+XMoveWindow(Display *display, Window w, int x, int y);
+XResizeWindow(Display *display, Window w, unsigned int width, unsigned int height);
+XMoveResizeWindow(Display *display, Window w, int x, int y, unsigned int width, unsigned int height);
+XSetWindowBorderWidth(Display *display, Window w, unsigned int width);
+XRaiseWindow(Display *display, Window w);
+XLowerWindow(Display *display, Window w);
+XCirculateSubwindows(Display *display, Window w, int direction);
+XCirculateSubwindowsUp(Display *display, Window w);
+XCirculateSubwindowsDown(Display *display, Window w);
+XRestackWindows(Display *display, Window windows[], int nwindows);
+XChangeWindowAttributes(Display *display, Window w, unsigned long valuemask, XSetWindowAttributes *attributes);
+XSetWindowBackground(Display *display, Window w, unsigned long background_pixel);
+XSetWindowBackgroundPixmap(Display *display, Window w, Pixmap background_pixmap);
+XSetWindowBorder(Display *display, Window w, unsigned long border_pixel);
+XSetWindowBorderPixmap(Display *display, Window w, Pixmap border_pixmap);
+XSetWindowColormap(Display *display, Window w, Colormap colormap);
+XDefineCursor(Display *display, Window w, Cursor cursor);
+XUndefineCursor(Display *display, Window w);
+XChangeProperty(Display *display, Window w, Atom property, Atom type, int format, int mode, unsignedchar *data, int nelements);
+XRotateWindowProperties(Display *display, Window w, Atom properties[], int num_prop, int npositions);
+XDeleteProperty(Display *display, Window w, Atom property);
+XSetSelectionOwner(Display *display, Atom selection, Window owner, Time time);
+XConvertSelection(Display *display, Atom selection, Atom target, Atom property, Window requestor, Time time);
+XFreePixmap(Display *display, Pixmap pixmap);
+XRecolorCursor(Display *display, Cursor cursor, XColor *foreground_color, XColor *background_color);
+XFreeCursor(Display *display, Cursor cursor);
+XFreeColormap(Display *display, Colormap colormap);
+XFreeColors(Display *display, Colormap colormap, unsigned long pixels[], int npixels, unsigned long planes);
+XStoreColor(Display *display, Colormap colormap, XColor *color);
+XStoreColors(Display *display, Colormap colormap, XColor color[], int ncolors);
+XStoreNamedColor(Display *display, Colormap colormap, char *color, unsigned long pixel, int flags);
+XQueryColor(Display *display, Colormap colormap, XColor *def_in_out);
+XQueryColors(Display *display, Colormap colormap, XColor defs_in_out[], int ncolors);
+DisplayOfCCC(XcmsCCC ccc);
+VisualOfCCC(XcmsCCC ccc);
+ScreenNumberOfCCC(XcmsCCC ccc);
+ScreenWhitePointOfCCC(XcmsCCC ccc);
+ClientWhitePointOfCCC(XcmsCCC ccc);
+XCopyGC(Display *display, GC src, GC dest, unsigned long valuemask);
+XChangeGC(Display *display, GC gc, unsigned long valuemask, XGCValues *values);
+XFreeGC(Display *display, GC gc);
+GContext XGContextFromGC(GC gc);
+XSetState(Display *display, GC gc, unsigned long foreground, unsigned long background, int function, unsigned long plane_mask);
+XSetForeground(Display *display, GC gc, unsigned long foreground);
+XSetBackground(Display *display, GC gc, unsigned long background);
+XSetFunction(Display *display, GC gc, int function);
+XSetPlaneMask(Display *display, GC gc, unsigned long plane_mask);
+XSetLineAttributes(Display *display, GC gc, unsigned int line_width, int line_style, int cap_style, int join_style);
+XSetDashes(Display *display, GC gc, int dash_offset, char dash_list[], int n);
+XSetFillStyle(Display *display, GC gc, int fill_style);
+XSetFillRule(Display *display, GC gc, int fill_rule);
+XSetTile(Display *display, GC gc, Pixmap tile);
+XSetStipple(Display *display, GC gc, Pixmap stipple);
+XSetTSOrigin(Display *display, GC gc, int ts_x_origin, int ts_y_origin);
+XSetFont(Display *display, GC gc, Font font);
+XSetClipOrigin(Display *display, GC gc, int clip_x_origin, int clip_y_origin);
+XSetClipMask(Display *display, GC gc, Pixmap pixmap);
+XSetClipRectangles(Display *display, GC gc, int clip_x_origin, int clip_y_origin, XRectangle rectangles[], int n, int ordering);
+XSetArcMode(Display *display, GC gc, int arc_mode);
+XSetSubwindowMode(Display *display, GC gc, int subwindow_mode);
+XSetGraphicsExposures(Display *display, GC gc, Bool graphics_exposures);
+XClearArea(Display *display, Window w, int x, int y, unsigned int width, unsigned int height, Bool exposures);
+XClearWindow(Display *display, Window w);
+XCopyArea(Display *display, Drawable src, Drawable dest, GC gc, int src_x, int src_y, unsigned int width, unsigned int height, int dest_x, int dest_y);
+XCopyPlane(Display *display, Drawable src, Drawable dest, GC gc, int src_x, int src_y, unsigned int width, unsigned int height, int dest_x, int dest_y, unsigned long plane);
+XDrawPoint(Display *display, Drawable d, GC gc, int x, int y);
+XDrawPoints(Display *display, Drawable d, GC gc, XPoint *points, int npoints, int mode);
+XDrawLine(Display *display, Drawable d, GC gc, int x1, int y1, int x2, int y2);
+XDrawLines(Display *display, Drawable d, GC gc, XPoint *points, int npoints, int mode);
+XDrawSegments(Display *display, Drawable d, GC gc, XSegment *segments, int nsegments);
+XDrawRectangle(Display *display, Drawable d, GC gc, int x, int y, unsigned int width, unsigned int height);
+XDrawRectangles(Display *display, Drawable d, GC gc, XRectangle rectangles[], int nrectangles);
+XDrawArc(Display *display, Drawable d, GC gc, int x, int y, unsigned int width, unsigned int height, int angle1, int angle2);
+XDrawArcs(Display *display, Drawable d, GC gc, XArc *arcs, int narcs);
+XFillRectangle(Display *display, Drawable d, GC gc, int x, int y, unsigned int width, unsigned int height);
+XFillRectangles(Display *display, Drawable d, GC gc, XRectangle *rectangles, int nrectangles);
+XFillPolygon(Display *display, Drawable d, GC gc, XPoint *points, int npoints, int shape, int mode);
+XFillArc(Display *display, Drawable d, GC gc, int x, int y, unsigned int width, unsigned int height, int angle1, int angle2);
+XFillArcs(Display *display, Drawable d, GC gc, XArc *arcs, int narcs);
+XFreeFont(Display *display, XFontStruct *font_struct);
+XUnloadFont(Display *display, Font font);
+XFreeFontNames(char *list[]);
+XFreeFontInfo(char **names, XFontStruct *free_info, int actual_count);
+XTextExtents(XFontStruct *font_struct, char *string, int nchars, int *direction_return, int *font_ascent_return, int *font_descent_return, XCharStruct *overall_return);
+XTextExtents16(XFontStruct *font_struct, XChar2b *string, int nchars, int *direction_return, int *font_ascent_return, int *font_descent_return, XCharStruct *overall_return);
+XQueryTextExtents(Display *display, XID font_ID, char *string, int nchars, int *direction_return, int *font_ascent_return, int *font_descent_return, XCharStruct *overall_return);
+XQueryTextExtents16(Display *display, XID font_ID, XChar2b *string, int nchars, int *direction_return, int *font_ascent_return, int *font_descent_return, XCharStruct *overall_return);
+XDrawText(Display *display, Drawable d, GC gc, int x, int y, XTextItem *items, int nitems);
+XDrawText16(Display *display, Drawable d, GC gc, int x, int y, XTextItem16 *items, int nitems);
+XDrawString(Display *display, Drawable d, GC gc, int x, int y, char *string, int length);
+XDrawString16(Display *display, Drawable d, GC gc, int x, int y, XChar2b *string, int length);
+XDrawImageString(Display *display, Drawable d, GC gc, int x, int y, char *string, int length);
+XDrawImageString16(Display *display, Drawable d, GC gc, int x, int y, XChar2b *string, int length);
+XPutImage(Display *display, Drawable d, GC gc, XImage *image, int src_x, int src_y, int dest_x, int dest_y, unsigned int width, unsigned int height);
+XReparentWindow(Display *display, Window w, Window parent, int x, int y);
+XChangeSaveSet(Display *display, Window w, int change_mode);
+XAddToSaveSet(Display *display, Window w);
+XRemoveFromSaveSet(Display *display, Window w);
+XInstallColormap(Display *display, Colormap colormap);
+XUninstallColormap(Display *display, Colormap colormap);
+XSetFontPath(Display *display, char **directories, int ndirs);
+XFreeFontPath(char **list);
+XGrabServer(Display *display);
+XUngrabServer(Display *display);
+XKillClient(Display *display, XID resource);
+XSetScreenSaver(Display *display, int timeout, int interval, int prefer_blanking, int allow_exposures);
+XForceScreenSaver(Display *display, int mode);
+XActivateScreenSaver(Display *display);
+XResetScreenSaver(Display *display);
+XGetScreenSaver(Display *display, int *timeout_return, int *interval_return, int *prefer_blanking_return, int *allow_exposures_return);
+XAddHost(Display *display, XHostAddress *host);
+XAddHosts(Display *display, XHostAddress *hosts, int num_hosts);
+XHostAddress *XListHosts(Display *display, int *nhosts_return, Bool *state_return);
+XRemoveHost(Display *display, XHostAddress *host);
+XRemoveHosts(Display *display, XHostAddress *hosts, int num_hosts);
+XSetAccessControl(Display *display, int mode);
+XEnableAccessControl(Display *display);
+XDisableAccessControl(Display *display);
+XSelectInput(Display *display, Window w, long event_mask);
+XFlush(Display *display);
+XSync(Display *display, Bool discard);
+XNextEvent(Display *display, XEvent *event_return);
+XPeekEvent(Display *display, XEvent *event_return);
+Bool(Display *display, XEvent *event, XPointer arg);
+XIfEvent(Display *display, XEvent *event_return, Bool (*predicate)(), XPointer arg);
+Bool XCheckIfEvent(Display *display, XEvent *event_return, Bool (*predicate)(), XPointer arg);
+XPeekIfEvent(Display *display, XEvent *event_return, Bool (*predicate)(), XPointer arg);
+XWindowEvent(Display *display, Window w, long event_mask, XEvent *event_return);
+XMaskEvent(Display *display, long event_mask, XEvent *event_return);
+XPutBackEvent(Display *display, XEvent *event);
+int(Display *display, int (*procedure)());
+int(Display *display, Bool onoff);
+XGetErrorText(Display *display, int code, char *buffer_return, int length);
+XGetErrorDatabaseText(Display *display, char *name, char *message, char *default_string, char *buffer_return, int length);
+int(int(*handler)(Display *));
+XUngrabPointer(Display *display, Time time);
+XChangeActivePointerGrab(Display *display, unsigned int event_mask, Cursor cursor, Time time);
+XGrabButton(Display *display, unsigned int button, unsigned int modifiers, Window grab_window, Bool owner_events, unsigned int event_mask, int pointer_mode, int keyboard_mode, Window confine_to, Cursor cursor);
+XUngrabButton(Display *display, unsigned int button, unsigned int modifiers, Window grab_window);
+XUngrabKeyboard(Display *display, Time time);
+XGrabKey(Display *display, int keycode, unsigned int modifiers, Window grab_window, Bool owner_events, int pointer_mode, int keyboard_mode);
+XUngrabKey(Display *display, int keycode, unsigned int modifiers, Window grab_window);
+XAllowEvents(Display *display, int event_mode, Time time);
+XWarpPointer(Display *display, Window src_w, Window dest_w, int src_x, int src_y, unsigned int src_width, unsigned int src_height, int dest_x, int dest_y);
+XSetInputFocus(Display *display, Window focus, int revert_to, Time time);
+XGetInputFocus(Display *display, Window *focus_return, int *revert_to_return);
+XChangeKeyboardControl(Display *display, unsigned long value_mask, XKeyboardControl *values);
+XGetKeyboardControl(Display *display, XKeyboardState *values_return);
+XAutoRepeatOn(Display *display);
+XAutoRepeatOff(Display *display);
+XBell(Display *display, int percent);
+XQueryKeymap(Display *display, char keys_return[32]);
+XChangePointerControl(Display *display, Bool do_accel, Bool do_threshold, int accel_numerator, int accel_denominator, int threshold);
+XGetPointerControl(Display *display, int *accel_numerator_return, int *accel_denominator_return, int *threshold_return);
+XDisplayKeycodes(Display *display, int *min_keycodes_return, int *max_keycodes_return);
+XChangeKeyboardMapping(Display *display, int first_keycode, int keysyms_per_keycode, KeySym *keysyms, int num_codes);
+XFreeModifiermap(XModifierKeymap *modmap);
+XSetClassHint(Display *display, Window w, XClassHint *class_hints);
+XSetTransientForHint(Display *display, Window w, Window prop_window);
+XSetIconSizes(Display *display, Window w, XIconSize *size_list, int count);
+XSetCommand(Display *display, Window w, char **argv, int argc);
+XStandardColormap *XAllocStandardColormap(void);
+XrmStringToBindingQuarkList(char *string, XrmBindingList bindings_return, XrmQuarkList quarks_return);
+XRefreshKeyboardMapping(XMappingEvent *event_map);
+XRebindKeysym(Display *display, KeySym keysym, KeySym list[ ], int mod_count, unsignedchar *string, int num_bytes);
+XSetRegion(Display *display, GC gc, Region r);
+XDestroyRegion(Region r);
+XOffsetRegion(Region r, int dx, int dy);
+XShrinkRegion(Region r, int dx, int dy);
+XClipBox(Region r, XRectangle *rect_return);
+XIntersectRegion(Region sra, Region srb, Region dr_return);
+XUnionRegion(Region sra, Region srb, Region dr_return);
+XUnionRectWithRegion(XRectangle *rectangle, Region src_region, Region dest_region_return);
+XSubtractRegion(Region sra, Region srb, Region dr_return);
+XXorRegion(Region sra, Region srb, Region dr_return);
+XStoreBytes(Display *display, char *bytes, int nbytes);
+XStoreBuffer(Display *display, char *bytes, int nbytes, int buffer);
+XRotateBuffers(Display *display, int rotate);
+XVisualInfo *XGetVisualInfo(Display *display, long vinfo_mask, XVisualInfo *vinfo_template, int *nitems_return);
+XPutPixel(XImage *ximage, int x, int y, unsigned long pixel);
+XAddPixel(XImage *ximage, long value);
+XDestroyImage(XImage *ximage);
+XContext XUniqueContext(void);
+XFreeExtensionList(char **list);
+XAddToExtensionList(XExtData **structure, XExtData *ext_data);
+XAllocID(Display *display);
+XAllocIDs(Display *display, XID *ids_return, int count);
+FlushGC(Display *display, GC gc);
+_XFlushGCCache(Display *display, GC gc);
+LockDisplay(Display *display);
+UnlockDisplay(Display *display);
+Data(display, (char *) data, nbytes);Data16(display, (short *) data, nbytes);Data32(display, (long *) data, nbytes);
+XSetStandardProperties(Display *display, Window w, char *window_name, char *icon_name, Pixmap icon_pixmap, char **argv, int argc, XSizeHints *hints);
+XSetNormalHints(Display *display, Window w, XSizeHints *hints);
+XSetZoomHints(Display *display, Window w, XSizeHints *zhints);
+XSetSizeHints(Display *display, Window w, XSizeHints *hints, Atom property);
+XSetStandardColormap(Display *display, Window w, XStandardColormap *colormap, Atom property);
+XMakeAssoc(Display *display, XAssocTable *table, XID x_id, char *data);
+XDeleteAssoc(Display *display, XAssocTable *table, XID x_id);
+XDestroyAssocTable(XAssocTable *table);
+DefaultDepth(display, screen_number);
+DefaultScreenOfDisplay(display);
+ScreenOfDisplay(display, screen_number);
+XStoreName(Display *display, Window w, char *window_name);
+XSetIconName(Display *display, Window w, char *icon_name);
+XSetWMHints(Display *display, Window w, XWMHints *wmhints);
+_XRead(Display *display, char *data_return, long nbytes);
+_XRead16(Display *display, short *data_return, long nbytes);
+_XRead32(Display *display, long *data_return, long nbytes);
+_XRead16Pad(Display *display, short *data_return, long nbytes);
+_XReadPad(Display *display, char *data_return, long nbytes);
+
+
+int (*proc)(Display *display, XExtCodes *codes);
+int (*proc)(Display *display, GC gc, XExtCodes *codes);
+int (*proc)(Display *display, GC gc, XExtCodes *codes);
+int (*proc)(Display *display, GC gc, XExtCodes *codes);
+int (*proc)(Display *display, XFontStruct *fs, XExtCodes *codes);
+int (*proc)(Display *display, XFontStruct *fs, XExtCodes *codes);
+int (*proc)(Display *display, XEvent *re, xEvent *event);
+int (*proc)(Display *display, XEvent *re, xEvent *event);
+int (*proc)(Display *display, XErrorEvent *he, xError *we);
+int (*proc)(Display *display, xError *err, XExtCodes *codes, int *ret_code);
+int (*proc)(Display *display, int code, XExtCodes *codes, char *buffer, int nbytes);
+void (*proc)(Display *display, XErrorEvent *ev, void *fp);
+void (*proc)(Display *display, XExtCodes *codes, char *data, long len);
