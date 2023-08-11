@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    
+    
+    
+    <link rel="stylesheet" type="text/css" href="/css/base.css?1691794048">
+
+    <script type="text/javascript" src="/js/base.js?" ></script>
+
+    
+    
+    <title>Monitoring Raw X11 Communication or why Chromium opens 7 Xorg connections | Hereket</title>
+</head>
+
+
+<body><div id="nav-border" class="container header">
+    <div class='page-wrap content'>
+        <a href="/"><div class="header-logo"> Hereket </div></a>
+        <nav id="nav" class="nav">
+            
+            <a class="nav-link" href="/">
+            
+            Posts
+            </a>
+            
+            <a class="nav-link" href="/tiny/">
+            
+            Tiny
+            </a>
+            
+            <a class="nav-link" href="/contact/">
+            
+            Contact
+            </a>
+            
+        </nav>
+    </div>
+</div>
+<div id="content">
+<div class="page-wrap article">
+    <div class='main-content article'>
+        <h1>Monitoring Raw X11 Communication or why Chromium opens 7 Xorg connections</h1>
+        
+        <div><time class='post-time' datetime="2023-08-11">2023-08-11</time></div>
+        
+        <br><br>
+        <p>This is partly a continuation of previous article on this topic:
+<a href="/posts/exploring-xorg-connections/">Exploring Xorg connections</a></p>
+<p>While exploring Xorg and its connections I stumbled upong interesting fact that
+some apps open multiple connections to Xorg even though they have just one
+window. For example chromium had 7, skype 8, firefox and telegram had each 2
+connections. Since Skype connection count was suspisiously close to chromeium
+I immediately assumed that it is all because of <strong>Electron</strong> since it is based
+on chromium. Once I opened vscode and indeed it had 8 connections which leads to
+assumption that all chromium based (electron) applications open 7+ Xorg
+connections.</p>
+<p>This got me interested in getting to know what those 7 connections were. Since
+chromium had 7 connections and the rest of chromium based apps were 8 connections
+I thought that chromium opens 7 connections and all others just open one extra for
+themself. This lead me to look into chromium as it was common factor between all
+of them.</p>
+<p><img src="/posts/monitoring-raw-x11-communication/chromium-connections.png" alt="All connections from Chromium toXorg"></p>
+<p>Initially it looked like chromium used one connection either for each window or
+for each tab. But later experiments showed that no matther amount of chromium
+windows or tabs open, number of connections is remained exactly 7. This leads to
+a different assumption that Chromium might split connection by functionality.
+But how to verify it? I first started with grepping chromium source code as I
+thought it was the easiest way but after 30-50 minutes it looked that the source
+code would take more time to figure out than to just reverse it by looking at
+the protocol communication level.</p>
+<p>To my big surprise unix sockets are not supported neither by <strong>tcpdump</strong> nor by
+<strong>wireshark</strong>. This totally broke my feeling that I can easily just plug some
+ready made tool, enter my root password and have full access to the information.
+After some time of googling and then &ldquo;talking&rdquo; to various chatbots I still
+didn&rsquo;t find an easy way. But then I remembered that X11 is client-server model
+and must support TCP (something that I am more comfortable with) and it still
+does.</p>
+<p><strong>DISCLAIMER</strong>: <strong>If you decide to turn on TCP communication on yoru Xorg server,
+I do not take any responsibility and fully discourage doing so unless you know
+what you are doing.</strong></p>
+<p>To force X server to work through TCP we need to change how it starts. On my
+system there is a file responsible for starting X located at
+<strong>/etc/X11/xinit/xserverrc</strong>. In that file you need to ask X server not to
+listen on <strong>unix</strong> and <strong>local</strong> connections. And since <strong>tcp</strong> connections are
+probably disable by default you need to ask X to enable it (without it won&rsquo;t
+start). So for myself I put this line in my xserverrc:</p>
+<pre tabindex="0"><code>exec /usr/bin/X -nolisten unix -nolisten local -listen tcp &#34;$@&#34;
+</code></pre><p>To make it work just reboot the system or kill the X server just dont&rsquo; forget to
+save all data before doing so.</p>
+<p>After start X server again you can list all connections and grep for &ldquo;x11&rdquo; or
+&ldquo;6000&rdquo;. In my current configuration <strong>ss</strong> shows port 6000 as x11 when it lists
+all connections. This is how it might look like:</p>
+<p><img src="/posts/monitoring-raw-x11-communication/x11-tcp-connections.png" alt="X11 TCP connectino list"></p>
+<p>If you didn&rsquo;t read previous post here is how Xorg connections look like
+normally (on my computer they are always abstract unix sockets):</p>
+<p><img src="/posts/monitoring-raw-x11-communication/x11-unix-connections.png" alt="X11 TCP connectino list"></p>
+<p>So now as we forced everybody to work over TCP we can wireshark to monitor
+communication between clients and server. Just boot up wireshark and ask it to
+monitor everything on <strong>Loopback</strong> interface. This will create a lot of logs so
+my advice is just log enough interactions with the system and then save it to a
+local file and work with &ldquo;offline&rdquo; version. I did the same and recorded just
+over 1 minute of interaction with chromium where I first start monitoring then
+opened Chromium  and did several operations like opening and closing windows,
+opening and closing tabs, copy pasting and the then closed Chromium all
+together. This is how it looked:</p>
+<p><img src="/posts/monitoring-raw-x11-communication/wireshark.png" alt="Wireshark session"></p>
+<p>At then end 72 secons of wireshark session ended up as one file of 740 Mb of
+pcap data which consist of 120890 packets. The is big bowl of data points which
+needs to be filtered to be of any use. First I filtered out anything that is not
+related to X11 protocol by using <strong>x11</strong> filter in the display filter bar. This
+alone reduced sample size to 78960 packets and removed 34% of TCP overhead and
+other unrelated data.</p>
+<p>So next is just filter by each connection and see what happened in each one. The
+trick is similar to what has been done in previous post. Filter all connections
+that has <strong>x11</strong> or <strong>6000</strong> port as a destination port. It is a lot simpler
+than previous script (but I was lazy and used old script and change some params
+there even though it is less efficient). This is what I got when I run the
+script on my machine.</p>
+<pre tabindex="0"><code>16: |  37008 - chromium        | pid:203388         -1 - chromium
+17: |  37002 - chromium        | pid:203388         -1 - chromium
+18: |  37050 - chromium        | pid:203423         -1 - chromium
+19: |  37022 - chromium        | pid:203423         -1 - chromium
+20: |  37030 - chromium        | pid:203423         -1 - chromium
+21: |  37062 - chromium        | pid:203423         -1 - chromium
+22: |  37036 - chromium        | pid:203423         -1 - chromium
+</code></pre><p>The first column give just an <strong>index</strong> in the list of results. Second column is
+<strong>source port</strong> and fourth is <strong>process ID</strong>. So started chromium window has 2
+processes one of which has two connections and the other has four connections
+with Xorg. In order to explore communication or each connection then we just
+need to filter by x11 protocol and specific port like this:</p>
+<pre tabindex="0"><code>x11 &amp;&amp; tcp.port == 37008
+</code></pre><p>In total my interactions with chromium created 65747 packets which is slighly more
+than half of all the X11 packets captured. I didn&rsquo;t measure but I guess second
+largest traffic user could be wireshark itself. If we filter just Chromium in 72
+seconds it gives us almost 7.5 Megabytes of X11 only traffic which give us
+on average 105 Kbs X11 traffic.</p>
+<pre tabindex="0"><code>port 37008 | 341 packets   | 79754 bytes
+port 37002 | 19145 packets | 3459550 bytes
+port 37050 | 45670 packets | 4130920 bytes
+port 37022 | 14 packets    | 15920 bytes
+port 37030 | 252 packets   | 62120 bytes
+port 37062 | 14 packets    | 15920 bytes
+port 37036 | 38 packets    | 23908 bytes
+-----------------------------------------------------
+sum:       | 65747 bytes   | 7788092 bytes, 7.42 Mb
+</code></pre><p>From the stats above we can see that there is some heavy lifting from one of the
+port of each of the 2 processes. It could be hat port 37002 is doing input
+processing and port 37050 is responsible for all drawing operations.</p>
+<p>From one of my interactive sessions where I run wireshark and monitored each
+port for activity when I did something with window I had these notes on packet
+chagnes.</p>
+<ul>
+<li>port 1: Nothing - Map notify and Atoms setup</li>
+<li>port 2: Keyboard input. More packets on input</li>
+<li>port 3: Window attribute changes</li>
+<li>port 4: Nothing</li>
+<li>port 5: Constantly sends something when window is visible and nothing when
+invisible.</li>
+<li>port 6: Nothing</li>
+<li>port 7: Nothing</li>
+</ul>
+<p>From the capture above port <strong>37008</strong> just sets InternAtoms, queries for some
+extensions and recieves some notifications such as PropertyNotify and
+xkb-MapNotify. Here is the list of requested Atoms:</p>
+<pre tabindex="0"><code>UTF8_STRING
+WM _CLIENT_LEADER
+WM_DELETE_WINDOW
+WM_LOCALE_NAME
+WM_PROTOCOLS
+WM_TAKE_FOCUS
+WM_WINDOW_ROLE_NET_ACTIVE_WINDOW
+_NET_CURRENT_DESKTOP
+_NET_FRAME_EXTENTS
+_NET_STARTUP_ID
+_NET_WM_CM_S0
+_NET_WM_DESKTOP
+_NET_WM_ICON
+_NET_WM_ICON_NAME
+_NET_WM_NAME
+_NET_WM_PID
+_NET_WM_PING
+_NET_WM_STATE
+_NET_WM_STATE_ABOVE
+_NET_WM_STATE_BELOW
+_NET_WM_STATE_FULLSCREEN
+_NET_WM_STATE_HIDDEN
+_NET_WM_STATE_MODAL
+_NET_WM_STATE_MAXIMIZED_VERT
+_NET_WM_STATE_MAXIMIZED_HORZ
+_NET_WM_STATE_SKIP_TASKBAR
+_NET_WM_STATE_SKIP_PAGER
+_NET_WM_STATE_STICKY
+_NET_WM_SYNC_REQUEST
+_NET_WM_SYNC_REQUEST_COUNTER
+_NET_WM_WINDOW_TYPE
+_NET_WM_WINDOW_TYPE_COMBO
+_NET_WM_WINDOW
+_TYPE_DIALOG
+_NET_WM_WINDOW_TYPE_DND!
+_NET_WM_WINDOW_TYPE_DROPDOWN_MENU
+_NET_WM_WINDOW
+_TYPE_MENU
+_NET_WM_WINDOW
+_TYPE_NORMAL
+_NET_WM_WINDOW_TYPE_POPUP_MENU
+_NET_WM_WINDOW_TYPE_TOOLTIP
+_NET_WM_WINDOW
+_TYPE_UTILITY
+_NET_WM_USER_TIME
+_NET_WM_USER_TIME_WINDOW
+_NET_VIRTUAL_ROOTSGDK_SELECTION
+_NET_WM_STATE_FOCUSEDGDK_VISUALS
+</code></pre><p>For the port <strong>37002</strong> after querying for extensions, seting up some Atoms and
+then getting events GenericEvent, PropertyNotify, QueryPointer and others. My
+best attemp at restoring AtomList from byte stream is here:</p>
+<pre tabindex="0"><code>ATOM_PAIR
+Abs Dbl End Timestamp
+Abs Dbl Fling X Velocity
+Abs Dbl Fling Y Velocity
+Abs Dbl Metrics Data 1
+Abs Dbl Metrics Data 2
+Abs Dbl Ordinal XAbs Dbl Ordinal Y
+Abs Dbl Start TimestampAbs Finger Count
+Abs Fling StateAbs MT Orientation
+Abs MT Position XAbs MT Position Y
+Abs MT Pressure
+Abs MT Touch Major
+Abs MT Touch Minor
+Abs MT Tracking ID
+Abs Metrics Type
+CHECK
+CHOME_SELECTION
+CHROME_SELECTION
+CHROMIUM_COMPOSITE_WINDOW
+CHROMIUM_TIMESTAMP
+CLIPBOARD
+CLIPBOARD_MANAGER
+Content ProtectionDesired
+Device Node
+Device Product ID
+EDIDEnabled
+FAKE_SELECTION
+Full aspect
+_GTK_FRAME_EXTENTS
+INCR
+KEYBOARD
+LOCKMOUSEMULTIPLE
+Rel Horiz Wheel
+Rel Vert Wheel
+SAVE_TARGETS
+SELECTION_STRING
+TARGET1
+TARGET2
+TARGETS
+TEXT
+TIMESTAMP
+TOUCHPAD
+TOUCHSCREEN
+Tap Paused
+Touch 
+Timestamp
+UTF8_STRING
+Undesired
+WM_DELETE_WINDOW
+WM_PROTOCOLS
+WM_WINDOW_ROLE
+XdndActionAsk
+XdndActionCopy
+XdndActionDirectSave
+XdndActionLink
+XdndActionList
+XdndActionMove
+XdndActionPrivate
+XdndAwareXdndDirectSave0
+XdndDropXdndEnter
+XdndFinishedXdndLeave
+XdndPosition
+XdndProxy
+XdndSelection
+XdndStatusXdndTypeList
+_CHROME_DISPLAY_INTERNAL
+_CHROME_DISPLAY_ROTATION
+_CHROME_DISPLAY_SCALE_FACTOR
+_CHROMIUM_DRAG
+_RECEIVER
+!
+_GTK_HIDE_TITLEBAR_WHEN_MAXIMIZED
+_GTK_THEME_VARIANT_ICC_PROFILE
+_MOTIF_WM_HINTS
+_NETSCAPE_URL
+_NET_ACTIVE_WINDOW
+_NET_CURRENT_DESKTOP
+_NET_FRAME
+_EXTENTS
+_NET_STARTUP_INFO
+_NET_STARTUP_INFO_BEGIN
+_NET_SUPPORTED
+_NET_SUPPORTING_WM_CHECK
+_NET_SYSTEM_TRAY_OPCODE
+_NET_SYSTEM_TRAY_S0
+_NET_SYSTEM_TRAY_VISUAL
+_NET_WM_BYPASS
+_COMPOSITOR
+_NET_WM_CM
+_S0
+_NET_WM_DESKTOP
+_NET_WM_ICON
+_NET_WM_MOVERESIZE
+_NET_WM_NAME
+_NET_WM_OPAQUE_REGION
+_NET_WM_PID
+_NET_WM_PING
+_NET_WM_STATE
+_NET_WM_STATE_ABOVE
+_NET_WM_STATE_FOCUSED
+_NET_WM_STATE_FULLSCREEN
+_NET_WM_STATE_HIDDEN
+_NET_WM_STATE_MAXIMIZED_HORZ
+_NET_WM_STATE_MAXIMIZED_VERT
+_NET_WM_STATE_SKIP_TASKBAR
+_NET_WM_STATE_STICKY
+_NET_WM_SYNC_REQUEST
+_NET_WM_SYNC_REQUEST_COUNTER
+_NET_WM_USER_TIME
+_NET_WM_WINDOW_OPACITY
+_NET_WM_WINDOW_TYPE
+_NET_WM_WINDOW
+_TYPE_DIALOG
+_NET_WM_WINDOW_TYPE_DND
+_NET_WM_WINDOW_TYPE_MENU
+_NET_WM_WINDOW_TYPE_NORMAL
+ 
+_NET_WM_WINDOW_TYPE_NOTIFICATION
+_NET_WM_WINDOW
+_TYPE_TOOLTIP
+_NET_WORKAREA
+_SCREENSAVER_STATUS
+_SCREENSAVER_VERSION
+_XEMBED_INFO
+application/octet-stream
+application/vndchromiumtest
+chromium/filename
+chromium/x-bookmark-entries
+chromium/x-browser-actions
+chromium/x-file-system-files
+chromium/x-pepper-custom-data
+chromium/x-renderer-taint
+chromium/x-web-custom-data
+chromium/x-webkit-paste
+image/png
+image/svg+xml
+marker_event
+scaling mode
+text/html
+text/plain
+text/plain
+;charset=utf-8
+text/rtf
+text/uri-list
+text/x-moz-url
+xwayland-pointer
+xwayland-keyboard
+xwayland-touch
+</code></pre><p>The port <strong>37050</strong> is the one related to drawing. It queried some extensions and
+then mostly worked with GLX and DRI2, requested GetGeometry,
+XFree-VidModeExtension, GetInputFocus and recived events such as
+dri2-InvalidateBuffers.</p>
+<p>Port <strong>37022</strong> didn&rsquo;t do anything of value. From the log it is visible that it
+initialized at the beginning and didn&rsquo;t do anything for the rest of interaction.
+It so small that I could list all of its interactions in one image:</p>
+<p><img src="/posts/monitoring-raw-x11-communication/chrome-port-37022-interaction.png" alt="Chromium port 37022 port interaction"></p>
+<p>Port <strong>37030</strong> was a bit more involved than previous one. For some reason it
+started with request of the same atoms as in port 37002 request. Maybe port port
+37002 from first process setup the Atoms and filled with data for second process
+to read it? Apart from this it just tried some GetProperty and QueryTree.</p>
+<p>Port <strong>37062</strong> is pretty has as few actions as port 37002. Did a setup at the
+begining and nothing else.</p>
+<p>Port <strong>37036</strong> is also a &ldquo;passive&rdquo; connection which queries for some extensions
+and then does nothing. It looks like it queries extensions that were already
+queried by previous connections.</p>
+<p>From what I have seen so far I do not see anything that would require having
+separate connections. It might be some optimization techniques which I don&rsquo;t
+know about. It would have been good if someone wrote a reasoning behind this
+structure. (I searched online but either I am bad at searching or it just not
+there yet).</p>
+<h3 id="what-about-firefox">What about Firefox?</h3>
+<p>I did the same but shorter exploration with firexox. It uses one process and <strong>two</strong>
+connections to connection to Xorg. First connection seems to be realated
+specifically related to input and everything related to window management and
+second used for drawing only. In the port related to input it setups Atoms
+related to window management like WM_DELETE_WINDOW, WM_LOCALE_NAME, WM_PROTOCOLS
+and etc. Apart from this there were nothing out of ordinary.</p>
+<h3 id="how-much-connections-other-applications-open">How much connections other applications open</h3>
+<p>I didn&rsquo;t do deep exploration for other applications but here is some short
+information about apps that I use almost every day.</p>
+<pre tabindex="0"><code>vlc - 2 connections
+gpicview - 1 connection
+skype - 8 connections spread between 2 processes (3 + 5)
+telegram-desktop - 2 connections
+inkscape - 1 connection
+gimp - 1 connection
+lowriter (soffice.bin) - 1 connection
+localc (soffice.bin) - 1 connection
+st (terminal) - 1 connection
+android-studio (java) - 2 connections 1 process
+vscode - 8 connections, 2 processes. (3 connections for &#39;code-oss&#39;, 5 connections
+for &#39;electron&#39; named processes)
+</code></pre><p>For Chromium and Firefox amount of opened windows and tabs does not affect number
+of connections they always remain static. For for simpler apps like for exampel
+<strong>st (terminal)</strong> it opens new process and new connection for each of its
+windows.</p>
+<h3 id="conclusion">Conclusion</h3>
+<p>I got involved with this crazy but super fun idea by accidentally stumbling upon
+that closing skype closed a bunch of Xorg connections. Which made me interested
+in finding why skype needs so much connections in the first place. This lead to
+understanding that it was chromium who was responsible for openning all this
+connections and skype was just using it.</p>
+<p>I looked at how to force Xorg to allow only TCP connections so that look at its
+traffic through wireshark (don&rsquo;t forget to turn it off) and then analyze what
+chromium was doing with all those connections. From very surface exploration
+without digging into details and looking into chromiums source code it looks
+like it just some kind of optimization technique. There is one connection for
+drawing and one for input.</p>
+<p>This post does not open something new. Chromium source code is open and you can
+find this by reading the code. But this is just a diffrenet way to look at it
+and was fun way to waste my time. I hope you had your fun looking at it and
+didn&rsquo;t waste yours.</p>
+
+    </div>
+</div>
+
+        </div><div class='footer'>
+    <div class='page-wrap'>
+    &copy; 2023, Hereket 
+    </div>
+</div>
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-7KHD5ET3Y7"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-7KHD5ET3Y7');
+</script>
+
+
+
+
+<script type="text/javascript" >
+   (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+   m[i].l=1*new Date();
+   for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+   k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+   (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+   ym(94210403, "init", {
+        clickmap:true,
+        trackLinks:true,
+        accurateTrackBounce:true,
+        webvisor:true
+   });
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/94210403" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

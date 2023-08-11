@@ -6,7 +6,27 @@
     <description>Recent content on Hereket</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 02 Aug 2023 14:01:14 +0500</lastBuildDate><atom:link href="https://hereket.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Fri, 11 Aug 2023 03:45:55 +0500</lastBuildDate><atom:link href="https://hereket.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Monitoring Raw X11 Communication or why Chromium opens 7 Xorg connections</title>
+      <link>https://hereket.github.io/posts/monitoring-raw-x11-communication/</link>
+      <pubDate>Fri, 11 Aug 2023 03:45:55 +0500</pubDate>
+      
+      <guid>https://hereket.github.io/posts/monitoring-raw-x11-communication/</guid>
+      <description>This is partly a continuation of previous article on this topic: Exploring Xorg connections
+While exploring Xorg and its connections I stumbled upong interesting fact that some apps open multiple connections to Xorg even though they have just one window. For example chromium had 7, skype 8, firefox and telegram had each 2 connections. Since Skype connection count was suspisiously close to chromeium I immediately assumed that it is all because of Electron since it is based on chromium.</description>
+    </item>
+    
+    <item>
+      <title>Exploring Xorg connections</title>
+      <link>https://hereket.github.io/posts/exploring-xorg-connections/</link>
+      <pubDate>Mon, 07 Aug 2023 03:04:42 +0500</pubDate>
+      
+      <guid>https://hereket.github.io/posts/exploring-xorg-connections/</guid>
+      <description>There is part two: Monitoring Raw X11 Communication or why Chromium opens 7 Xorg connections
+Lately I have been playing around with raw X11 protocol by writing apps that work directly with Xorg by establishing a unix socket connection with it. It was pretty fun to play with and feels like easier than Xlib (but maybe I just got better). While doing all that I got interested with how other programs interact with Xorg and decided to explore how other programs do it and look at programs taht don&amp;rsquo;t have &amp;lsquo;perceptible&amp;rsquo; windows but still maintain connections.</description>
+    </item>
+    
     <item>
       <title>Flutter Embedded Certificate Authorities</title>
       <link>https://hereket.github.io/posts/flutter-embedded-ca/</link>
@@ -106,23 +126,12 @@ So one of my first experiments I wanted to do is to stack different web analytic
     </item>
     
     <item>
-      <title>Lorem ipsum - static</title>
-      <link>https://hereket.github.io/posts/lorem/</link>
-      <pubDate>Mon, 03 Jul 2023 16:05:40 +0500</pubDate>
-      
-      <guid>https://hereket.github.io/posts/lorem/</guid>
-      <description>What is this It is just &amp;rsquo;lorem ipsum&amp;rsquo; text for myself to have somewhere on the web where I can easily get it when I need it.
-.
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam ut mi quis quam bibendum rutrum. Integer egestas convallis urna nec egestas. Donec metus elit, semper quis turpis at, molestie egestas erat. Quisque libero purus, dictum nec auctor quis, convallis ac leo. Morbi mollis elementum risus, sit amet finibus turpis fringilla non.</description>
-    </item>
-    
-    <item>
       <title>Xlib Function List</title>
       <link>https://hereket.github.io/tiny/x11-function-list/</link>
       <pubDate>Sat, 01 Jul 2023 16:05:40 +0500</pubDate>
       
       <guid>https://hereket.github.io/tiny/x11-function-list/</guid>
-      <description> X11 function searcher Filter Show Filter All Return type Function Name Params Show All Return type Function Name Params </description>
+      <description> XLib function searcher Filter Show Filter All Return type Function Name Params Show All Return type Function Name Params </description>
     </item>
     
     <item>
@@ -160,16 +169,6 @@ Once you write me I will write you back from real email.</description>
       
       <guid>https://hereket.github.io/tiny/tree-generation/</guid>
       <description> Click the tree </description>
-    </item>
-    
-    <item>
-      <title>First Post</title>
-      <link>https://hereket.github.io/posts/first/</link>
-      <pubDate>Sat, 03 Jun 2023 16:05:40 +0500</pubDate>
-      
-      <guid>https://hereket.github.io/posts/first/</guid>
-      <description>Start Hello. Initial post in this site. Currently the plan is to use it to test diffent technologies, write some thoughts and share some hobby projects. At the same time I am planning to practice my writing skills.
-My plan is to publish a lot of raw content without deep work on it but we will see how it turns out to be.</description>
     </item>
     
     <item>

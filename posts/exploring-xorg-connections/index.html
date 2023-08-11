@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    
+    
+    
+    <link rel="stylesheet" type="text/css" href="/css/base.css?1691794048">
+
+    <script type="text/javascript" src="/js/base.js?" ></script>
+
+    
+    
+    <title>Exploring Xorg connections | Hereket</title>
+</head>
+
+
+<body><div id="nav-border" class="container header">
+    <div class='page-wrap content'>
+        <a href="/"><div class="header-logo"> Hereket </div></a>
+        <nav id="nav" class="nav">
+            
+            <a class="nav-link" href="/">
+            
+            Posts
+            </a>
+            
+            <a class="nav-link" href="/tiny/">
+            
+            Tiny
+            </a>
+            
+            <a class="nav-link" href="/contact/">
+            
+            Contact
+            </a>
+            
+        </nav>
+    </div>
+</div>
+<div id="content">
+<div class="page-wrap article">
+    <div class='main-content article'>
+        <h1>Exploring Xorg connections</h1>
+        
+        <div><time class='post-time' datetime="2023-08-07">2023-08-07</time></div>
+        
+        <br><br>
+        <p>There is part two: <a href="/posts/monitoring-raw-x11-communication/">Monitoring Raw X11 Communication or why Chromium opens 7 Xorg connections</a></p>
+<p>Lately I have been playing around with raw X11 protocol by writing apps that
+work directly with Xorg by establishing a unix socket connection with it. It was
+pretty fun to play with and feels like easier than Xlib (but maybe I just got
+better). While doing all that I got interested with how other programs interact
+with Xorg and decided to explore how other programs do it and look at programs
+taht don&rsquo;t have &lsquo;perceptible&rsquo; windows but still maintain connections. Bellow is
+just my notes about that.</p>
+<p>So when the system starts up on my setup there are 11 connections to the Xorg.
+These are when I have &ldquo;zero&rdquo; windows opens. Here is the list of apps that open
+connection with Xorg: <strong>xinit, lxsession, lxsession, openbox, lxpolkit, lxpanel,
+pcmanfm, lxclipboard, nm-applet, pulseaudio, at-spi2-registr</strong>.</p>
+<p>Initially when I started with exploring Xorg and its connections I started with
+simple listing all unix connection with <strong>ss</strong> and then grepping for <strong>X11</strong>.
+This gave me a list of connections similar to the list bellow.</p>
+<pre tabindex="0"><code>Netid State  Recv-Q Send-Q          Local Address:Port      Peer Address:Port  Process
+--------------------------------------------------------------------------------------
+u_str ESTAB  0      0         @/tmp/.X11-unix/X0 16834                * 16187
+u_str ESTAB  0      0         @/tmp/.X11-unix/X0 17760                * 16727
+u_str ESTAB  0      0         @/tmp/.X11-unix/X0 14971                * 16724
+u_str ESTAB  0      0         @/tmp/.X11-unix/X0 14980                * 18853
+u_str ESTAB  0      0         @/tmp/.X11-unix/X0 26903                * 16783
+u_str ESTAB  0      0         @/tmp/.X11-unix/X0 2709                 * 16738
+u_str ESTAB  0      0         @/tmp/.X11-unix/X0 26836                * 24813
+u_str ESTAB  0      0         @/tmp/.X11-unix/X0 28684                * 15175
+u_str ESTAB  0      0         @/tmp/.X11-unix/X0 18866                * 16081
+u_str ESTAB  0      0         @/tmp/.X11-unix/X0 24848                * 13486
+u_str ESTAB  0      0         @/tmp/.X11-unix/X0 18869                * 24841
+</code></pre><p>It gives us a list of all connections opened on Xorg side with other
+applications in the system (minus 2 extra listening sockets). If we run ss with
+an extra option -p, it will give the name of the program that is sitting on
+one end of the connection. For example if we run <strong>ss -p | grep X11</strong> it will
+show us that all of the previous 11 connections have
+<strong>users:((&ldquo;Xorg&rdquo;,pid=656,fd=43))</strong> for the program part.</p>
+<p>If we want to get a list of all the user programs that is connected to the to
+Xorg then we can get a list of all connections and then search for &ldquo;Peer
+Port&rdquo; section and relate a connection with Xorg manually. For the list above if
+I search for port 16187 in my list of connections I will find a single
+connection with 16187 as &ldquo;Source Port&rdquo;. In my case it is <strong>pulseaudio</strong>.</p>
+<pre tabindex="0"><code>u_str ESTAB  0  0   * 16187  * 16834  users:((&#34;pulseaudio&#34;,pid=752,fd=34))                                                                                                                                                                 
+</code></pre><p>It could be find to do this manually for a one of task but if you want to
+continuously explore different connections this task might become too
+daunting. To simplify my explorations I wrote a tiny and dirty python script to
+do this manual task automatically. It goes all over the lines and finds all X11
+connections and then finds all programs that is sitting on the other side of the
+connections. After the script is run the output looks like this:</p>
+<pre tabindex="0"><code>  1 |  14971 - Xorg | pid:655         16724 - xinit
+  2 |  17760 - Xorg | pid:681         16727 - lxsession
+  3 |  26836 - Xorg | pid:681         24813 - lxsession
+  4 |  18869 - Xorg | pid:709         24841 - openbox
+  5 |  14980 - Xorg | pid:712         18853 - lxpolkit
+  6 |  18866 - Xorg | pid:713         16081 - lxpanel
+  7 |  18863 - Xorg | pid:715         25659 - pcmanfm
+  8 |   2709 - Xorg | pid:718         16738 - lxclipboard
+  9 |  24848 - Xorg | pid:723         13486 - nm-applet
+ 10 |  16834 - Xorg | pid:752         16187 - pulseaudio
+ 11 |  26903 - Xorg | pid:865         16783 - at-spi2-registr
+</code></pre><p>From this list we can see that that is there a unix socket connection with one
+side being Xorg and port 16834 and the other side is pulseaudio port 16188 and
+pulseaudio has pid of 752.</p>
+<p>Here is the script that used list of connected apps</p>
+<pre tabindex="0"><code>#!/usr/bin/python
+import sys
+import os
+import subprocess
+
+all_data = {}
+result = [] 
+
+match_list = [
+    &#39;/tmp/.X11-unix/X0&#39;,
+    &#39;@/tmp/.X11-unix/X0&#39;,
+]
+
+def get_int(string):
+    try:
+        return int(string)
+    except:
+        return -1
+
+def process_line(line):
+    parts = line.split()
+
+    if len(parts) != 10:
+        return
+
+    netid = parts[0]
+    state = parts[1]
+    recvq = parts[2]
+    sendq = parts[3]
+    local_address = parts[4]
+    local_port = get_int(parts[5])
+    remote_address = parts[6]
+    remote_port = get_int(parts[7])
+    program = parts[8]
+
+    name, pid = get_program(program)
+
+    all_data[local_port] = {
+        &#34;netid&#34; : netid,
+        &#34;state&#34; : state,
+        &#34;recvq&#34; : recvq,
+        &#34;sendq&#34; : sendq,
+        &#34;local_address&#34; : local_address,
+        &#34;local_port&#34; : local_port,
+        &#34;remote_address&#34; : remote_address,
+        &#34;remote_port&#34; : remote_port,
+        &#34;program&#34; : program,
+        &#34;program_name&#34; : name,
+        &#34;program_pid&#34; : pid,
+    }
+
+    if local_address in match_list:
+        result.append({
+            &#39;local_port&#39; : local_port,
+            &#39;remote_port&#39; : remote_port,
+            &#39;local_program&#39;: program,
+            &#34;program_name&#34; : name,
+            &#34;program_pid&#34; : pid,
+        })
+
+def get_program(string):
+    try:
+        parts = string.split(&#39;,&#39;)
+        name = parts[0].split(&#34;\&#34;&#34;)[1]
+        pid = int(parts[1].split(&#34;=&#34;)[1])
+    except:
+        name = &#34;[no name]&#34;
+        pid = &#34;[no pid]&#34;
+    return name, pid
+
+if __name__ == &#39;__main__&#39;:
+    system_result = subprocess.run([&#34;ss&#34;, &#34;-p&#34;, &#34;-u&#34;, &#34;-x&#34;], capture_output=True)
+
+    for line in system_result.stdout.split(b&#39;\n&#39;):
+        process_line(str(line))
+
+    if len(result) == 0:
+        print(&#34;Nothing found. Maybe you forgot to give &#39;-p&#39; flag to &#39;ss&#39;?&#34;)
+    else:
+        for index, item in enumerate(result):
+            remote_program_str = all_data[item[&#39;remote_port&#39;]][&#39;program&#39;]
+            name, pid = get_program(remote_program_str)
+            item[&#39;remote_program_name&#39;] = name
+            item[&#39;remote_program_pid&#39;] = pid
+
+    result = sorted(result, key=lambda x: x[&#39;remote_program_pid&#39;])
+
+    for index, item in enumerate(result):
+        local_name = item[&#39;program_name&#39;]
+        local_pid = item[&#39;program_pid&#39;]
+        local_port = item[&#39;local_port&#39;]
+        remote_port = item[&#39;remote_port&#39;]
+        remote_name = item[&#39;remote_program_name&#39;]
+        remote_pid = item[&#39;remote_program_pid&#39;]
+
+        print(&#34;{:3}: | {:&gt;9} - {} | pid:{:&lt;9} {:&gt;9} - {}&#34;.format(
+            index + 1,
+            local_port,
+            local_name,
+            remote_pid,
+            remote_port,
+            remote_name,
+        ))
+</code></pre><h2 id="programs-that-use-multiple-connections">Programs that use multiple connections</h2>
+<p>At the very beginning (before I wrote that script) I noticed that programs open
+multiple connections to Xorg and that why I wrote a script to see what exactly is behind
+those connections. For example if you run skype it will open almost 8
+connections to Xorg server, firefox opens 2 and telegram-desktop also opens 2
+connections. From usage perspective 1 connection should be enough as you can do
+everything with it. But I guess these apps split them for some efficiency gains.</p>
+
+    </div>
+</div>
+
+        </div><div class='footer'>
+    <div class='page-wrap'>
+    &copy; 2023, Hereket 
+    </div>
+</div>
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-7KHD5ET3Y7"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-7KHD5ET3Y7');
+</script>
+
+
+
+
+<script type="text/javascript" >
+   (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+   m[i].l=1*new Date();
+   for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+   k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+   (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+   ym(94210403, "init", {
+        clickmap:true,
+        trackLinks:true,
+        accurateTrackBounce:true,
+        webvisor:true
+   });
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/94210403" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>
