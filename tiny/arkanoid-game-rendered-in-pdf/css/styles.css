@@ -15,6 +15,7 @@ body, html {
     /* align-items: center; */
     /*  */
     position: relative;
+    height: 100%;
 }
 
 #pdf_container embed{
@@ -22,16 +23,22 @@ body, html {
     width: 90%;
     height: 600px;
 
-    /* opacity: 0.5; */
     position: absolute;
     top: 10;
     left: 0;
     right: 0;
+    opacity: 0.0;
+    /* transition: opacity 1s ease-in-out; */
 }
 
 /* #pdf_container embed:nth-child(1){ */
-/*     margin-left: 50px; */
-/*     margin-top: 50px; */
+/*     padding-left: 100px; */
+/*     padding-top: 100px; */
+/* } */
+
+/* #pdf_container embed:nth-child(2){ */
+/*     padding-left: 50px; */
+/*     padding-top: 50px; */
 /* } */
 
 #content {
@@ -39,8 +46,11 @@ body, html {
     flex: 1;
 }
 
-.hidden {
-    display: none;
+.show {
+    /* display: none; */
+    opacity: 1!important;
+    /* width: 50%!important; */
+    /* width: 100px; */
 }
 
 .phones {
