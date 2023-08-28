@@ -2,98 +2,98 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Tinies on Hereket</title>
-    <link>https://hereket.github.io/tiny/</link>
+    <link>https://hereket.com/tiny/</link>
     <description>Recent content in Tinies on Hereket</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 01 Jul 2023 16:05:40 +0500</lastBuildDate><atom:link href="https://hereket.github.io/tiny/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sat, 01 Jul 2023 16:05:40 +0500</lastBuildDate><atom:link href="https://hereket.com/tiny/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Xlib Function List</title>
-      <link>https://hereket.github.io/tiny/x11-function-list/</link>
+      <link>https://hereket.com/tiny/x11-function-list/</link>
       <pubDate>Sat, 01 Jul 2023 16:05:40 +0500</pubDate>
       
-      <guid>https://hereket.github.io/tiny/x11-function-list/</guid>
+      <guid>https://hereket.com/tiny/x11-function-list/</guid>
       <description> XLib function searcher Filter Show Filter All Return type Function Name Params Show All Return type Function Name Params </description>
     </item>
     
     <item>
       <title>Dna Coloring app</title>
-      <link>https://hereket.github.io/tiny/dna-color-app/</link>
+      <link>https://hereket.com/tiny/dna-color-app/</link>
       <pubDate>Sat, 03 Jun 2023 16:05:40 +0500</pubDate>
       
-      <guid>https://hereket.github.io/tiny/dna-color-app/</guid>
+      <guid>https://hereket.com/tiny/dna-color-app/</guid>
       <description> - + Show letters A C T G &amp;uarr; line up &amp;darr; line down Page Up Page Down Top Alternate Long line first Show editor CLOSE &amp;times; tgcgatcaatgccctatccatgatcatacggtgggagtgaatcgtatagctagactcttttaaaagataataacctgaggccattcgttgcatagtgttgggccgtgacatgcgggcgcaggtgaagacatgcccccgctggtattgcttacggagtttatggtcagacgcggatttcttgcgactcgtcacgggggcgtgcgaacttaagccaaaggcagtacgcacctttggcctaacgtcacagagcgcggatacagctcgaaaggctacggtccgacgtttttatctccccattcgggtactgcggcagccaaggtaccgccactctcggtggttgcatcgcactggttagagaagtcgtcaactccgagattggaatccacttctattccgacggcaaactccgtgagaattaaagtatttttaggcggcaccgacttggggctggcaggaaaggaaaactagggtacaagccaggctacactgagctatcacgacaaccccaaactcttgcggggggatttctcagattactttcacatgtatagaacatgctcgggaggtctttagtttaaagtacactaagttgtcgcctctagttcgctttgattgctataagtatcatgctgcccttccgtcagcagcacgggtgacgaccaagcgtggttgtagacaatcactgcgtcacctcatgtgcataataaggatggtataacatacatcattgatacagttaagttaattgtttagcccttcttgacaatgttctcgtaccagtccccttaataggcgcgctgcaggatctggccccagtaacctgagatgatacctcgcgtatgcctgaagcgtataatgatgtttgaaccagaattaccatgatactgccatgatgagtggcgtcggtagcaaactccgcatagctcaaagcgtcacaagcatcaactgaggggcagaaggccgtgctcggtgcatatacgcttcgagttagaccatactccgcttaccgtttctctagcctacggtagtaggatcctttactgtacattcttcttgtatcacagcagggcacattgtcacagttatggtgctttagcttaacggggcagacgatacagcttcataaggcaaagaacatggattgcagatttaattgtctctcgcaaccagcgagtcgcgaatcaaatctgacgcatcgggcagtttttatcacactctgtcatcagctggatgaggcatgggcgccccggttgccctgatgaaaggattccacaaggaggaccaggtttgccttaacgtcgcaacccgacaccggtcccgtgttgatacaatatcgcagcgctgggcccaaactaccataagtttagagatacaattaattcctcacaagtgtcgcagtaaagtggatccgcactacgaagtcctaccgtaaagtgtcctggagttacctcgccaggcgacgccaaaagggaacaactgtgtgttcgccctgcacccagagtcgagtgagacaagacccgtttgatctgtgctgccggtcccggctaggagggactttggagataaactagaataatcgcccactgatgtatgcgcagatgttatggtcctcgaagcgggggtcgatactgctattgtctccgttttagtggttctagtagtacttatgattcagaggaaggccctcgccgctatgtgcgctgaaacaatgagggttggagctagactctgtgcttctgagattaaaatcacggtggagattcgataccttcttctctagcaccaggaaaagacgcgtggtgagctgtgagaatcgccggtgatgcacgtggcgcggtacaggaccgttagcaggacgtatgtctaccctcaatacgtcgagtattagcccctactacacattaatgaggcatctggcgcacctcacttttcgacacgcggctcatcatgaaatcggcgaaattcaaagtcaagagcccaatccttcgtatctcctgacattagcccaaaagtgccatgcaacgctccaataaggtaggcatcgatgaccaggttatttagtccataggcctaccggggtcgtcgagttgaccccgggtacgtccgggggaactcccgatctaaccacctacgagcggggtgaccgggtggacgccattcacctacggccaccacacttgacgattcgctctacgtgatgtcgaggcagtcgcatataacccccccggatgagatatccatagccacgctagaccaaggcggctaatcgattgatgaaacataacgcgttaactcatgcccaagaccgtattcacactgctactcgacgttcaatccaactggcaatggcagttgggtacagaaaatgttccttctccttatattgccactttacgacgctctaccttcttggatctaggatcacagaataggcagtcattaaatgagaagcccagtactaggcgactggcttgctcagaagtatccagctacggcggaaatgttggcaaaacgtcccactgagatgggatttgtgtccattttggggatttgagagagccttctgtttctatattcagccagtgcgacccctgtgtgttattatattttgaagagcaccctgaggacctatgtccgccgtgcgactcaatttgatttgctcagtacaatatgccagggaatggtccagcattctagaaggatgtgaagctcgtcggaaccgttgctcgacgacatactggcatgtataaatgtctggaacacggcgaaatccggataataactgagaattttcatggagcgtacagcgaacatcaacacgcgtacagtcctgacaacgcaactattgcaactcttttgaccctgcatgggcagtgagcagcttagcgctattggcgtaccagcgatacagggggggtattaaacggagtgtgatcgggacgtactccaggtttctcatcgattgctcctaaagggtcgcgacacgattcgaatagcgtttggaaactatgtatcggtgtctagactgcaaaattggcgtgaccaacagcaaaccgctgacgattagcgaactctggcagggagcaagaattctacgaccaattattcagcgccctggtagcggcgggtttggaagagtggcgcaattcaggtatcctgggttggctaacccatgtttagcgatactaggtaggtcgtacatgagtggcggtacctacccagaagcaggtgtcccagtgcaggttgttgataacgtagtacactgactctatctaacagttaacctcgcctcgtcaacgcacatcatgcatatttatccgtcccccagtcatacacagccccgctgtaatcttagtggcaagtgccggcccgaggaagagggcgagcaggggttggtttagtaacgcagggcatgtactcgttctgtgaacgggggtatactccttgattttaaaataccttagaaaaaggcagacctacacttgtaatggatacgttctgttaccagcgaatgtcgcgttgtacgggtgcgggtgtgccccgacaggggagccggtgctaattccgaaagaaagggacgcggggatgggggtgaaacatccgctctacgtcggtgcgtccctgacgccgccaataggtccacattcacaattaatcaaagggacgtgtcggcagattttttctgaactatcagtacgcctctccgtgaataccgtcagactactgtttagccggattcagctgcgagcttacggctgtcatatgatgcacgcgttgctgttagcgtctgcaaggctgcgagagcgggtattaggtcgaagccgtacagataaatgccgcgctttgtcagctgtctgaggaaatcgtagcattttatacgctcggcttatgacgctctggtcacctatcccccactctttatcgaatcgttacctggaattacaagaccggcctgcccgccagcatcatcagacttagcattaggttagattgcggtatttttttgaggtagtaatgggagtcgatacgtgcagagtatagtgtcgtcgttgcgggggtgcttccccgttgccagaggcgggatgatcttagactatagtgaacgagtgagccttcaatcgtaggccgagtagaagtagatatgcactcttgcccacgggtgtcctccccctacagcatccagttactctacagtttatggtcgcgcaggcttaagaaggcatgctcccgatcgggactagggcctatggacggtcagtagcgacgtctaggcaccaacccgttggtcttttccggccatttgatattcaccgcccggcgcatgttttaccccgcggaaacattctgtcaaaaatagtttatcagacgatccacaataaagcaggcatatggcttttcttgattgaactcgtccgattgctcggctgccctatttaggttcgtgcggcatgagagattacccgttacggggaatgtagcccttatcctacgcgaaagaaaccgatgttctatgcgatcccgagataaggaacatttgaaccaagttccgaataatgtgaagtcttggcccaatattgccaagtaccgcatgccctccatatccgatgacagacttctagaaagttcgtcggccaaacgattcttgctagcacgccccaattcatcctgaacacgcccagtcacagagaatgtcgaatttgctcagtttcgagtcgatgttagtacctttctcatatgcccgataacaatccataaggccggtagcgtgtgtgcgcttcctgtttacgcttgagacaaaaattcgtcacatcggtgcccgctgcgccccgccccgtatattcactagagcgaccaggcccttaagggagttgtgtagtcatcttaggaagttcgggatcgacccgacccccttggaggctcgatgttatcaccatatgtccgctagcagtcgttgcagaaaacgtatgatcaagccctatcaaaagctcccagcattaaacgcaccaaagtggtacgatatcatagcactagtgagtgccttggacttcctgagtgatgagcctgggcttctgcctactagaccgagctcgccacgacctgaatcatccacaacgccacagtggtcaactttccgtccataccagaagctcactgggtaccccatcaaatctggttaatgggtaaccgaaagacccgctagtagatgttgttcatcagggtttagaacttcacgggctctgacagagcgtatgttcagcgtgatcgccgctactgcccgcatagagtcagctagatgtcatgtcccaaactcgtcgtgcgtcagatgacctagttgccacatgcagcctcctatctcgggagaagcaatgtgtatcgtcccgggtgttgggctacgcagtacaaatagggcactatagtatacgttaatccctccccggaggcgtaaggctgatagcacgcatcaatcgaaacactcactgggcgcggcgtgcggctaggacggacactgggcttctggctctggggcccgacccggttttaccgcttcagcccaggatgtgtggctccctgtaaatgcagagatgaaaatctcacatcaaccaataaaggcgacattagcgagtcaacagggacacatgccctttcatttcgaatcacgcgttaccgtattcacattctgcatgcgtctgactcagattacttctacgtacagggtatgcaaggaagatttagtgccctacaatcggaaggtcccaagcgctacttaatgacctttgtcctaccaccacttaacagagcgtattggttatttcctagcgaaagggatccaggaaacagcgtgatacaacttattttcccggatagggtccgactactaggttgtctctgtttgctgccctccccaggtcgaccttcacagaaagtattaccatgcctgtgtcgagactaccacccgagtcaacgaccacaccggagaacggggcatctatggttctgaatgctttccagaatctgaaagcctgactgttcacggtttgtcaactctagacaggatggcacctggtgagtgcaactgcgtagacaggtcctctatttttgtggaccctgcggaatggcttataccttgtcggtgccgatagagtgcaattgccgcctattacacctccaatacctcccctcagggacgtaatttgaaccatatgcccgttgagcattccaacgccgctctttcaatcacttcctgtaagaacgcgttgggttatttaaacactccaactcacggagctacacgcgcatggtttttattgagtcgatctttcattcaaatcaaatatctttaaccgaggtgggcatctctgcgactatcgcacccgtgccaccttttattagaaggcagataccttggccctaccgcctggctttatagggaagtaaatgttcccgagtgttcacgctgcacctactcggcaagaaaaccaacctccggggataccggttacgtttctcgttcaaagacaagttttaagtctctcgcaagacactggtcgtctcgatggctacttatgcgggatcttaaaatggagtagttagggtgtcctttgcccggtctggcggagacgatagaccgtatgaaccttagggattgtgatagcaggttcaagttcccctcgctaagtgcgtgattgcaccgccatcacgacagtctttttgcagtgcaacgtaaagacactatagtccatcatcaagacctgttacgacatcgtcgagtcatccgcttggttctgctgactctcaggtaaaaggtctactgctgaagcgtctgtgtggtggagacgctcggcttttccgtttattaggtcgtgcctacactggagctctgtcatgtcatatccctgtcagattagcatcacagaagtacccgtagactgccagcgcgtatcgaacccgtggaccgtcggtatgccaagccaaaccctggttggcacatccgaagataacaaggggtcgtgtgggcatcggatggtccctcgattggataaaggaccgaacgtgcgaatggcccctaagggttaggaaaggtatctttatcgtatgttcaatgttaactccttgtcgtgtaactgtctgttattcccggagtgccagaaaagacgaaaagtcacgtaaaacagaacagtcttctcgcctattacgccaggacggaccccgagaagctcggtactaaccggcagatcgatagccgagatcttcgcatagaatagctcaaacattcatcatcgtgaagcgcacagaagccgaccccgtgtcaaaaagagccagacgagctggctgacctgctgataacaaggtcaacagcgaatgtttgagtttgtcgtacgacatctcctcatacaggatccagtgacaaggatgaagcaggtcccccatctcttcaactacaatgggacacctccaccttaagtgctcggattgtctgggtcgcgggttcgggttgcgcatgagcttgctatagctacgcctcatgtaaacagattctaaagtctcaccagtggctgcttaattacccttcagctgcctagtcgtagcagtatagtctccgttgcggcgtgtttgggcaaacgaattttcatgagaactcaatttcaacgctaaacggaagcattcaagtctccctgagtccgttcccttgtcagtacgatgcgctgtaaggggcgcgatctgctacctagcggagtgtgcttgctcgaaacccaagtgcgggatcgcgaaatgtcaagatggcttccgcgcgtggaaccgcgagcgctacaatcccgatctagaaaacgtctgctgacgctcagtgttgctctttatttctgcaaagctcctgaagtcaatggggaccattagtagctcatggctatggaatagcgccctaggacccctctgaagtgtggcaagtggggcggtgctatcgcatcaaaggcacgtggcgtagtattcggtgtgtaatttcttggcattgtgtattccctgtgagcgttgacgaggcactataataaaccccggcggcataagtgaaaacctgcgcgatcgcgtcacagcgtacctgacgcaccgcctcgaatttccccaggaggtctgccagtgaaggtcctcacagctatgcgttattgttgtgagagtagaaagctttataaaatgaagcatgtcttaatgcgtctgaaatgacaatgagacaatggtgctaaaacgcttcgaccaccagattataagacctgctcagatcatcgatcaagcattaccgggaactcccggcataacctgcctgcctaatttctgaaaacccgcctgtaaaacgagacaccatgatatcgtttctgctcgacacttattggacggctggtctgtctttgaacagaccaattcttagaggattaagccaagccgaacgcccttttcgaacagtggggccttctgtatgcagatcaaatcatagatggcaccgctgtgacgacgctgcctcttatctactcttatcacacttcggtggaccacgaattaaggttatagacgttggagcagcacccatggtggcataccatttacgttgtcgcattgttggtcgcaagtgggaaattactacacgtaatgcgcgcctcagtgcctttggcaaggtgtgcaacacgatcaaatgatgcacacaccgttatgtcctaagcacatgtcccataatggaccgcctgtttggaggcgttgtccagaataattatgtaaacgcggtaggtaccgaagcgtgtttcagctacccgtgctaacggagctgggtcctgaccactcgggttccgccgcgcttgggtagctatcactcagaggaaatggtgtacatagcacgtgccagcgtcggcgagatgtcagaagcgcgccgagggccgattgtatattgtaaagcctacgtgcactgcgccgcatgatggttcaggctacgttcttttgagtgtaatttcgaaatgggcgccttccattatatttgttgcgaaggaacttgaatggacaagtagcgtatattgtgttataaagggatacaacgttaccattagcaaatcttagggtgataatcgacagttgtctcgattcggtgaataggccttcagagctgtctgaccaaatttttcgtgatactctttagtgggtggtaacgtagcgcgaatcacccccgttgagcaagttccttaactttgcccacccccgtgcctcgtagaagatgctggccgctggctagctcaccgatctatcattcgttttgatggctcccgcacatagagtaagaggcaagccttgtcaaacataaagtctctgaaaatactctgcctgtgaagctgctacattagtagcaaacgctaaatgtctctatcgagcgcctgtttacctactgaccaaggcccctggcaatggagcccttgtctttacactgagcgggggtaatacgaggcgggcccgaaacagccttgtccttaatacgtcgcgggatttgtggcaaaagcctctatagactcaggggcggatctaagtagcaagcgggtcacctacgtctgggctgcggaattttacattatgcgtaactgtattcctagtcgactgaacaacgggtgtagtgctcaaagatgccgggcgtagcccttaagccgtatctgtgatgaaatacaagaacgtcgcgcaggggtctgagcacccacgaaagcttagccggttgcacgttttccggaacagagcagtctaggcatgtatctaagcaaactattaataattggtgccatggacagtaacggtcactcaactattactatccacattctacagcttaaacgaagaaaagcttttcgcggcattggtcggtcgattggttccctccgcaactaccgttgggaacagccttataacctgcgtagcccttcgagtgccatactagacgtaactcatctttctcttctaaggagaccgctgtaatcccacgcga </description>
     </item>
     
     <item>
       <title>Dynamic sphere generation</title>
-      <link>https://hereket.github.io/tiny/sphere-generation/</link>
+      <link>https://hereket.com/tiny/sphere-generation/</link>
       <pubDate>Sat, 03 Jun 2023 16:05:40 +0500</pubDate>
       
-      <guid>https://hereket.github.io/tiny/sphere-generation/</guid>
+      <guid>https://hereket.com/tiny/sphere-generation/</guid>
       <description> &lt;!DOCTYPE html&gt; Moving points on a sphere </description>
     </item>
     
     <item>
       <title>Dynamic tree generation</title>
-      <link>https://hereket.github.io/tiny/tree-generation/</link>
+      <link>https://hereket.com/tiny/tree-generation/</link>
       <pubDate>Sat, 03 Jun 2023 16:05:40 +0500</pubDate>
       
-      <guid>https://hereket.github.io/tiny/tree-generation/</guid>
+      <guid>https://hereket.com/tiny/tree-generation/</guid>
       <description> Click the tree </description>
     </item>
     
     <item>
       <title>Labyrinth lighting</title>
-      <link>https://hereket.github.io/tiny/labyrinth-lighting/</link>
+      <link>https://hereket.com/tiny/labyrinth-lighting/</link>
       <pubDate>Sat, 03 Jun 2023 16:05:40 +0500</pubDate>
       
-      <guid>https://hereket.github.io/tiny/labyrinth-lighting/</guid>
+      <guid>https://hereket.com/tiny/labyrinth-lighting/</guid>
       <description> </description>
     </item>
     
     <item>
       <title>Optical illusion pyramid or tunnel?</title>
-      <link>https://hereket.github.io/tiny/optical-illusion-pyramid/</link>
+      <link>https://hereket.com/tiny/optical-illusion-pyramid/</link>
       <pubDate>Sat, 03 Jun 2023 16:05:40 +0500</pubDate>
       
-      <guid>https://hereket.github.io/tiny/optical-illusion-pyramid/</guid>
+      <guid>https://hereket.com/tiny/optical-illusion-pyramid/</guid>
       <description> </description>
     </item>
     
     <item>
       <title>PDF generation</title>
-      <link>https://hereket.github.io/tiny/arkanoid-game-rendered-in-pdf/</link>
+      <link>https://hereket.com/tiny/arkanoid-game-rendered-in-pdf/</link>
       <pubDate>Sat, 03 Jun 2023 16:05:40 +0500</pubDate>
       
-      <guid>https://hereket.github.io/tiny/arkanoid-game-rendered-in-pdf/</guid>
+      <guid>https://hereket.com/tiny/arkanoid-game-rendered-in-pdf/</guid>
       <description> Are you one a phone? It is probably not going to work here. Open in desktop browser. Or you can watch it on youtube https://www.youtube.com/watch?v=EZYA1cV53nw </description>
     </item>
     
     <item>
       <title>Rotating gear on scroll</title>
-      <link>https://hereket.github.io/tiny/gears-rotation/</link>
+      <link>https://hereket.com/tiny/gears-rotation/</link>
       <pubDate>Sat, 03 Jun 2023 16:05:40 +0500</pubDate>
       
-      <guid>https://hereket.github.io/tiny/gears-rotation/</guid>
+      <guid>https://hereket.com/tiny/gears-rotation/</guid>
       <description> &lt;!DOCTYPE html&gt; Gear drawing image/svg+xml image/svg+xml </description>
     </item>
     
     <item>
       <title>Simple lighting test</title>
-      <link>https://hereket.github.io/tiny/light/</link>
+      <link>https://hereket.com/tiny/light/</link>
       <pubDate>Sat, 03 Jun 2023 16:05:40 +0500</pubDate>
       
-      <guid>https://hereket.github.io/tiny/light/</guid>
+      <guid>https://hereket.com/tiny/light/</guid>
       <description> &lt;!DOCTYPE html&gt; Lighting polygons </description>
     </item>
     
     <item>
       <title>Tree generation with leaves</title>
-      <link>https://hereket.github.io/tiny/tree-generation-leaves/</link>
+      <link>https://hereket.com/tiny/tree-generation-leaves/</link>
       <pubDate>Sat, 03 Jun 2023 16:05:40 +0500</pubDate>
       
-      <guid>https://hereket.github.io/tiny/tree-generation-leaves/</guid>
+      <guid>https://hereket.com/tiny/tree-generation-leaves/</guid>
       <description> </description>
     </item>
     
