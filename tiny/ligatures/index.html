@@ -10,7 +10,7 @@
     
     
     
-    <link rel="stylesheet" type="text/css" href="/css/base.css?1694286448">
+    <link rel="stylesheet" type="text/css" href="/css/base.css?1694288953">
 
     <script type="text/javascript" src="/js/base.js?" ></script>
 
@@ -74,15 +74,19 @@ i {
     width: 30px;
     overflow: hidden;
     font-style: normal;
+    cursor: pointer;
 }
 
 i:hover {
-    background: black;
-    color: white;
+    background: rgba(0,0,0, 0.1);
 }
 .button {
     padding: 5px 10px;
     margin: 3px 0px;
+    background: #ffeb3b;
+    border: 1px solid #ffab3b;
+    border-radius: 4px;
+    cursor: pointer;
 }
 
 .info {
@@ -100,6 +104,18 @@ i:hover {
     padding: 10px;
     font-weight: bold;
     color: red;
+}
+
+.message-box {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    background: #ffeb3b;
+    /* color: white; */
+    padding: 8px 15px;
+    border-radius: 5px;
+    box-shadow: 1px 1px 10px rgba(0,0,0, 0.5);
+    border: 1px solid black;
 }
 
 </style>
@@ -3375,6 +3391,28 @@ i:hover {
         textContainer.addEventListener("mouseMove", function() {
             console.log();
         });
+
+        var pop;
+        var timeout;
+
+        textContainer.onclick = function(e) {
+            if(e.target.nodeName == 'I') {
+                let text = e.target.innerHTML;
+                navigator.clipboard.writeText(text);
+
+                if(pop) { pop.remove(); }
+                if(timeout) { clearTimeout(timeout); }
+
+                pop = document.createElement('div');
+                pop.classList.add('message-box');
+                pop.innerHTML = 'Copied "' + text + '" to clipboard';
+                document.body.appendChild(pop);
+
+                timeout = setTimeout(function() {
+                    if(pop) { pop.remove(); }
+                }, 4000);
+            }
+        }
     });
 </script>
 
