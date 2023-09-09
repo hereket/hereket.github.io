@@ -3,12 +3,21 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://hereket.com/</loc>
-    <lastmod>2023-08-11T03:45:55+05:00</lastmod>
+    <lastmod>2023-09-06T16:22:30+05:00</lastmod>
   </url><url>
-    <loc>https://hereket.com/posts/monitoring-raw-x11-communication/</loc>
-    <lastmod>2023-08-11T03:45:55+05:00</lastmod>
+    <loc>https://hereket.com/tiny/ligatures/</loc>
+    <lastmod>2023-09-06T16:22:30+05:00</lastmod>
   </url><url>
     <loc>https://hereket.com/posts/</loc>
+    <lastmod>2023-09-06T16:22:30+05:00</lastmod>
+  </url><url>
+    <loc>https://hereket.com/tiny/</loc>
+    <lastmod>2023-09-06T16:22:30+05:00</lastmod>
+  </url><url>
+    <loc>https://hereket.com/posts/iconified_ligatures/</loc>
+    <lastmod>2023-09-06T16:22:30+05:00</lastmod>
+  </url><url>
+    <loc>https://hereket.com/posts/monitoring-raw-x11-communication/</loc>
     <lastmod>2023-08-11T03:45:55+05:00</lastmod>
   </url><url>
     <loc>https://hereket.com/posts/exploring-xorg-connections/</loc>
@@ -40,9 +49,6 @@
   </url><url>
     <loc>https://hereket.com/posts/web_analytics_effects/</loc>
     <lastmod>2023-07-06T20:48:32+05:00</lastmod>
-  </url><url>
-    <loc>https://hereket.com/tiny/</loc>
-    <lastmod>2023-07-01T16:05:40+05:00</lastmod>
   </url><url>
     <loc>https://hereket.com/tiny/x11-function-list/</loc>
     <lastmod>2023-07-01T16:05:40+05:00</lastmod>

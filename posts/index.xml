@@ -6,7 +6,17 @@
     <description>Recent content in Posts on Hereket</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 11 Aug 2023 03:45:55 +0500</lastBuildDate><atom:link href="https://hereket.com/posts/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Wed, 06 Sep 2023 16:22:30 +0500</lastBuildDate><atom:link href="https://hereket.com/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Using ligatures as icons on a website</title>
+      <link>https://hereket.com/posts/iconified_ligatures/</link>
+      <pubDate>Wed, 06 Sep 2023 16:22:30 +0500</pubDate>
+      
+      <guid>https://hereket.com/posts/iconified_ligatures/</guid>
+      <description>Intro There are two reasons why I got interested in reasearching about this topic. First of a lot of google products loads garbage when you are not using super fast internet speeds. The main most noticeble one used to gmail but it looks like they fixed it now.
+But even though it was annoying it didn&amp;rsquo;t spark enough enterest to go and dig deeper to understand reasons behind it. The main reason was me misclicking on an icon and selecting just a portion of it.</description>
+    </item>
+    
     <item>
       <title>Monitoring Raw X11 Communication or why Chromium opens 7 Xorg connections</title>
       <link>https://hereket.com/posts/monitoring-raw-x11-communication/</link>

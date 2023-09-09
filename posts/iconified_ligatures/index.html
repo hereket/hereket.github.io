@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="icon" type="image/x-icon" href="/image/favicon.ico">
+
+    
+    
+    
+    
+    <link rel="stylesheet" type="text/css" href="/css/base.css?1694286448">
+
+    <script type="text/javascript" src="/js/base.js?" ></script>
+
+    
+    
+    <title>Using ligatures as icons on a website | Hereket</title>
+</head>
+
+
+<body><div id="nav-border" class="container header">
+    <div class='page-wrap content'>
+        <a href="/"><div class="header-logo"> Hereket </div></a>
+        <nav id="nav" class="nav">
+            
+            <a class="nav-link" href="/">
+            
+            Posts
+            </a>
+            
+            <a class="nav-link" href="/tiny/">
+            
+            Tiny
+            </a>
+            
+            <a class="nav-link" href="/contact/">
+            
+            Contact
+            </a>
+            
+        </nav>
+    </div>
+</div>
+<div id="content">
+<div class="page-wrap article">
+    <div class='main-content article'>
+        <h1>Using ligatures as icons on a website</h1>
+        
+        <div><time class='post-time' datetime="2023-09-06">2023-09-06</time></div>
+        
+        <br><br>
+        <h2 id="intro">Intro</h2>
+<p>There are two reasons why I got interested in reasearching about this topic.
+First of a lot of google products loads garbage when you are not using super
+fast internet speeds. The main most noticeble one used to gmail but it looks
+like they fixed it now.</p>
+<p><img src="/posts/google-icons/image/analytics-icons-font-not-loaded.png" alt="Analytics icons font not loaded"></p>
+<p>But even though it was annoying it didn&rsquo;t spark enough enterest to go and dig
+deeper to understand reasons behind it. The main reason was me misclicking on an
+icon and selecting just a portion of it. It looked like this:</p>
+
+    
+<video height="400px" controls>
+    <source src="/posts/google-icons/video/google-font-icon-select.mp4" type="video/mp4">
+    Your browser does not support the video tag.  
+</video>
+
+
+
+<h2 id="reasons">Reasons</h2>
+<p>The &lsquo;information&rsquo; icon from the above video is added to the page like this:</p>
+<pre tabindex="0"><code>&lt;i class=&#34;google-material-icons VCmZ8 kdYqFe&#34; aria-hidden=&#34;true&#34;&gt;info_filled&lt;/i&gt;
+</code></pre><p>At the beginning I thought that &lsquo;info_filled&rsquo; text inside the tag is used as a
+&lsquo;helper&rsquo; text to show information when images are not loaded but examining css
+classes attached to the tag didn&rsquo;t reveal any background image being applied to
+this tag.</p>
+<p>In reality they used ligatures for icon rendering with &lsquo;Material Icons
+Extended&rsquo;. I knew about icon fonts but using ligatures for that never crossed my
+mind.</p>
+<p>If you don&rsquo;t know, using ligatures is a technique to render a &lsquo;unified&rsquo; symbol
+when certain combination of letters/codepoints go one after another (not exactly
+but good enough here). For example when when two equal signs, ==, are placed
+next to each other only one long equal sign rendered instead of two short ones.</p>
+<p>In the example from the video letter combinatio for <strong>&lsquo;info_filled&rsquo;</strong> is
+combined into single icon. The reason why I could select that icon is related to
+how browser does it selection. In this example chromium renders one icon but
+behind the scenes it sees them as a collection of letters. You can select middle
+part and paste it into a text editor and see exact letters.</p>
+<h2 id="libreoffice">Libreoffice</h2>
+<p>If we try the same trick in libreoffice (or probably microsoft office) it has
+the same properties. In the video below I use the same font to render text. The
+video show similar behaviour of rendering one symbol but during selection it
+select just parts of it.</p>
+
+    
+<video height="400px" controls>
+    <source src="/posts/google-icons/video/google-font-icons-select-libreoffice-writer.mp4" type="video/mp4">
+    Your browser does not support the video tag.  
+</video>
+
+
+
+<h2 id="inkscape">Inkscape</h2>
+<p>Inkscape does similar for rendering but selection works on the whole icon.</p>
+
+    
+<video height="400px" controls>
+    <source src="/posts/google-icons/video/google-font-icons-select-inkscape.mp4" type="video/mp4">
+    Your browser does not support the video tag.  
+</video>
+
+
+
+<p>In both examples you can see how it works when with icons that are part of a
+bigger combination. For example when I type &lsquo;facebook&rsquo; with the material font I
+first get a &lsquo;face&rsquo; icon and then it converts &lsquo;facebook&rsquo; icon.</p>
+<h2 id="about-the-font-material-icons-font">About the font &lsquo;Material Icons&rsquo; font.</h2>
+<p>I downloaded a version of &lsquo;Material Icons&rsquo; in woff2 format as in that website.
+It weighs 227.2 KiB and contains 3000+ icons in it. This give around 60 bytes
+per icon which sound pretty good when you consider throughput.</p>
+<p>There is a list of strings that could be used on the google material page but I
+wanted to have a look into it myself. For this I used python with <strong>&lsquo;fonttool&rsquo;</strong>
+package. Then I with this tiny script I got all multiletter used for for
+ligatures:</p>
+<pre tabindex="0"><code>from fontTools.ttLib import TTFont
+font = TTFont(&#39;google.woff2&#39;)
+for k,v in font.getBestCmap().items():
+    print(v)
+</code></pre><p>This will give back a list of &lsquo;words&rsquo; that could be used in the as icons. There
+single letter icons too (for example &lsquo;g&rsquo;) but I ignored those. Here is a list of
+some of those combinations.</p>
+<pre tabindex="0"><code>error
+error_outline
+warning
+add_alert
+notification_important
+qr_code_2
+flutter_dash
+align_vertical_top
+align_horizontal_left
+bnagent
+align_horizontal_center
+align_horizontal_right
+align_vertical_center
+kormo
+...
+...
+...
+gke_protect
+18_up_rating
+no_adult_content
+wallet
+</code></pre><h2 id="is-this-approach-good">Is this approach good?</h2>
+<p>I understand the reasoning behind using this technique. They wanted to use an
+upgraded version of forgotten technique of &lsquo;css sprites&rsquo;. It should be better as
+it is in vector format and only one version is good enough for any kind of
+screen size but in practice it is horrible. Especially for a website it takes
+some time to load those 200+ Kb of data just to start rendering icons. It is
+especially bad when you use just 10 icons on a page but wait to load 3000.</p>
+<p>It looks like even google understood its mistake as if you go to Gmail it no
+longer uses this font. Now the switched bad to &lsquo;inneficient&rsquo; png icon one by one
+loading  and it worked.</p>
+<h2 id="extra">Extra</h2>
+<p>To my surprise the icon that drove my attention was unique on &lsquo;search console&rsquo;
+page. So that 200+ Kb font file is used just to draw 1 (sic!) icon(there might
+be more but I found only one). Then how are the other are drawn? Here is how the
+drawing is split:</p>
+<p><img src="/posts/google-icons/image/search-console-icon-types.png" alt="Four ways to draw icons"></p>
+<p>There are 2 different icon fonts, inline svg icons and a bit of CSS tricks. This
+is one icon that uses CSS border trick to make a bottom triangle icon. &lsquo;Google
+Material Icons&rsquo; we have looked at in this article. The last is &lsquo;Material Icons
+Extended&rsquo;. It is different in that if you look at the source code it does not
+have word combinations as ligatures but and what looked like an empty space.
+When I looked in the developer console it was just span with a white space.
+After copying it to vscode it also was a white space. So I copied it to vim to
+get its extract it whitespace code and got this:</p>
+<p><img src="/posts/google-icons/image/vim-code.png" alt="Vim code"></p>
+<p>So for some of the icons instead of ligatures they used unicode chars which
+loaded specific icons from the second font file. In the picture above they were
+drawn as square boxes because I blocked that font file and my system didn&rsquo;t have
+appropriate font to draw them (but font in vim still knew how to draw them).</p>
+<p>It is google and they probably know what they are doing but I am glad I don&rsquo;t
+have to deal with this variaty in my projects.</p>
+<h1 id="conclusion">Conclusion</h1>
+<p>So I finally spent some time to look into the font drawing issue and found the
+reasons behind huge ugly text on many of googles products. The reason behind it
+was usage of ligatures and text descriptions for the icons. It looks like that
+this approach is an overkill and actually worsen the user experience. And in
+some critical projects google fixed this by removing this &lsquo;icon drawing with
+font&rsquo; approach (gmaail now only pull png icons).</p>
+<p>This approach could be a good solution in mobile or desktop apps as you can bake
+that font into the app itself but for websites it is debatable.</p>
+
+    </div>
+</div>
+
+        </div><div class='footer'>
+    <div class='page-wrap'>
+    &copy; 2023, Hereket 
+    </div>
+</div>
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-7KHD5ET3Y7"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-7KHD5ET3Y7');
+</script>
+
+
+
+
+<script type="text/javascript" >
+   (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+   m[i].l=1*new Date();
+   for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+   k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+   (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+   ym(94210403, "init", {
+        clickmap:true,
+        trackLinks:true,
+        accurateTrackBounce:true,
+        webvisor:true
+   });
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/94210403" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>
