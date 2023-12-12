@@ -6,53 +6,52 @@
     <description>Recent content in Posts on Hereket</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 06 Sep 2023 16:22:30 +0500</lastBuildDate><atom:link href="https://hereket.com/posts/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 12 Dec 2023 05:59:52 +0500</lastBuildDate>
+    <atom:link href="https://hereket.com/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Programmatically populating django with random and real data</title>
+      <link>https://hereket.com/posts/django-populate-with-random-data/</link>
+      <pubDate>Tue, 12 Dec 2023 05:59:52 +0500</pubDate>
+      <guid>https://hereket.com/posts/django-populate-with-random-data/</guid>
+      <description>Introduction One of the best features of Django is the speed it provides to develop fast prototypes. It does not mean that it is a framework to develop prototypes but it is very helpful for building quick and fast prototypes when you need one. It is my first when I need to build a proof of concept for something or when I want quickly prepare something for a presentation. Yet one feature that I was always missing is the ability to quickly populate datatabase with some random (or real) data just to see how it all fits together while you are just shaping your ideas.</description>
+    </item>
     <item>
       <title>Using ligatures as icons on a website</title>
       <link>https://hereket.com/posts/iconified_ligatures/</link>
       <pubDate>Wed, 06 Sep 2023 16:22:30 +0500</pubDate>
-      
       <guid>https://hereket.com/posts/iconified_ligatures/</guid>
       <description>You can look at font icons here: Font icon ligatures
 Intro There are two reasons why I got interested in reasearching about this topic. First of a lot of google products loads garbage when you are not using super fast internet speeds. The main most noticeble one used to gmail but it looks like they fixed it now.
 But even though it was annoying it didn&amp;rsquo;t spark enough enterest to go and dig deeper to understand reasons behind it.</description>
     </item>
-    
     <item>
       <title>Monitoring Raw X11 Communication or why Chromium opens 7 Xorg connections</title>
       <link>https://hereket.com/posts/monitoring-raw-x11-communication/</link>
       <pubDate>Fri, 11 Aug 2023 03:45:55 +0500</pubDate>
-      
       <guid>https://hereket.com/posts/monitoring-raw-x11-communication/</guid>
       <description>This is partly a continuation of previous article on this topic: Exploring Xorg connections
 While exploring Xorg and its connections I stumbled upong interesting fact that some apps open multiple connections to Xorg even though they have just one window. For example chromium had 7, skype 8, firefox and telegram had each 2 connections. Since Skype connection count was suspisiously close to chromeium I immediately assumed that it is all because of Electron since it is based on chromium.</description>
     </item>
-    
     <item>
       <title>Exploring Xorg connections</title>
       <link>https://hereket.com/posts/exploring-xorg-connections/</link>
       <pubDate>Mon, 07 Aug 2023 03:04:42 +0500</pubDate>
-      
       <guid>https://hereket.com/posts/exploring-xorg-connections/</guid>
       <description>There is part two: Monitoring Raw X11 Communication or why Chromium opens 7 Xorg connections
 Lately I have been playing around with raw X11 protocol by writing apps that work directly with Xorg by establishing a unix socket connection with it. It was pretty fun to play with and feels like easier than Xlib (but maybe I just got better). While doing all that I got interested with how other programs interact with Xorg and decided to explore how other programs do it and look at programs taht don&amp;rsquo;t have &amp;lsquo;perceptible&amp;rsquo; windows but still maintain connections.</description>
     </item>
-    
     <item>
       <title>Flutter Embedded Certificate Authorities</title>
       <link>https://hereket.com/posts/flutter-embedded-ca/</link>
       <pubDate>Wed, 02 Aug 2023 14:01:14 +0500</pubDate>
-      
       <guid>https://hereket.com/posts/flutter-embedded-ca/</guid>
       <description>Flutter apps in contrast to general approch embeds CAs (Certificate Authority) right into the app and do not rely on operating system to verify the validity of an SSL certificate. At first I thought that this was &amp;ldquo;feature&amp;rdquo; of the flutter framework when I first encountered some issues with it but upon investigation I found that this part of dart language implementation.
 If you want to see it yourself, you can just compile a hello world dart program with dart compile exe hello.</description>
     </item>
-    
     <item>
       <title>Flutter vs Vanilla javascript</title>
       <link>https://hereket.com/posts/flutter-vs-vanilla-js/</link>
       <pubDate>Tue, 01 Aug 2023 02:37:38 +0500</pubDate>
-      
       <guid>https://hereket.com/posts/flutter-vs-vanilla-js/</guid>
       <description>tldr: Compare flutter with js for web dev.
 You can play with:
@@ -63,78 +62,63 @@ If you are on mobile and whant to see how they look go to Video section
 Important: When used with flutter html renderer this app became about 2 Mb in size and just over 500 Kb compressed. Go the apps above look around.
 Introduction Flutter is framework to develop apps for android and ios.</description>
     </item>
-    
     <item>
       <title>Vim tiny IDE: edit-compile-edit cycle for fast error browsing</title>
       <link>https://hereket.com/posts/vim_ide_compile_cycle/</link>
       <pubDate>Mon, 24 Jul 2023 15:25:51 +0500</pubDate>
-      
       <guid>https://hereket.com/posts/vim_ide_compile_cycle/</guid>
       <description>This is continuation of previous post: VIM and Tmux as a tiny quasi IDE
 Intro Here in this post I will show you how I use a bit of scripting together with vim&amp;rsquo;s quickfix window to speed up my workflow of finding compilation errors. There reason to use bash instead of makefiles is because it is easier for me to reason what is happening in bash script than in makefile and it is just easier to debug when compared to makefiles.</description>
     </item>
-    
     <item>
       <title>VIM and Tmux as a tiny quasi IDE</title>
       <link>https://hereket.com/posts/vim_tmux_ide/</link>
       <pubDate>Sat, 22 Jul 2023 17:22:46 +0500</pubDate>
-      
       <guid>https://hereket.com/posts/vim_tmux_ide/</guid>
       <description>watch video
 There are multiple approaches to development and everyone has a some style of how they like to approach this process. Every task requires could require totally different approach and different IDE. So if I do native Android or Flutter developemnt it is natural for me to Android Stuio, for Java code it is Intellij, for Qt it is more comforatable if Qt Creator is used.
 Here I use pharase &amp;ldquo;quasi IDE&amp;rdquo; to separate from trandional understanding of an IDE.</description>
     </item>
-    
     <item>
       <title>Easy todo and notes management with VIM, dmenu and bash</title>
       <link>https://hereket.com/posts/todo_note_management/</link>
       <pubDate>Sat, 22 Jul 2023 02:24:15 +0500</pubDate>
-      
       <guid>https://hereket.com/posts/todo_note_management/</guid>
       <description>I have been taking notes and managing my todo lists for quite some time. During this time I have used different tools for both. For note taking I tried evernote, google docs, obsidian, OneNote, regular files and quite a few others. The same goes for todo lists. I probably used everything from top 20 list for apps for todo management (even taskwarrior). But in the end I ended up using just neovim, dmenu and a little bit of shell magic.</description>
     </item>
-    
     <item>
       <title>Instant code reload in Android</title>
       <link>https://hereket.com/posts/instant_code_reload/</link>
       <pubDate>Fri, 21 Jul 2023 02:00:19 +0500</pubDate>
-      
       <guid>https://hereket.com/posts/instant_code_reload/</guid>
       <description>Introduction Here I am presenting one possible way to do &amp;ldquo;on the fly code reloading&amp;rdquo; of JNI code. The whole code is C/C++ compiled in 2 shared libraries and realoded on demand without restaring the application.
 This example uses a game tiny &amp;ldquo;game&amp;rdquo; where you just walk around space. This is just a placeholder idea borrowed from Casey Muratori&amp;rsquo;s Handmade Hero youtube series.
 The build process used in this project is described in: Build android apk from command line without gradle post.</description>
     </item>
-    
     <item>
       <title>Build android apk from command line without gradle</title>
       <link>https://hereket.com/posts/android_from_command_line/</link>
       <pubDate>Wed, 19 Jul 2023 00:00:00 +0000</pubDate>
-      
       <guid>https://hereket.com/posts/android_from_command_line/</guid>
-      <description>Introduction This is post is similar to the one about building flutter but a bit different. Actually this one was writter a few years prior to writing flutter version but just never got published. Since then some steps has changed and I moved to Java 11. But you if you still build with java 8 old build method is still surprisingly functional.
+      <description>Introduction This is post is similar to the one about building flutter but a bit different. Actually this one was written a few years prior to writing flutter version but just never got published. Since then some steps has changed and I moved to Java 11. But you if you still build with java 8 old build method is still surprisingly functional.
 So the idea is to build and APK file which then can be installed on an android phone without using gradle and doing each step &amp;ldquo;manually&amp;rdquo;.</description>
     </item>
-    
     <item>
       <title>Building flutter android app without gradle</title>
       <link>https://hereket.com/posts/flutter_without_gradle/</link>
       <pubDate>Thu, 13 Jul 2023 12:01:36 +0500</pubDate>
-      
       <guid>https://hereket.com/posts/flutter_without_gradle/</guid>
       <description>Initial draft
 Introduction Flutter is a very useful framework which does quite a lot of heavy lifting and hides all the dirty details inside a black box. It is very good when you want get the job done but I really like opening black boxes as I really don&amp;rsquo;t like magic.
 The sole reasoning behind this project is to build a &amp;lsquo;hello world&amp;rsquo; project with as few steps as possible and in the end build an apk file which could be installed on an android phone.</description>
     </item>
-    
     <item>
       <title>Web analalytics effect on a mobile page</title>
       <link>https://hereket.com/posts/web_analytics_effects/</link>
       <pubDate>Thu, 06 Jul 2023 20:48:32 +0500</pubDate>
-      
       <guid>https://hereket.com/posts/web_analytics_effects/</guid>
       <description>What happened? So I create this site to test some ideas this time I chose to use a &amp;lsquo;static site&amp;rsquo; approach. There is no specific reason why I chose it to be this way it is just I wanted to try something that I have not tried before. My last test was with django.
 So one of my first experiments I wanted to do is to stack different web analytics tool on the page and see how they behave and report data for later comparison.</description>
     </item>
-    
   </channel>
 </rss>

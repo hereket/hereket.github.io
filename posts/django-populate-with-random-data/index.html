@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="icon" type="image/x-icon" href="/image/favicon.ico">
+    <link rel="canonical" href="https://hereket.com/posts/django-populate-with-random-data/" />
+
+    
+    
+    <link rel="stylesheet" type="text/css" href="/css/base.css?0">
+
+    <script type="text/javascript" src="/js/base.js?" ></script>
+
+    
+    
+    <title>Programmatically populating django with random and real data | Hereket</title>
+</head>
+
+
+<body><div id="nav-border" class="container header">
+    <div class='page-wrap content'>
+        <a href="/"><div class="header-logo"> Hereket </div></a>
+        <nav id="nav" class="nav">
+            
+            <a class="nav-link" href="/">
+            
+            Posts
+            </a>
+            
+            <a class="nav-link" href="/tiny/">
+            
+            Tiny
+            </a>
+            
+            <a class="nav-link" href="/contact/">
+            
+            Contact
+            </a>
+            
+        </nav>
+    </div>
+</div>
+<div id="content">
+<div class="page-wrap article">
+    <div class='main-content article'>
+        <h1>Programmatically populating django with random and real data</h1>
+        
+        <div><time class='post-time' datetime="2023-12-12">2023-12-12</time></div>
+        
+        <br><br>
+        <h2 id="introduction">Introduction</h2>
+<p>One of the best features of Django is the speed it provides to develop fast
+prototypes. It does not mean that it is a framework to develop prototypes but it
+is very helpful for building quick and fast prototypes when you need one. It is
+my first when I need to build a proof of concept for something or when I want
+quickly prepare something for a presentation. Yet one feature that I was always
+missing is the ability to quickly populate datatabase with some random (or real)
+data just to see how it all fits together while you are just shaping your ideas.</p>
+<p>You might argue that django has <strong>fixtures</strong> and it is a solution to this
+problem but I find fixtures to be a bit to cumbersome and it becomes a chore to
+maintain consistency when you change your models quickly. I wanted something
+that allowed me to load data programmatically where I could create data on the
+fly like calculating different types of pricing, creating users, creating images
+and adding them to db and just plain old load testing by creating a lot of data.</p>
+<p>I have been using this approach for a few years now and recently when I was
+working with a team which was waiting long time for the data to be provided. And
+when I adviced them to just fill the data randomly (for now) to see how it all
+fits together they were suprised that this was an option. I hope this will help
+some people to who have not tried this approach before.</p>
+<h2 id="setup">Setup</h2>
+<p>There are different ways that structuring this could be approached but my
+preffered way is store all the files in a <code>'__generator'</code> directory inside the
+root project. I mark all non esential folders that could be easily deleted
+without affecting the project with double underscores. This way it stands out
+from the rest of the apps and I always know that I can easily delete all such
+folder. This is a place where all dirty code and unsafe practices are allowed
+and <strong>MUST be deleted</strong> before project goes into initial production release.
+This code is unsafe and never be used with production or preproduction code.</p>
+<p>Inside the __generator folder I usually create <strong>&lsquo;images&rsquo;</strong> and <strong>&lsquo;data&rsquo;</strong>
+folders. Images folder is used as a pool of images to load during each cycle and
+data is mostly used to store text files and excel files that store real
+information to load. Then I add a &lsquo;scratch.sh&rsquo; bash script to load the scripts
+and usually one py file per app or per task. I used a bash file because I was
+not building a system. The main goal was to automate some small tasks and at the
+time it was a good solution to run couple of commands and it never grew out of
+it. You could easily build use a python script with all the good practices but
+then it again becomes a chore instead of a quick and small system. Also it is
+very beginner friendly.</p>
+<pre tabindex="0"><code>mkdir -p __generator/{data,images}
+</code></pre><h2 id="python-scripts">Python scripts</h2>
+<p>Each python script is just a simple file that does all the data loading for a specific
+model or an app. Unfortunately you cannot just a load your models from created
+django apps as it won&rsquo;t work. The scripts need a small setup that will allow to
+call django and your apps directly. I use this header in each file and even
+though it is not DRY and found it to be more appropriate for quick scripts like
+these. Here is how header looks like:</p>
+<pre tabindex="0"><code>import os
+import sys
+import django
+
+current_file = os.path.realpath(__file__)
+base_path = os.path.dirname(current_file)
+project_main_path = os.path.realpath(base_path + &#39;/../&#39;)
+
+
+sys.path.append(project_main_path)
+os.environ.setdefault(&#39;DJANGO_SETTINGS_MODULE&#39;, &#39;project_main.settings&#39;)
+django.setup()
+</code></pre><p>After you have added this header you can write your regular django code as if
+this file was regular view file with only difference is that it will be called
+directly. For example let add users to our system. After the header part add
+code similar to this:</p>
+<pre tabindex="0"><code>from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
+user = User(
+    is_staff=True,
+    is_superuser=True,
+    username=&#39;alfred&#39;, 
+    phone=&#39;123123123&#39;, 
+    name = &#39;Alfred&#39;,
+    email = &#39;alfred@test.com&#39;,
+    lastname = &#39;Salahov&#39;,
+    address = &#39;Sezame Street 42&#39;,
+)
+user.set_password(&#39;Sdio89sDKwopkkj&#39;)
+user.save()
+
+
+for index in range(100):
+    user = User(
+        is_staff=False,
+        is_superuser=False,
+        username=&#39;user{}&#39;.format(index), 
+        phone=&#39;123999{:03d}&#39;.format(index), 
+        name = &#39;John{}&#39;.format(index),
+        email = &#39;jonh{}@example.com&#39;.format(index),
+        lastname = &#39;Smith{}&#39;.format(index),
+        address = &#39;Backe Street {}&#39;.format(index),
+    )
+    user.set_password(&#39;abcXYZhome{}&#39;.format(index))
+    user.save()
+</code></pre><p>This approach could be done to any app or model within the app and even if you
+need to do some complex logic that loads different models from different apps
+that generate data based on each other. Now you are on the land of programming
+and can do pretty much anything. Load data from your google drive, from an API,
+get data from local excel file or any file format that you work with.</p>
+<p>Now you can just launch this script with regular</p>
+<pre tabindex="0"><code>python users.py
+</code></pre><p>from within the __generator directory. Just make sure you source environment so
+that the script know about django.</p>
+<h2 id="bash-script-automation">Bash script automation</h2>
+<p>The next step in automation of boring task is using a bash script so that you
+won&rsquo;t be launching the same tasks again and again. I want to repeat that if you
+want you can easily ditch bash scripting and just do all this from python but
+for me specifically it is more comfortable to launch these tasks from bash
+script. Here is a version of the script:</p>
+<pre tabindex="0"><code>pushd ../
+
+find . -path &#34;*/migrations/*.py&#34; -not -name &#34;__init__.py&#34; -delete
+find . -path &#34;*/migrations/*.pyc&#34;  -delete
+
+rm db.sqlite3
+./manage.py makemigrations
+./manage.py migrate
+popd
+
+pushd ../../media
+rm -r *
+popd
+
+python users.py
+# python products.py
+python products_random.py
+python pages.py
+python banners.py
+python product_collection.py
+python configurations.py
+</code></pre><p>First of all since we are inside &lsquo;__generator&rsquo; directory I go up one directory
+to be inside the root directory of the project. From here I first delete all
+migrations, remove the database (remember I told you not use it with anything
+production related?) and recreate them from scratch. The reason I do this is
+because I do a lot of crazy changed to the models that would sometimes break
+migrations and used to require me spend some time thinking about how bring the
+app migrations to consistent state. And this is something that I don&rsquo;t want to
+spend time on when I am just exploring.</p>
+<p>Then I go to my <strong>media</strong> folder that lives outside of root directory to remove
+all the media files. It is because each each script invocation creates random
+data which will be obsolete on the next rerun and since I run this script quite
+often it would quickly fill my drive otherwise.</p>
+<p>After that I just run all the the scripts that generate data. Most of the data
+is random but in this script I showed that somethimes I get real data that was
+stored for example in excel file. So I could quickly switch between random and
+real data exploration.</p>
+<h2 id="video">Video</h2>
+<p>Here is a short video I created for my friends to illustrate how I use it. It
+uses slightly different scripts as I separated them by real and fake data. Fake
+data is smaller in product count but takes more time to generate because it uses
+quite a few images per product and generate some images for product specific
+filters. Real data does not have those and thus works a bit faster</p>
+
+    
+<iframe style="background: gray;" class="full-width" height="400" src="https://www.youtube.com/watch?v=CrTaxO7czUE" title="Django data load" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
+
+
+<h2 id="clearing-postgresql">Clearing Postgresql</h2>
+<p>Sometimes limitations of sqlite does not allow to use it for even in debug
+versions of your app because your app might use features of SQL that are not
+supported by it, for example esasy searching for data over multple tables with
+could contain data in in different languages. In those case you have to use
+something other that sqlite. If you also use postgresql for your experiment
+project you could substitute remove sqlite database with these script if you use
+postgesql:</p>
+<pre tabindex="0"><code>sudo systemctl restart postgresql
+
+DB_NAME=&#34;some_database_name&#34;
+DB_USER=&#34;some_db_user&#34;
+DB_PASS=&#34;1231))(*)S(Df3&#34;
+
+sudo -u postgres psql -U postgres  -c &#34;drop database $DB_NAME;&#34;
+sudo -u postgres psql -U postgres  -c &#34;drop user $DB_USER;&#34;
+sudo -u postgres psql -U postgres  -c &#34;create user $DB_USER;&#34;
+sudo -u postgres psql -U postgres  -c &#34;create database $DB_NAME;&#34;
+sudo -u postgres psql -U postgres  -c &#34;alter role $DB_NAME with password $DB_PASS;&#34;
+sudo -u postgres psql -U postgres  -c &#34;grant all privileges on database $DB_NAME to $DB_USER;&#34;
+sudo -u postgres psql -U postgres  -c &#34;alter database $DB_NAME owner to $DB_USER;&#34;
+</code></pre><p>** PLEASE DON&rsquo;T USE** this on production setups as you will most definitely lose
+your valuable data and I will not take any responsibility for that. You have
+been warned!</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>The programmatic approach to adding data to you django application is a lot of
+fun and speeds up the development quite a bit. If you still not using something
+like this for your testing and explorations you definetely should at least try
+once to see if you like it.</p>
+<p>I think everything that I wrote should be simple and self expanatory but if you
+still could make it work just email me and will upload to github a simplified
+working version to github to play around.</p>
+
+    </div>
+</div>
+
+        </div><div class='footer'>
+    <div class='page-wrap'>
+    &copy; 2023, Hereket 
+    </div>
+</div>
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-7KHD5ET3Y7"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-7KHD5ET3Y7');
+</script>
+
+
+
+
+<script type="text/javascript" >
+   (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+   m[i].l=1*new Date();
+   for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+   k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+   (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+   ym(94210403, "init", {
+        clickmap:true,
+        trackLinks:true,
+        accurateTrackBounce:true,
+        webvisor:true
+   });
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/94210403" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>
