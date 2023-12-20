@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="icon" type="image/x-icon" href="/image/favicon.ico">
+    <link rel="canonical" href="https://hereket.com/posts/flutter-ca-certificates/" />
+
+    
+    
+    <link rel="stylesheet" type="text/css" href="/css/base.css?0">
+
+    <script type="text/javascript" src="/js/base.js?" ></script>
+
+    
+    
+    <title>How flutter uses certificate authorities | Hereket</title>
+</head>
+
+
+<body><div id="nav-border" class="container header">
+    <div class='page-wrap content'>
+        <a href="/"><div class="header-logo"> Hereket </div></a>
+        <nav id="nav" class="nav">
+            
+            <a class="nav-link" href="/">
+            
+            Posts
+            </a>
+            
+            <a class="nav-link" href="/tiny/">
+            
+            Tiny
+            </a>
+            
+            <a class="nav-link" href="/contact/">
+            
+            Contact
+            </a>
+            
+        </nav>
+    </div>
+</div>
+<div id="content">
+<div class="page-wrap article">
+    <div class='main-content article'>
+        <h1>How flutter uses certificate authorities</h1>
+        
+        <div><time class='post-time' datetime="2023-12-20">2023-12-20</time></div>
+        
+        <br><br>
+        <p>Few month ago I wrote an article explaining which CAs flutter compiles
+inside the app but recently I was trying to explore how it loads those
+certificaes from memory and found out that my assumption about compiled-in root
+certificates was probably wrong.</p>
+<p>I did a quick skim through dart source code and it looked to me that it was not
+compiling in CAs into the final app. So I decided a quick test on android to see
+if the app even tries to look into system list of Certificate Authorities.</p>
+<p>So I built a simple(default) flutter app first and looked at all the files android app was opening
+when it was launched. Strace didnd&rsquo;t show anything special. The default app just opened some
+default app directory and read ashmem a few times. It is a good starting point.</p>
+<p>Then I added <strong>&lsquo;http&rsquo;</strong> package to load a secure version of <strong>example.com</strong> using
+default configurations. I chose &lsquo;http&rsquo; package instead of raw HttpClient because
+I wanted to have a look at something used by most people and see if external
+packages somehow modify something in between. And when traced with strace it
+indeed showed that that app readed system CAs instead of something that was
+compiled in.</p>
+<p><img src="/posts/flutter-ca-new/strace-flutter.png" alt="&lsquo;Stracing flutter app&rsquo;"></p>
+<p>So once I started doing secure network activity the app went and read systems
+trusted root certificate. The app opens certificate <strong>&lsquo;399e7759.0&rsquo;</strong> which is a
+system root certificate for digicert. And since I was opening a default page of
+&lsquo;<a href="https://example.com">https://example.com</a>&rsquo; so let&rsquo;s check it certificate. If you open the certificate
+loaded by your browser you can see that i was signed by digicert.</p>
+<p><img src="/posts/flutter-ca-new/example-digicert.png" alt="&lsquo;Stracing flutter app&rsquo;"></p>
+<p>This shows that at least on adroid flutter uses root certificates stored by
+the operating system in a default location.</p>
+<h3 id="details">Details</h3>
+<p>Since I was looking into source code and were trying to statically verify my
+ideas here are some checkpoints you could look at yourself.</p>
+<p>In my experiment I was using &lsquo;http&rsquo; package and in order to send a request I
+created a default client with <strong>Client()</strong> instance constructor. When we open
+&lsquo;Client&rsquo; it is just an abstract class with a factory that loads cached client or
+creates either IOClient or BrowserClient based on the platform.</p>
+<p>It will then send a request through <strong>BaseClient</strong> using <strong>_sendUnstreamed(&hellip;)</strong> which will
+later call <strong>send()</strong> method from specific platform <strong>Client</strong>. In our case it is
+<strong>IOClient</strong>. Then it will pass all request handling to <strong>HttpClient</strong> which is out of
+<strong>&lsquo;http&rsquo;</strong> package. This is just an abstract which is implemented in <strong>&rsquo;_HttpClient&rsquo;</strong>.</p>
+<p>After that there are a lot of different function calls untill finally we arrive
+at &lsquo;SecureSocket.startConnect&rsquo; if if we are using https or Socket.startConnect
+for other connections. &lsquo;SecureSocket.startConnect&rsquo; takes a &lsquo;_context&rsquo; which is
+devined in &lsquo;_HttpClient&rsquo;</p>
+<p>In the end it all boils down to a call of native classes from dart-sdk which in
+turn uses openssl to do all encryption and decryption. So our main task is to
+prepare data so that openssl can do its part. The main thing that interests us
+in this exploration is ssl context which &lsquo;we&rsquo; setup prior to passing it to
+openssl. And this context contains trusted root certificates that our app
+trusts.</p>
+<pre tabindex="0"><code>class RawSecureSocket {
+    ...
+    secure(...)
+    ...
+}
+
+class _RawSecureSocket {
+    ...
+    connect(...) {
+        return new _RawSecureSocket(
+            ...,
+            context ?? SecurityContext.defaultContext,
+            ..., );
+    }
+}
+</code></pre><p>Where does this context comes from? My understanding is that you can pass this
+context but in general nobody does and system just loads a default one. And this
+default context is pretty interesting. The answer is located in
+security_context.dart inside dart sdk.</p>
+<p><strong>dart-sdk/lib/io/security_context.dart:35</strong></p>
+<pre tabindex="0"><code>/// The default security context used by most operation requiring one.
+///
+/// Secure networking classes with an optional `context` parameter
+/// use the [defaultContext] object if the parameter is omitted.
+/// This object can also be accessed, and modified, directly.
+/// Each isolate has a different [defaultContext] object.
+/// The [defaultContext] object uses a list of well-known trusted
+/// certificate authorities as its trusted roots. On Linux and Windows, this
+/// list is taken from Mozilla, who maintains it as part of Firefox. On,
+/// MacOS, iOS, and Android, this list comes from the trusted certificates
+/// stores built into the platforms.
+external static SecurityContext get defaultContext;
+</code></pre><p>So for android, macos and ios, dart uses default system locations for root
+certificates. For android it is <strong>&rsquo;/system/etc/security/cacerts&rsquo;.</strong>
+For windows and linux it uses something else. Let&rsquo;s see what.</p>
+<p>In linux, dart first check where <strong>&quot;/etc/pki/tls/certs/ca-bundle.crt&quot;</strong> file or
+<strong>&quot;/etc/ssl/certs&quot;</strong> folder exists. If it exists then it loads root certificates
+based on found locations. Otherwise it loads certifices compiled inside the app.</p>
+<pre tabindex="0"><code>// On Linux, we use the compiled-in trusted certs as a last resort. First,
+// we try to find the trusted certs in various standard locations. A good
+// discussion of the complexities of this endeavor can be found here:
+// https://www.happyassassin.net/2015/01/12/a-note-about-ssltls-trusted-certificate-stores-and-platforms/
+</code></pre><p>In windows it uses <strong>SSL_CTX_get_cert_store</strong> to load certificate store from
+context and if it cannot load it then it goes to load compiled-in root
+certificates. Since I am not interested in flutter for windows I didn&rsquo;t spend
+any time digging in any deeper into it.</p>
+<h3 id="conclusion">Conclusion</h3>
+<p>Even though flutter does have built-in certificates it uses them as a fallback
+for windows and linux in case if there are issues with finding default root
+certificates. On other platforms (at least from static code investigation) it
+just uses system default root certificates.</p>
+
+    </div>
+</div>
+
+        </div><div class='footer'>
+    <div class='page-wrap'>
+    &copy; 2023, Hereket 
+    </div>
+</div>
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-7KHD5ET3Y7"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-7KHD5ET3Y7');
+</script>
+
+
+
+
+<script type="text/javascript" >
+   (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+   m[i].l=1*new Date();
+   for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+   k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+   (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+   ym(94210403, "init", {
+        clickmap:true,
+        trackLinks:true,
+        accurateTrackBounce:true,
+        webvisor:true
+   });
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/94210403" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

@@ -6,8 +6,16 @@
     <description>Recent content in Posts on Hereket</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 12 Dec 2023 05:59:52 +0500</lastBuildDate>
+    <lastBuildDate>Wed, 20 Dec 2023 14:01:14 +0500</lastBuildDate>
     <atom:link href="https://hereket.com/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>How flutter uses certificate authorities</title>
+      <link>https://hereket.com/posts/flutter-ca-certificates/</link>
+      <pubDate>Wed, 20 Dec 2023 14:01:14 +0500</pubDate>
+      <guid>https://hereket.com/posts/flutter-ca-certificates/</guid>
+      <description>Few month ago I wrote an article explaining which CAs flutter compiles inside the app but recently I was trying to explore how it loads those certificaes from memory and found out that my assumption about compiled-in root certificates was probably wrong.
+I did a quick skim through dart source code and it looked to me that it was not compiling in CAs into the final app. So I decided a quick test on android to see if the app even tries to look into system list of Certificate Authorities.</description>
+    </item>
     <item>
       <title>Programmatically populating django with random and real data</title>
       <link>https://hereket.com/posts/django-populate-with-random-data/</link>
@@ -45,8 +53,8 @@ Lately I have been playing around with raw X11 protocol by writing apps that wor
       <link>https://hereket.com/posts/flutter-embedded-ca/</link>
       <pubDate>Wed, 02 Aug 2023 14:01:14 +0500</pubDate>
       <guid>https://hereket.com/posts/flutter-embedded-ca/</guid>
-      <description>Flutter apps in contrast to general approch embeds CAs (Certificate Authority) right into the app and do not rely on operating system to verify the validity of an SSL certificate. At first I thought that this was &amp;ldquo;feature&amp;rdquo; of the flutter framework when I first encountered some issues with it but upon investigation I found that this part of dart language implementation.
-If you want to see it yourself, you can just compile a hello world dart program with dart compile exe hello.</description>
+      <description>IMPORTANT: This note is wrong about flutter always using embedded CA certificates for validation. There is a new corrected note about how it works: How flutter uses certificate authorities
+Flutter apps in contrast to general approch embeds CAs (Certificate Authority) right into the app and do not rely on operating system to verify the validity of an SSL certificate. At first I thought that this was &amp;ldquo;feature&amp;rdquo; of the flutter framework when I first encountered some issues with it but upon investigation I found that this part of dart language implementation.</description>
     </item>
     <item>
       <title>Flutter vs Vanilla javascript</title>
