@@ -1,0 +1,77 @@
+*, html {
+    /* width: 100%; */
+    /* height: 100%; */
+    padding: 0;
+    margin: 0;
+}
+
+body, html {
+    background: #cccccc;
+    height: 100vh;
+}
+
+#pdf_container {
+    /* display: flex; */
+    /* align-items: center; */
+    /*  */
+    position: relative;
+    height: 100%;
+}
+
+#pdf_container embed{
+    margin: 0 auto;
+    width: 90%;
+    height: 600px;
+
+    position: absolute;
+    top: 10;
+    left: 0;
+    right: 0;
+    opacity: 0.0;
+    /* transition: opacity 1s ease-in-out; */
+}
+
+/* #pdf_container embed:nth-child(1){ */
+/*     padding-left: 100px; */
+/*     padding-top: 100px; */
+/* } */
+
+/* #pdf_container embed:nth-child(2){ */
+/*     padding-left: 50px; */
+/*     padding-top: 50px; */
+/* } */
+
+#content {
+    height: 100%;
+    flex: 1;
+}
+
+.show {
+    /* display: none; */
+    opacity: 1!important;
+    /* width: 50%!important; */
+    /* width: 100px; */
+}
+
+.phones {
+    display: none;
+}
+
+@media screen and (max-width: 850px) {
+    body {
+        /* width: 100px; */
+    }
+
+    .phones {
+        background: rgba(255,0,0, 0.4);;
+        padding: 20px;
+    }
+    .phones div{
+        margin-bottom: 10px;
+    }
+    .phones .link{
+        display: block;
+        padding: 10px;
+        background: rgba(0,0,0, 0.1);
+    }
+}
