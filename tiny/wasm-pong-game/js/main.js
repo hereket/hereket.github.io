@@ -94,37 +94,3 @@ async function fetchAndInstantiate() {
     });
 }
 
-// async function loadAndStart() {
-//     await WebAssembly.instantiateStreaming(fetch('game.wasm'), {
-//         "env": makeEnvironment(libm),
-//     }).then(w0 => {
-//         w = w0;
-//
-//         setupEvents(w, app);
-//
-//         let prev = null;
-//         function first(timestamp) {
-//             w.instance.exports.Init();
-//
-//             prev = timestamp;
-//             window.requestAnimationFrame(loop);
-//         }
-//
-//         function loop(timestamp) {
-//             w.instance.exports.DoCycle();
-//             w.instance.exports.ClearEventsChangeStatus();
-//
-//             const buffer = w.instance.exports.memory.buffer;
-//             const pixels = w.instance.exports.GlobalPixels;
-//             const image = new ImageData(new Uint8ClampedArray(buffer, pixels, app.width * app.height * 4), app.width);
-//             context.putImageData(image, 0, 0);
-//
-//             window.requestAnimationFrame(loop);
-//         }
-//
-//         window.requestAnimationFrame(first);
-//     });
-// }
-
-
-fetchAndInstantiate();
