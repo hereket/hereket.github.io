@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="icon" type="image/x-icon" href="/image/favicon.ico">
+    <link rel="canonical" href="https://hereket.com/posts/linux_creating_x11_windows/" />
+
+    
+    
+    
+    
+    <link rel="stylesheet" type="text/css" href="/css/base.css?1711382211">
+
+    <script type="text/javascript" src="/js/base.js?" ></script>
+
+    
+    
+    <title>Creating windows from scratch with Xlib on Linux | Hereket</title>
+</head>
+
+
+<body><div id="nav-border" class="container header">
+    <div class='page-wrap content'>
+        <a href="/"><div class="header-logo"> Hereket </div></a>
+        <nav id="nav" class="nav">
+            
+            <a class="nav-link" href="/">
+            
+            Posts
+            </a>
+            
+            <a class="nav-link" href="/tiny/">
+            
+            Tiny
+            </a>
+            
+            <a class="nav-link" href="/contact/">
+            
+            Contact
+            </a>
+            
+        </nav>
+    </div>
+</div>
+<div id="content">
+<div class="page-wrap article">
+    <div class='main-content article'>
+        <h1>Creating windows from scratch with Xlib on Linux</h1>
+        
+        <div><time class='post-time' datetime="2024-03-20">2024-03-20</time></div>
+        
+        <br><br>
+        <nav id="TableOfContents">
+  <ul>
+    <li><a href="#introduction">Introduction</a></li>
+    <li><a href="#01-opening-simple-window">01. Opening simple window</a></li>
+    <li><a href="#02-create-window">02. Create window</a></li>
+    <li><a href="#03-create-windows-with-events">03. Create windows with events</a></li>
+    <li><a href="#04-final-create-window-to-move-stuff-around">04. Final: Create window to move stuff around</a></li>
+    <li><a href="#video">Video</a></li>
+    <li><a href="#conclusion">Conclusion</a></li>
+  </ul>
+</nav>
+        <h2 id="introduction">Introduction</h2>
+<p>In this post I wanted to go over creating windows using raw <strong>Xlib (X11)</strong> and show
+how to approach the task if you want to do it from scratch. Current trend is to
+use Wayland and a lot of distros already switched to using it but still there
+are a very large portion of computers that are using <strong>X11</strong>.</p>
+<p>When I first was learning how to open working with <strong>X11</strong> it was very problematic
+to find any tutorial that clearly showed basics and allowed me to start playing
+around quickly. Reading documentation is possible but takes a lot of time and
+effort. Other tutorials looked like introduced too much moving parts and was a
+bit complex for fresh and uninformed mind.</p>
+<p>Here I will try to show how to create windows peace by peace with slowly
+increasing complexity. But each peace should be self sustained and you can
+choose which ever suits your needs.</p>
+<p><strong>Disclaimer</strong>:This is is not a tutorial how to create create GUI apps for linux and if you are
+not sure what to use then this post is definetely not for you. Go look for Qt or
+something similar.</p>
+<h2 id="01-opening-simple-window">01. Opening simple window</h2>
+<p>Here is the simplest way to open a window <strong>01_simple_window.c</strong>.</p>
+<pre tabindex="0"><code>#include &lt;X11/Xlib.h&gt;
+#include &lt;unistd.h&gt;
+
+int main()
+{
+    Display* MainDisplay = XOpenDisplay(0);
+    Window RootWindow = XDefaultRootWindow(MainDisplay);
+    
+    Window MainWindow = XCreateSimpleWindow(MainDisplay, RootWindow, 0, 0, 800, 600, 0, 0, 0x00aade87);
+    XMapWindow(MainDisplay, MainWindow);
+    XFlush(MainDisplay);
+
+    for(;;) { sleep(1); }
+}
+</code></pre><p>We can compile this code with: <code>gcc 01_simple_window.c -o 01_simple_window -lX11</code></p>
+<p>The only thing that we need is to link with X11 using <strong>-lX11</strong> flag during
+compilation and need to include <strong>&lt;X11/Xlib.h&gt;</strong> in order to give our program
+access to Xlib function definitions.</p>
+<p>In order to open our simple window we need just five function from Xlib.</p>
+<ul>
+<li>XOpenDisplay</li>
+<li>XDefaultRootWindow</li>
+<li>XCreateSimpleWindow</li>
+<li>XMapWindow</li>
+<li>XFlush</li>
+</ul>
+<p>First of all with XOpenDisplay we get a value for current Display. If we had
+multiple displays we could have provided display name as a (char*) argument to the function. But since
+we are using a default one we can just pass 0 (a.k.a NULL) and Xorg will get
+default display name from <strong>$DISPLAY</strong> environent variable.</p>
+<p>After that we get a <strong>root</strong> window. We need it to because window (except root
+window) must have a parent. So we get a main window to parent our window under
+it.</p>
+<p>For this example we user <strong>XCreateSimpleWindow(&hellip;)</strong> to create our window. For
+parameters it takes <strong>display, parent, x, y, width, height, border_width,
+border</strong> and <strong>background</strong>. X and Y are offset in the screen that we want to
+show our window. Width and Height are dimensions for the window. Border andd
+Background are int&rsquo;s that describe colors. Window manager could ignore X, Y,
+Width, Height and Border values and use whatever values it wants. My window
+manager (openbox) opens window with correct width and height but ignores the
+rest. The pixel color value is a 4 byte integer value with first byte being not
+important and the rest are <strong>red, green and blue</strong> values of the colors.</p>
+<p>Next we need to <strong>&ldquo;map&rdquo;</strong> our window with XMapWindow(&hellip;). Map is weird name for
+a function that just shows a window. So basically this could have been named
+XShowWindow but it is what it is. After we call it it should opened window.</p>
+<p>One last thing that we have to do in this example is to <strong>flush</strong> xlib commands.
+Xlib is bufferent commands that we issue. Usually we don&rsquo;t need to call XFlush
+because we have a normal event loop but in this simple example we use endless
+loop. We need it to run endless so that it won&rsquo;t stop right away.</p>
+<p><img src="/posts/linux_creating_x11_windows/image/simple_window.png" alt="800x600 window created with XCreateSimpleWindow"></p>
+<p>You can play with window. Change its size, move it around and even close it. But
+after you close the window you will have to terminal the program due to our
+approach to using endless for loop to keep it open. So just move back to
+terminal and press <strong>Ctrl-C</strong> and terminate that process.</p>
+<h2 id="02-create-window">02. Create window</h2>
+<p>So let&rsquo;s try to create the same window with regular XCreateWindow. It is a bit
+more involved but not too much. Here is 02_create_window.c.</p>
+<pre tabindex="0"><code>#include &lt;X11/Xlib.h&gt;
+
+int main()
+{
+    Display* MainDisplay = XOpenDisplay(0);
+    Window RootWindow = XDefaultRootWindow(MainDisplay);
+    
+    int WindowX = 0;
+    int WindowY = 0;
+    int WindowWidth = 800;
+    int WindowHeight = 600;
+    int BorderWidth = 0;
+    int WindowDepth = CopyFromParent;
+    int WindowClass = CopyFromParent;
+    Visual* WindowVisual = CopyFromParent;
+
+    int AttributeValueMask = CWBackPixel;
+    XSetWindowAttributes WindowAttributes = {};
+    WindowAttributes.background_pixel = 0xffafe9af;
+
+    Window MainWindow = XCreateWindow(MainDisplay, RootWindow, 
+            WindowX, WindowY, WindowWidth, WindowHeight,
+            BorderWidth, WindowDepth, WindowClass, WindowVisual,
+            AttributeValueMask, &amp;WindowAttributes);
+
+    XMapWindow(MainDisplay, MainWindow);
+
+    for(;;) {
+        XEvent GeneralEvent = {};
+        XNextEvent(MainDisplay, &amp;GeneralEvent);
+    }
+}
+</code></pre><p>Compile this code with: <code>gcc 02_create_window.c -o 02_create_window -lX11</code></p>
+<p>It looks the same as the previous window but works slightly different. We still
+use endless for loop but instead of sleeping we use XNextEvent(&hellip;) to wait for
+an event instead of using XFlush(&hellip;). XNextEvent will flush everything so that
+we don&rsquo;t have to do it manually.</p>
+<p>We use XCreateWindow(&hellip;) instead of XCreateSimpleWindow(&hellip;). This function
+requires a bit more parameters and a bit more setup. First of all values are
+put into a variables with names for easier readability. It is not required but
+just makes code easier to understand.</p>
+<p>Comprared to simple version border color and background color are not passed as
+parameters. New parameters <strong>&lsquo;border width&rsquo;, &lsquo;window depth&rsquo;, &lsquo;window class&rsquo;,
+&lsquo;window visual&rsquo;, &lsquo;attributes values mask&rsquo;, &lsquo;window attributes&rsquo;</strong> are added.</p>
+<p>Border width is not important. Window depth is a &ldquo;depth&rdquo; of monitor or how many
+bits of information is used for color. We could set it to 24 or just use
+CopyFromParent and it will just work. Dont&rsquo; worry about it as it is also not an
+important parameter and you can just use defaults.</p>
+<p>Window class can either be InputOutput or InputOnly. First one is for when you
+want to have a visible window (pretty much every time) and second is for windows
+which will never draw. Basically we need only <strong>InputOuput</strong> or you can just
+<strong>CopyFromParent</strong> which in our case copy from root window.</p>
+<p>Then there is <strong>Visual</strong> that is used for the window. It is opaque data
+structure which contains some information about colors and we can juse use
+CopyFromParent and safely ignore it (for this case).</p>
+<p>The most important part is <strong>&lsquo;window attributes&rsquo;</strong> and a related <strong>&lsquo;attibute
+mask&rsquo;</strong>. In the struct of type XSetWindowAttributes we can set different options
+related to the window. For example to set window background we passed it as a
+separate parater to function. Here we set it in the struct and pass the whole
+struct. For optimization purposes X11 uses &lsquo;value mask&rsquo; to know what was passed
+in the struct set exactly that. So if you set background color in the struct and
+forget to set <strong>CWBackPixel</strong> bit then it won&rsquo;t work.</p>
+<p>Here is the list of attributes that could be set in XSetWindowAttributes struct:</p>
+<ul>
+<li>Pixmap <strong>background_pixmap</strong>;</li>
+<li>unsigned long <strong>background_pixel</strong>;</li>
+<li>Pixmap <strong>border_pixmap</strong>;</li>
+<li>unsigned long <strong>border_pixel</strong>;</li>
+<li>int <strong>bit_gravity</strong>;</li>
+<li>int <strong>win_gravity</strong>;</li>
+<li>int <strong>backing_store</strong>;</li>
+<li>unsigned long <strong>backing_planes</strong>;</li>
+<li>unsigned long <strong>backing_pixel</strong>;</li>
+<li>Bool <strong>save_under</strong>;</li>
+<li>long <strong>event_mask</strong>;</li>
+<li>long <strong>do_not_propagate_mask</strong>;</li>
+<li>Bool <strong>override_redirect</strong>;</li>
+<li>Colormap <strong>colormap</strong>;</li>
+<li>Cursor <strong>cursor</strong>;</li>
+</ul>
+<p>and don&rsquo;t forget to set the correspondig bit in the value mask. You can just or
+the values together like this: <strong>int AttributeValueMask = CWBackPixel | CWEventMask;</strong></p>
+<p>Here is the list of bits values that can be used in the mask: CWBackPixmap,
+CWBackPixel, CWBorderPixmap, CWBorderPixel, CWBitGravity, CWWinGravity,
+CWBackingStore, CWBackingPlanes, CWBackingPixel, CWOverrideRedirect,
+CWSaveUnder, CWEventMask, CWDontPropagate, CWColormap, CWCursor.</p>
+<p>As you can see we don&rsquo;t need to set all the fields. Just the one that are
+important for our usecase. One of the most important ones is <strong>event_mask</strong>
+field. This will be used to filter which events we want to recieve. Currently we
+set it up so that none of the events will be available to us. So the very last
+of the file where we use XNextEvent(&hellip;) will just get stuck waiting for new
+event and will not get any. The good news is that we used XNextEvent(&hellip;) we
+don&rsquo;t need to go back to terminal and use Ctrl-C to terminal program as it will
+stop working as soon as window manager closes our window.</p>
+<h2 id="03-create-windows-with-events">03. Create windows with events</h2>
+<p>Here is is 03_create_window_with_events.c</p>
+<pre tabindex="0"><code>#include &lt;X11/Xlib.h&gt;
+#include &lt;X11/Xutil.h&gt;
+
+int main()
+{
+    Display* MainDisplay = XOpenDisplay(0);
+    Window RootWindow = XDefaultRootWindow(MainDisplay);
+    
+    int WindowX = 0;
+    int WindowY = 0;
+    int WindowWidth = 800;
+    int WindowHeight = 600;
+    int BorderWidth = 0;
+    int WindowDepth = CopyFromParent;
+    int WindowClass = CopyFromParent;
+    Visual* WindowVisual = CopyFromParent;
+
+    int AttributeValueMask = CWBackPixel | CWEventMask;
+    XSetWindowAttributes WindowAttributes = {};
+    WindowAttributes.background_pixel = 0xffffccaa;
+    WindowAttributes.event_mask = StructureNotifyMask | KeyPressMask | KeyReleaseMask | ExposureMask;
+
+    Window MainWindow = XCreateWindow(MainDisplay, RootWindow, 
+            WindowX, WindowY, WindowWidth, WindowHeight,
+            BorderWidth, WindowDepth, WindowClass, WindowVisual,
+            AttributeValueMask, &amp;WindowAttributes);
+
+    XMapWindow(MainDisplay, MainWindow);
+
+    int IsWindowOpen = 1;
+    while(IsWindowOpen) {
+        XEvent GeneralEvent = {};
+        XNextEvent(MainDisplay, &amp;GeneralEvent);
+
+        switch(GeneralEvent.type) {
+            case KeyPress:
+            case KeyRelease:
+            {
+                XKeyPressedEvent *Event = (XKeyPressedEvent *)&amp;GeneralEvent;
+                if(Event-&gt;keycode == XKeysymToKeycode(MainDisplay, XK_Escape))
+                {
+                    IsWindowOpen = 0;
+                }
+            } break;
+        }
+    }
+}
+</code></pre><p>Compile it with: <code>gcc 03_create_window_with_events.c -o 03_create_window_with_events -lX11</code></p>
+<p>Here we add one more header file <strong>&lt;X11/Xutil&gt;</strong> in order to have access to key
+definitions.</p>
+<p>The main that needs to be done first is to add to <strong>event_mask</strong> a list of
+events that we want to receive from the server: <strong>StructureNotifyMask,
+KeyPressMask, KeyReleaseMask, ExposureMask</strong>. KeyRelease and KeyPress are self
+explanatory. StructureNotifyMask will deliver events related to changes in size
+and ExporeMask will deliver events related to window needing to be redrawn. For
+example when window is first shawn or when part of window was first hidden by
+some other window and then shown again. At the same time don&rsquo;t forget to add
+<strong>CWEventMask</strong> so that Xorg will know to look into the event_mask attribute;</p>
+<p>Now we change our infinite for loop into infinite while loop with condition
+<strong>IsWindowOpen</strong> so it will loop until this condition is set to true (or 1 in
+our case).</p>
+<p>When XNextEvent(&hellip;) recieves event it puts it into variable with type XEvent
+which is a general type for all events. Then we can switch over is <strong>.type</strong>
+field and know what type of event came to us. In our example we look into
+KeyPress and KeyRelease events and when they come we cast it to XKeyPressedEvent
+which could be used to extract infromation about which keys have been
+pressed/released. Here with the help of XKeysymToKeycode(&hellip;) we convert
+XK_Escape value to a keycode and compare it with the data that came from server.
+If they match it means that escape key was pressed and we just close the window
+by setting IsWindowOpen to false (0) and thus terminating the endless loop.</p>
+<h2 id="04-final-create-window-to-move-stuff-around">04. Final: Create window to move stuff around</h2>
+<p>Here is 04_rectangles_and_action.c</p>
+<pre tabindex="0"><code>#include &lt;X11/Xlib.h&gt;
+#include &lt;X11/Xutil.h&gt;
+#include &lt;stdio.h&gt;
+
+typedef struct {
+    int X;
+    int Y;
+    int Width;
+    int Height;
+} entity;
+
+int main()
+{
+    Display* MainDisplay = XOpenDisplay(0);
+    Window RootWindow = XDefaultRootWindow(MainDisplay);
+
+    int DefaultScreen = DefaultScreen(MainDisplay);
+    GC Context = XDefaultGC(MainDisplay, DefaultScreen);
+    
+    int WindowX = 0;
+    int WindowY = 0;
+    int WindowWidth = 800;
+    int WindowHeight = 600;
+    int BorderWidth = 0;
+    int WindowDepth = CopyFromParent;
+    int WindowClass = CopyFromParent;
+    Visual* WindowVisual = CopyFromParent;
+
+    int AttributeValueMask = CWBackPixel | CWEventMask;
+    XSetWindowAttributes WindowAttributes = {};
+    WindowAttributes.background_pixel = 0xffffccaa;
+    WindowAttributes.event_mask = StructureNotifyMask | KeyPressMask | KeyReleaseMask | ExposureMask;
+
+    Window MainWindow = XCreateWindow(MainDisplay, RootWindow, 
+            WindowX, WindowY, WindowWidth, WindowHeight,
+            BorderWidth, WindowDepth, WindowClass, WindowVisual,
+            AttributeValueMask, &amp;WindowAttributes);
+
+    XMapWindow(MainDisplay, MainWindow);
+
+    XStoreName(MainDisplay, MainWindow, &#34;Moving rectangle. Use arrow keys to move.&#34;);
+
+    Atom WM_DELETE_WINDOW = XInternAtom(MainDisplay, &#34;WM_DELETE_WINDOW&#34;, False);
+    if(!XSetWMProtocols(MainDisplay, MainWindow, &amp;WM_DELETE_WINDOW, 1)) {
+        printf(&#34;Couldn&#39;t register WM_DELETE_WINDOW property \n&#34;);
+    }
+
+
+    entity Box = {};
+    Box.Width = 50;
+    Box.Height = 80;
+    Box.X = WindowWidth/2 - Box.Width/2;
+    Box.Y = WindowHeight/2 - Box.Height/2;
+    int StepSize = 5;
+
+    int IsWindowOpen = 1;
+    while(IsWindowOpen) {
+        XEvent GeneralEvent = {};
+
+
+        XNextEvent(MainDisplay, &amp;GeneralEvent);
+
+        switch(GeneralEvent.type) {
+            case KeyPress:
+            case KeyRelease:
+            {
+                XKeyPressedEvent *Event = (XKeyPressedEvent *)&amp;GeneralEvent;
+                if(Event-&gt;keycode == XKeysymToKeycode(MainDisplay, XK_Escape))
+                {
+                    IsWindowOpen = 0;
+                }
+
+                if(Event-&gt;keycode == XKeysymToKeycode(MainDisplay, XK_Down))
+                {
+                    Box.Y += StepSize;
+                }
+                else if(Event-&gt;keycode == XKeysymToKeycode(MainDisplay, XK_Up))
+                {
+                    Box.Y -= StepSize;
+                }
+                else if(Event-&gt;keycode == XKeysymToKeycode(MainDisplay, XK_Right))
+                {
+                    Box.X += StepSize;
+                }
+                else if(Event-&gt;keycode == XKeysymToKeycode(MainDisplay, XK_Left))
+                {
+                    Box.X -= StepSize;
+                }
+            } break;
+
+            case ClientMessage:
+            {
+                XClientMessageEvent *Event = (XClientMessageEvent *) &amp;GeneralEvent;
+                if((Atom)Event-&gt;data.l[0] == WM_DELETE_WINDOW) {
+                    XDestroyWindow(MainDisplay, MainWindow);
+                    IsWindowOpen = 0;
+                }
+            } break;
+
+        }
+
+        XClearWindow(MainDisplay, MainWindow);
+        XFillRectangle(MainDisplay, MainWindow, Context, Box.X, Box.Y, Box.Width, Box.Height);
+    }
+}
+</code></pre><p>Compile it with: <code>gcc 04_rectangles_and_action.c -o 04_rectangles_and_action -lX11</code></p>
+<p>Here we just create a window a draw a rectangle around with arrow keys [up,
+down, left, right]. The only thing that we were required to add was to get a
+<strong>Screen</strong> and <strong>GC (Graphics Context)</strong>.  Screen is needed to get graphics
+context and graphic context is needed to do drawing some (bad) drawing on the
+default window. In this example we use XFillRectangle(&hellip;) to draw that
+rectangle. This GC stores information and about how graphics drawing commands
+should paint when different paint commands are used. In this example we just
+used a default one.</p>
+<p>Apart from that in the this example we use &lsquo;client messages&rsquo; in order to cleanly
+close window when pressin &lsquo;x&rsquo; button on the window. Window manager is almost a
+regular client similar to our window and it does not close our window directly
+and rather send our window a special message. We first get an Atom (a special
+integer which identifies a string in the server) which is sent to used on window
+close from window manager. For this action this atom name is
+<strong>WM_DELETE_WINDOW</strong>. It is not required but remove that error message <strong>X
+connection to :0 broken (explicit kill or server shutdown).</strong> which we used to
+get in previous examples when closed window.</p>
+<p><img src="/posts/linux_creating_x11_windows/image/window_and_rectangle.png" alt="Xlib: A window with moving rectangle"></p>
+<h2 id="video">Video</h2>
+
+    
+<iframe style="background: gray;" class="full-width" height="400" src="https://www.youtube.com/embed/kOIjpGnc-DA" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
+
+
+<h2 id="conclusion">Conclusion</h2>
+<p>Even though final version looks like a start of small game development you
+definetely should not make your games or apps like this. In the next post I will
+write about either software rendering or opengl (or both?) and show a little
+more appropriate approach to drawing stuff on the screen.</p>
+<p>This post was not about teaching how to use Xlib for app development but rather
+show small steps in opening windows and with that build an intuition of how
+windows are opened in xlib.</p>
+<p>I suggest reading more into parts that are not explaing and playing around with
+other function from the documentation. For example I would create a different GC
+with different colors, create cirles instead of rectangle and maybe draw some
+text. Either way I hope this post was helpful in building some intuition about
+basic Xlib.</p>
+
+    </div>
+</div>
+
+        </div><div class='footer'>
+    <div class='page-wrap'>
+    &copy; 2024, Hereket 
+    </div>
+</div>
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-7KHD5ET3Y7"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-7KHD5ET3Y7');
+</script>
+
+
+
+
+<script type="text/javascript" >
+   (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+   m[i].l=1*new Date();
+   for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+   k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+   (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+   ym(94210403, "init", {
+        clickmap:true,
+        trackLinks:true,
+        accurateTrackBounce:true,
+        webvisor:true
+   });
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/94210403" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

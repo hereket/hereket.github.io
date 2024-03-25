@@ -6,8 +6,15 @@
     <description>Recent content in Posts on Hereket</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 20 Dec 2023 14:01:14 +0500</lastBuildDate>
+    <lastBuildDate>Wed, 20 Mar 2024 22:18:19 +0500</lastBuildDate>
     <atom:link href="https://hereket.com/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Creating windows from scratch with Xlib on Linux</title>
+      <link>https://hereket.com/posts/linux_creating_x11_windows/</link>
+      <pubDate>Wed, 20 Mar 2024 22:18:19 +0500</pubDate>
+      <guid>https://hereket.com/posts/linux_creating_x11_windows/</guid>
+      <description>Introduction In this post I wanted to go over creating windows using raw Xlib (X11) and show how to approach the task if you want to do it from scratch. Current trend is to use Wayland and a lot of distros already switched to using it but still there are a very large portion of computers that are using X11.&#xA;When I first was learning how to open working with X11 it was very problematic to find any tutorial that clearly showed basics and allowed me to start playing around quickly.</description>
+    </item>
     <item>
       <title>How flutter uses certificate authorities</title>
       <link>https://hereket.com/posts/flutter-ca-certificates/</link>
