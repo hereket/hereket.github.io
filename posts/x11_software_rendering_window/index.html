@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="icon" type="image/x-icon" href="/image/favicon.ico">
+    <link rel="canonical" href="https://hereket.com/posts/x11_software_rendering_window/" />
+
+    
+    
+    <link rel="stylesheet" type="text/css" href="/css/base.css?0">
+
+    <script type="text/javascript" src="/js/base.js?" ></script>
+
+    
+    
+    <title>X11 software rendering window | Hereket</title>
+</head>
+
+
+<body><div id="nav-border" class="container header">
+    <div class='page-wrap content'>
+        <a href="/"><div class="header-logo"> Hereket </div></a>
+        <nav id="nav" class="nav">
+            
+            <a class="nav-link" href="/">
+            
+            Posts
+            </a>
+            
+            <a class="nav-link" href="/tiny/">
+            
+            Tiny
+            </a>
+            
+            <a class="nav-link" href="/contact/">
+            
+            Contact
+            </a>
+            
+        </nav>
+    </div>
+</div>
+<div id="content">
+<div class="page-wrap article">
+    <div class='main-content article'>
+        <h1>X11 software rendering window</h1>
+        
+        <div><time class='post-time' datetime="2024-03-23">2024-03-23</time></div>
+        
+        <br><br>
+        <nav id="TableOfContents">
+  <ul>
+    <li><a href="#introduction">Introduction</a></li>
+    <li><a href="#full-code">Full Code</a></li>
+    <li><a href="#explanation">Explanation</a></li>
+    <li><a href="#conclusion">Conclusion</a></li>
+  </ul>
+</nav>
+        <h2 id="introduction">Introduction</h2>
+<p>This is continuation of the <a href="/posts/linux_creating_x11_windows">previous post</a> about creating windows using Xlib/X11.
+In this post I will show how to start basic software rendering inside linux from
+scratch usin Xlib.</p>
+<h2 id="full-code">Full Code</h2>
+<p>05_window_software_renderer.c</p>
+<pre tabindex="0"><code>#include &lt;X11/Xlib.h&gt;
+#include &lt;X11/Xutil.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;stdint.h&gt;
+#include &lt;stdlib.h&gt;
+
+#define STATUS_ERROR 0
+
+typedef struct {
+    int X;
+    int Y;
+    int Width;
+    int Height;
+} entity;
+
+typedef struct {
+    uint8_t *Memory;
+    uint64_t Size;
+    uint32_t Width;
+    uint32_t Height;
+    uint32_t Pitch;
+} buffer ;
+
+
+float 
+Clamp(float Min, float Value, float Max) {
+    if(Value &lt; Min)      { Value = Min; }
+    else if(Value &gt; Max) { Value = Max; }
+    return Value; 
+}
+
+void DrawRect(buffer *Buffer, int32_t X, int32_t Y, int32_t Width, int32_t Height, uint32_t Color) {
+    int32_t StartX = X;
+    int32_t EndX = X + Width;
+    int32_t StartY = Y;
+    int32_t EndY = Y + Height;
+
+    StartX = Clamp(0, StartX, Buffer-&gt;Width);
+    EndX   = Clamp(0, EndX  , Buffer-&gt;Width);
+
+    StartY = Clamp(0, StartY, Buffer-&gt;Height);
+    EndY   = Clamp(0, EndY  , Buffer-&gt;Height);
+
+    for(int Y = StartY; Y &lt; EndY; Y++) {
+        for(int X = StartX; X &lt; EndX; X++) {
+            uint32_t *Pixel = (uint32_t *)((uint32_t *)Buffer-&gt;Memory + Y*Buffer-&gt;Width + X);
+            *Pixel = Color;
+        }
+    }
+}
+
+
+
+void DoRender(buffer* Buffer, entity Box)
+{
+    DrawRect(Buffer, 0, 0, Buffer-&gt;Width, Buffer-&gt;Height, 0xff87de87);
+    /* DrawRect(Buffer, 10, 10, 50, 80, 0xff00aa44); */
+    DrawRect(Buffer, Box.X, Box.Y, Box.Width, Box.Height, 0xff00aa44);
+}
+
+int main()
+{
+    Display* MainDisplay = XOpenDisplay(0);
+    Window RootWindow = XDefaultRootWindow(MainDisplay);
+
+    int DefaultScreen = DefaultScreen(MainDisplay);
+    GC Context = XDefaultGC(MainDisplay, DefaultScreen);
+
+    int ScreenDepth = 24;
+    XVisualInfo VisualInfo = {};
+    if(STATUS_ERROR == XMatchVisualInfo(MainDisplay, DefaultScreen, ScreenDepth, TrueColor, &amp;VisualInfo)) {
+        printf(&#34;ERROR: No matching visual info\n&#34;);
+    }
+    
+    int WindowX = 0;
+    int WindowY = 0;
+    int WindowWidth = 800;
+    int WindowHeight = 600;
+    int BorderWidth = 0;
+    int WindowDepth = VisualInfo.depth;
+    int WindowClass = InputOutput;
+    Visual* WindowVisual = VisualInfo.visual;
+
+    int AttributeValueMask = CWBackPixel | CWEventMask;
+    XSetWindowAttributes WindowAttributes = {};
+    WindowAttributes.background_pixel = 0xffffccaa;
+    WindowAttributes.event_mask = StructureNotifyMask | KeyPressMask | KeyReleaseMask | ExposureMask;
+
+    Window MainWindow = XCreateWindow(MainDisplay, RootWindow, 
+            WindowX, WindowY, WindowWidth, WindowHeight,
+            BorderWidth, WindowDepth, WindowClass, WindowVisual,
+            AttributeValueMask, &amp;WindowAttributes);
+
+    XMapWindow(MainDisplay, MainWindow);
+
+    XStoreName(MainDisplay, MainWindow, &#34;Moving rectangle. Use arrow keys to move.&#34;);
+
+    Atom WM_DELETE_WINDOW = XInternAtom(MainDisplay, &#34;WM_DELETE_WINDOW&#34;, False);
+    if(!XSetWMProtocols(MainDisplay, MainWindow, &amp;WM_DELETE_WINDOW, 1)) {
+        printf(&#34;Couldn&#39;t register WM_DELETE_WINDOW property \n&#34;);
+    }
+
+
+    int BitsPerPixel = 32;
+    int BytesPerPixel = BitsPerPixel / 8;
+    int WindowBufferSize = WindowWidth*WindowHeight*BytesPerPixel;
+
+    buffer Buffer = {}; 
+    Buffer.Width = WindowWidth;
+    Buffer.Height = WindowHeight;
+    Buffer.Pitch = Buffer.Width * BytesPerPixel;
+    Buffer.Size = Buffer.Pitch * Buffer.Height;
+    Buffer.Size = Buffer.Pitch * Buffer.Height;
+    Buffer.Memory = (uint8_t *)malloc(Buffer.Size); 
+
+    entity Box = {};
+    Box.Width = 50;
+    Box.Height = 80;
+    Box.X = WindowWidth/2 - Box.Width/2;
+    Box.Y = WindowHeight/2 - Box.Height/2;
+    int StepSize = 5;
+
+    int Offset = 0;
+    int BytesBetweenScanlines = 0;
+    XImage *WindowBuffer = XCreateImage(MainDisplay, VisualInfo.visual, VisualInfo.depth, ZPixmap, 
+            Offset, (char *)Buffer.Memory, WindowWidth, WindowHeight, BitsPerPixel, BytesBetweenScanlines);
+
+    int IsWindowOpen = 1;
+    while(IsWindowOpen) {
+
+        while(XPending(MainDisplay) &gt; 0) {
+            XEvent GeneralEvent = {};
+
+            XNextEvent(MainDisplay, &amp;GeneralEvent);
+
+            switch(GeneralEvent.type) {
+                case KeyPress:
+                case KeyRelease:
+                {
+                    XKeyPressedEvent *Event = (XKeyPressedEvent *)&amp;GeneralEvent;
+                    if(Event-&gt;keycode == XKeysymToKeycode(MainDisplay, XK_Escape))
+                    {
+                        IsWindowOpen = 0;
+                    }
+
+                    if(Event-&gt;keycode == XKeysymToKeycode(MainDisplay, XK_Down))
+                    {
+                        Box.Y += StepSize;
+                    }
+                    else if(Event-&gt;keycode == XKeysymToKeycode(MainDisplay, XK_Up))
+                    {
+                        Box.Y -= StepSize;
+                    }
+                    else if(Event-&gt;keycode == XKeysymToKeycode(MainDisplay, XK_Right))
+                    {
+                        Box.X += StepSize;
+                    }
+                    else if(Event-&gt;keycode == XKeysymToKeycode(MainDisplay, XK_Left))
+                    {
+                        Box.X -= StepSize;
+                    }
+
+                } break;
+
+                case ClientMessage:
+                {
+                    XClientMessageEvent *Event = (XClientMessageEvent *) &amp;GeneralEvent;
+                    if((Atom)Event-&gt;data.l[0] == WM_DELETE_WINDOW) {
+                        XDestroyWindow(MainDisplay, MainWindow);
+                        IsWindowOpen = 0;
+                    }
+                } break;
+
+                case ConfigureNotify:
+                {
+                    XConfigureEvent *Event = (XConfigureEvent *)&amp;GeneralEvent;
+                    WindowWidth = Event-&gt;width;
+                    WindowHeight = Event-&gt;height;
+
+                    // NOTE: XDestroyImage also frees Memory, so no need to free from our side
+                    XDestroyImage(WindowBuffer);
+
+                    Buffer.Width = WindowWidth;
+                    Buffer.Height = WindowHeight;
+                    Buffer.Pitch = Buffer.Width * BytesPerPixel;
+                    Buffer.Size = Buffer.Pitch * Buffer.Height;
+                    Buffer.Memory = (uint8_t *)malloc(Buffer.Size); 
+
+                    WindowBuffer = XCreateImage(MainDisplay, VisualInfo.visual, VisualInfo.depth, ZPixmap, 
+                            Offset, (char *)Buffer.Memory, WindowWidth, WindowHeight, BitsPerPixel, BytesBetweenScanlines);
+                } break;
+
+            }
+        }
+
+        DoRender(&amp;Buffer, Box);
+
+        int SourceX = 0;
+        int SourceY = 0;
+        int DestX = 0;
+        int DestY = 0;
+        XPutImage(MainDisplay, MainWindow, Context, WindowBuffer, SourceX, SourceY, DestX, DestY, WindowWidth, WindowHeight);
+    }
+}
+</code></pre><p>Compile code with: <code>gcc 05_window_software_renderer.c -o 05_window_software_renderer -lX11</code></p>
+
+    
+<video height="400px" controls>
+    <source src="/posts/x11-window-software-renderer/video/software-renderer-basic.mp4" type="video/mp4">
+    Your browser does not support the video tag.  
+</video>
+
+
+
+<h2 id="explanation">Explanation</h2>
+<p>This code is direct continuation of the previous post and specifically 4th
+program in that post. In that post we drew and moved rectangle using Xlib
+functions. The issue with that approach is that it is a lot slower to draw if
+you want to draw a lot of rectangles, circles, text and etc, which is a normal
+case for an app or game.</p>
+<p>In the above program from this post we do the same thing but do all the
+rendering ourself and just send the result back just once per frame or once when
+app requires some drawing.</p>
+<p>Even though the code grew quite a bit the difference in actual Xlib change is
+not that much. Basically we need to get something like a canvas where we can
+draw locally and &lsquo;upload&rsquo; results back to x11 server once we are done. This
+cavans in our case is just a regular bitmap/image. Later using regular software
+rendering we can render different objects onto this image. In this example we
+implement only rectangle rendering but it is enought to show general concepts.</p>
+<p>Initially we create <strong>XImage</strong> buffer with the help of <strong>XCreateImage(&hellip;)</strong>
+function. Even though in this example we used custom visual info it could easily
+be replaced with &lsquo;CopyFromParent&rsquo; as we don&rsquo;t need a extra control (used just to
+show how it could be done). We need to create XImage &lsquo;object&rsquo; so that don&rsquo;t have
+to pass large memory blob on each frame and rather just pass it&rsquo;s identifier.</p>
+<p><code>XImage *WindowBuffer = XCreateImage(MainDisplay, VisualInfo.visual, VisualInfo.depth, ZPixmap, Offset, (char *)Buffer.Memory, WindowWidth, WindowHeight, BitsPerPixel, BytesBetweenScanlines);</code></p>
+<p>At the same time we started using <strong>ConfigureNotify</strong> event which fires every
+time window configuration changes or put simply when the window is resized. With
+the event comes information about new window dimensions which we use create new
+XImage object. XDestroyImage is used to destroy image to not leak memory.</p>
+<p>In this example we slightly changed our approach to event handling. Previously
+we used to process one event, then do rendering, then process one more event and
+then do rendering. In new example we first process all available events and then
+do rendering. If we don&rsquo;t have any events we just continously render until we
+get events. This is very wasteful but good enough for this example. If it were a
+game the we could sleep some time that is left in the frame. For retained mode
+normal apps we could just not do anything untill we get events.</p>
+<p>The rendering is done with a just putting pixels by hand onto the image. In this
+example we first clear all pixels to a specific color. Then we render a simple
+square onto the same image based on the dynamic offset which changes on up,
+down, left, right arrow keys. This create a feeling of moving object.</p>
+<p>And once we done with rendering objects onto the image we just send the image to
+the server with <strong>XPutImage(&hellip;)</strong>. This tells X server to get this image and
+blit it onto a Drawable. In this case our drawable is whole window.</p>
+<p><code>XPutImage(MainDisplay, MainWindow, Context, WindowBuffer, SourceX, SourceY, DestX, DestY, WindowWidth, WindowHeight);</code></p>
+<h2 id="conclusion">Conclusion</h2>
+<p>Moving from general Xlib rendering was actually quite easy if we don&rsquo;t count
+that we have to actually implement software rendering functions ourself (or we
+could inculde some libraries to simplify the task). The difference with the
+previous approach is that we can do all the rendering in &ldquo;locally&rdquo; and is faster
+compared to previous approach. Of course in current day and age doing software
+rendering is not needed in 99% of the cases. Better approach is to utilise GPU
+and delegate all the rendering to hardware acceleration. It will be explained in
+the next section.</p>
+
+    </div>
+</div>
+
+        </div><div class='footer'>
+    <div class='page-wrap'>
+    &copy; 2024, Hereket 
+    </div>
+</div>
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-7KHD5ET3Y7"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-7KHD5ET3Y7');
+</script>
+
+
+
+
+<script type="text/javascript" >
+   (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+   m[i].l=1*new Date();
+   for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+   k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+   (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+   ym(94210403, "init", {
+        clickmap:true,
+        trackLinks:true,
+        accurateTrackBounce:true,
+        webvisor:true
+   });
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/94210403" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>
