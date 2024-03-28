@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="icon" type="image/x-icon" href="/image/favicon.ico">
+    <link rel="canonical" href="https://hereket.com/posts/x11_opengl_window_fixed_function/" />
+
+    
+    
+    <link rel="stylesheet" type="text/css" href="/css/base.css?0">
+
+    <script type="text/javascript" src="/js/base.js?" ></script>
+
+    
+    
+    <title>Opengl fixed function from scratch window in Xlib | Hereket</title>
+</head>
+
+
+<body><div id="nav-border" class="container header">
+    <div class='page-wrap content'>
+        <a href="/"><div class="header-logo"> Hereket </div></a>
+        <nav id="nav" class="nav">
+            
+            <a class="nav-link" href="/">
+            
+            Posts
+            </a>
+            
+            <a class="nav-link" href="/tiny/">
+            
+            Tiny
+            </a>
+            
+            <a class="nav-link" href="/contact/">
+            
+            Contact
+            </a>
+            
+        </nav>
+    </div>
+</div>
+<div id="content">
+<div class="page-wrap article">
+    <div class='main-content article'>
+        <h1>Opengl fixed function from scratch window in Xlib</h1>
+        
+        <div><time class='post-time' datetime="2024-03-25">2024-03-25</time></div>
+        
+        <br><br>
+        <nav id="TableOfContents">
+  <ul>
+    <li><a href="#introduction">Introduction</a></li>
+    <li><a href="#explanation">Explanation</a></li>
+    <li><a href="#conclusion">Conclusion</a></li>
+  </ul>
+</nav>
+        <h2 id="introduction">Introduction</h2>
+<p>We will continue exploring creating windows from scratch in linux using Xlib.
+Here we will look into opening basic window and draw onto it using opengl using
+fixed function pipeline. You can look into <a href="/posts/x11_software_rendering_window">previous post</a>
+if you want to compare this approach with software rendering.</p>
+<p>I wanted to start with fixed-function because it is a lot easier and can help
+understand basics of opengl setup. Once you know how to start with basic opengl
+then moving to shaders will be a bit easier than trying to grasp all at the same
+time.</p>
+<p>Here is the final code 06_window_opengl_direct.c:</p>
+<pre tabindex="0"><code>#include &lt;stdio.h&gt;
+#include &lt;X11/Xlib.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;GL/glx.h&gt;
+
+static int DoubleBufferAttributes[] = {
+    GLX_RGBA,
+    GLX_RED_SIZE, 1,
+    GLX_GREEN_SIZE, 1,
+    GLX_BLUE_SIZE, 1,
+    GLX_DEPTH_SIZE, 12,
+    GLX_DOUBLEBUFFER,
+    None,
+};
+
+void VerifyOrDie(int ResultStatus, const char *Message) {
+    if(ResultStatus == 0) {
+        fprintf(stderr, &#34;%s&#34;, Message);
+        exit(2);
+    }
+}
+
+int main()
+{
+    Display* MainDisplay = XOpenDisplay(0);
+    int MainScreen = XDefaultScreen(MainDisplay);
+    Window RootWindow = XDefaultRootWindow(MainDisplay);
+
+    int Dummy;
+    int ResultStatus = glXQueryExtension(MainDisplay, &amp;Dummy, &amp;Dummy);
+    VerifyOrDie(ResultStatus != 0, &#34;Error: X Server has not GLX extension\n&#34;);
+
+    XVisualInfo* VisualInfo = glXChooseVisual(MainDisplay, MainScreen, DoubleBufferAttributes);
+    VerifyOrDie(VisualInfo != 0, &#34;glXChooseVisual returned 0&#34;);
+    VerifyOrDie(VisualInfo-&gt;class == TrueColor, &#34;No True COlor support. Cannot run program without it&#34;);
+
+    GLXContext ShareList = None;
+    int IsDirectRendering = True;
+    GLXContext OpenGLContext = glXCreateContext(MainDisplay, VisualInfo, ShareList, IsDirectRendering);
+    VerifyOrDie(OpenGLContext != 0, &#34;ERROR: Couldn&#39;t create rendering context\n&#34;);
+
+    int WindowX = 0;
+    int WindowY = 0;
+    int WindowWidth = 800;
+    int WindowHeight = 600;
+    int BorderWidth = 0;
+    int WindowClass = InputOutput;
+    int WindowDepth = VisualInfo-&gt;depth;
+    Visual* WindowVisual = VisualInfo-&gt;visual;
+
+    int AttributeValueMask = CWBackPixel | CWEventMask | CWColormap;
+
+    XSetWindowAttributes WindowAttributes = {};
+    WindowAttributes.colormap = XCreateColormap(MainDisplay, RootWindow, VisualInfo-&gt;visual, AllocNone);
+    WindowAttributes.background_pixel = 0xffafe9af;
+    WindowAttributes.event_mask = StructureNotifyMask | KeyPressMask | KeyReleaseMask | PointerMotionMask;
+
+    Window MainWindow = XCreateWindow(MainDisplay, RootWindow, 
+            WindowX, WindowY, WindowWidth, WindowHeight,
+            BorderWidth, WindowDepth, WindowClass, WindowVisual,
+            AttributeValueMask, &amp;WindowAttributes);
+
+    XStoreName(MainDisplay, MainWindow, &#34;Opengl: Fixed function pipeline&#34;);
+
+    glXMakeCurrent(MainDisplay, MainWindow, OpenGLContext);
+
+    XMapWindow(MainDisplay, MainWindow);
+
+    Atom WM_DELETE_WINDOW = XInternAtom(MainDisplay, &#34;WM_DELETE_WINDOW&#34;, False);
+    if(!XSetWMProtocols(MainDisplay, MainWindow, &amp;WM_DELETE_WINDOW, 1)) {
+        printf(&#34;Couldn&#39;t register WM_DELETE_WINDOW\n&#34;);
+    }
+
+    int IsProgramRunning = 1;
+    while(IsProgramRunning) {
+        while(XPending(MainDisplay)) {
+            XEvent GeneralEvent = {};
+            XNextEvent(MainDisplay, &amp;GeneralEvent);
+            switch(GeneralEvent.type) {
+                case ClientMessage: 
+                {
+                    IsProgramRunning = 0;
+                } break;
+            }
+        }
+
+        {
+            glClearColor(0.0, 0.0, 0.2, 1.0);
+            glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+
+            float Offset = 0.9;
+
+            glBegin(GL_TRIANGLES);
+
+                glColor3f(1.0, 0.0, 0.0);
+                glVertex2f(0, Offset);
+
+                glColor3f(0.0, 1.0, 0.0);
+                glVertex2f(Offset, -Offset);
+
+                glColor3f(0.0, 0.0, 1.0);
+                glVertex2f(-Offset, -Offset);
+
+            glEnd();
+
+            /* glFlush(); */
+            glXSwapBuffers(MainDisplay, MainWindow);
+        }
+    }
+}
+</code></pre><p>Compile it with: <code>gcc 06_window_opengl_fixed_function.c -o 06_window_opengl_fixed_function -lX11 -lGL</code></p>
+<h2 id="explanation">Explanation</h2>
+<p>First of all we need to include &lt;GL/glx.h&gt; into source code and add <strong>-lGL</strong>
+linker flag to link with opengl. GLX is an OpenGL X Window system extension. It
+add some function that start with <strong>glX</strong> prefix and all this functions are
+needed to ask X Server to do some opengl magic behind the scenes (not always but
+enough for this beginning).</p>
+<p>We get regular stuff that we had to get in previous version: a display, a screen
+and root window. After that we use <strong>glXQueryExtension(&hellip;)</strong> to check if opengl is
+available. Here depending on our approach to handling this we could fall back to
+software rendering, rendering on X Server side or just plain stop the
+application like we did in this example. If this function return anything but
+0 then there is some issue and we cannot continue.</p>
+<p>Then we get a <strong>Visual</strong> which is compatible with our requirements. In this case
+we want a visual that supports regular RGBA and we want it to be double
+buffered. If for some reason you want to try without double buffering you could
+comment out <strong>GLX_DOUBLEBUFFER</strong> but you would have to call glFlush() instead of
+glXSwapBuffers(MainDisplay, MainWindow). Otherwise it will not render anything
+on the screen.</p>
+<p>One more thing we need is regular opengl context that is used by opengl to store
+different &ldquo;drawing settings&rdquo;. We get it with <strong>glXCreateContext(&hellip;)</strong>. In this
+example we will not be needing it for anything but initialization but if you
+want play around with different drawing modes then you can try it yourself.</p>
+<p>Now we can actually create a regular X window like we did before. The only
+difference is that we need to provide a visual compatible with opengl settings
+that we specified. In previous examples we just compied visual from our parent
+root window and that was enough. In this case it had to be selected specifically
+to be compatible with opengl.</p>
+<p>And now after all that we can just enable the opengl context with
+<strong>glXMakeCurrent()</strong> and after showing the window we can start regular drawing
+that we used before but now instead of software rendering we will use opengl. So
+after we processed all events we clear the screen with <strong>glClear()</strong> and do old
+fixed function pipleine actions to draw onto the window. We begin drawing with
+<strong>glBegin(&hellip;)</strong> and create 3 vertices with <strong>glVertex2f(&hellip;)</strong>. Each vertext will get
+it&rsquo;s own color with the help of <strong>glColor3f(&hellip;)</strong>. Once we done describing our
+scene we just finish drawing with <strong>glEnd()</strong>. After all this we need to tell
+opengl to swap buffers with <strong>glXSwapBuffers(&hellip;)</strong>. If you used single buffer
+rendering you would have to call <strong>glFlush()</strong> here.</p>
+<p>This is that simple. Just process the events and send rendering commands to
+opengl. If I were plannig to do more complex rendering then a better approach
+would be to move this out into a separate function but for this demo I wanted to
+simplify everything and make things as straighforward as possible.</p>
+<p>Here is what you should get:</p>
+<p><img src="/posts/x11_opengl_window_fixed_function/image/fixed-function-opengl-widow.png" alt="Xlib: A window with moving
+rectangle"></p>
+<h2 id="conclusion">Conclusion</h2>
+<p>Code in this example is even smaller that the previous one. I reduced
+functionality specifically to focus on general opengl initialization and setup
+so that you will get a better understanding of how the parts are tied together
+and the fewer parts we have the easier it to understand.</p>
+<p>If I were you I would have tried to replicate previous example with this opengl
+approch. So create a rectagnle that is moving on the screen.</p>
+<p>But don&rsquo;t forget that this approach is not how modern opengl code is used and
+don&rsquo;t use it for real projects. It is good to understand the concepts and to
+play around with basic ideas. In the next post I will show how to do the same
+thing but with shaders.</p>
+
+    </div>
+</div>
+
+        </div><div class='footer'>
+    <div class='page-wrap'>
+    &copy; 2024, Hereket 
+    </div>
+</div>
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-7KHD5ET3Y7"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-7KHD5ET3Y7');
+</script>
+
+
+
+
+<script type="text/javascript" >
+   (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+   m[i].l=1*new Date();
+   for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+   k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+   (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+   ym(94210403, "init", {
+        clickmap:true,
+        trackLinks:true,
+        accurateTrackBounce:true,
+        webvisor:true
+   });
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/94210403" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>
