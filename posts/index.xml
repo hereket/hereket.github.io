@@ -6,24 +6,31 @@
     <description>Recent content in Posts on Hereket</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 25 Mar 2024 22:18:19 +0500</lastBuildDate>
+    <lastBuildDate>Tue, 26 Mar 2024 22:18:19 +0500</lastBuildDate>
     <atom:link href="https://hereket.com/posts/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>Opengl fixed function from scratch window in Xlib</title>
+      <title>Xlib 04: From scratch opengl and shaders with raw Xlib</title>
+      <link>https://hereket.com/posts/x11_window_with_shaders/</link>
+      <pubDate>Tue, 26 Mar 2024 22:18:19 +0500</pubDate>
+      <guid>https://hereket.com/posts/x11_window_with_shaders/</guid>
+      <description>Introduction In the last post we looked into how to create a window with basic OpenGL using fixed function pipeline. In this post we will try to recreate the same scene but using more modern aproach using shaders. Here we will &amp;ldquo;bake&amp;rdquo; shaders inside our source code.&#xA;Here is the final code of 07_window_opengl_core_profile.c:&#xA;#include &amp;lt;stdio.h&amp;gt; #include &amp;lt;X11/Xlib.h&amp;gt; #include &amp;lt;unistd.h&amp;gt; #include &amp;lt;stdlib.h&amp;gt; #define GL_GLEXT_PROTOTYPES #include &amp;lt;GL/glx.h&amp;gt; #include &amp;lt;GL/glext.h&amp;gt; static int DoubleBufferAttributes[] = { GLX_RGBA, GLX_RED_SIZE, 1, GLX_GREEN_SIZE, 1, GLX_BLUE_SIZE, 1, GLX_DEPTH_SIZE, 12, GLX_DOUBLEBUFFER, None, }; void VerifyOrDie(int ResultStatus, const char *Message) { if(ResultStatus == 0) { fprintf(stderr, &amp;#34;%s&amp;#34;, Message); exit(2); } } void CheckShaderCompilation(unsigned int Shader) { int ResultStatus; char Buffer[512]; glGetShaderiv(Shader, GL_COMPILE_STATUS, &amp;amp;ResultStatus); if(ResultStatus == 0) { glGetShaderInfoLog(Shader, sizeof(Buffer), NULL, Buffer); printf(&amp;#34;ERROR: Shader compilation failed.</description>
+    </item>
+    <item>
+      <title>Xlib 03: Opengl fixed function from scratch window in Xlib</title>
       <link>https://hereket.com/posts/x11_opengl_window_fixed_function/</link>
       <pubDate>Mon, 25 Mar 2024 22:18:19 +0500</pubDate>
       <guid>https://hereket.com/posts/x11_opengl_window_fixed_function/</guid>
       <description>Introduction We will continue exploring creating windows from scratch in linux using Xlib. Here we will look into opening basic window and draw onto it using opengl using fixed function pipeline. You can look into previous post if you want to compare this approach with software rendering.&#xA;I wanted to start with fixed-function because it is a lot easier and can help understand basics of opengl setup. Once you know how to start with basic opengl then moving to shaders will be a bit easier than trying to grasp all at the same time.</description>
     </item>
     <item>
-      <title>X11 software rendering window</title>
+      <title>Xlib 02: Software rendering window in X11</title>
       <link>https://hereket.com/posts/x11_software_rendering_window/</link>
       <pubDate>Sat, 23 Mar 2024 22:18:19 +0500</pubDate>
       <guid>https://hereket.com/posts/x11_software_rendering_window/</guid>
       <description>Introduction This is continuation of the previous post about creating windows using Xlib/X11. In this post I will show how to start basic software rendering inside linux from scratch usin Xlib.&#xA;Full Code 05_window_software_renderer.c&#xA;#include &amp;lt;X11/Xlib.h&amp;gt; #include &amp;lt;X11/Xutil.h&amp;gt; #include &amp;lt;stdio.h&amp;gt; #include &amp;lt;stdint.h&amp;gt; #include &amp;lt;stdlib.h&amp;gt; #define STATUS_ERROR 0 typedef struct { int X; int Y; int Width; int Height; } entity; typedef struct { uint8_t *Memory; uint64_t Size; uint32_t Width; uint32_t Height; uint32_t Pitch; } buffer ; float Clamp(float Min, float Value, float Max) { if(Value &amp;lt; Min) { Value = Min; } else if(Value &amp;gt; Max) { Value = Max; } return Value; } void DrawRect(buffer *Buffer, int32_t X, int32_t Y, int32_t Width, int32_t Height, uint32_t Color) { int32_t StartX = X; int32_t EndX = X + Width; int32_t StartY = Y; int32_t EndY = Y + Height; StartX = Clamp(0, StartX, Buffer-&amp;gt;Width); EndX = Clamp(0, EndX , Buffer-&amp;gt;Width); StartY = Clamp(0, StartY, Buffer-&amp;gt;Height); EndY = Clamp(0, EndY , Buffer-&amp;gt;Height); for(int Y = StartY; Y &amp;lt; EndY; Y++) { for(int X = StartX; X &amp;lt; EndX; X++) { uint32_t *Pixel = (uint32_t *)((uint32_t *)Buffer-&amp;gt;Memory + Y*Buffer-&amp;gt;Width + X); *Pixel = Color; } } } void DoRender(buffer* Buffer, entity Box) { DrawRect(Buffer, 0, 0, Buffer-&amp;gt;Width, Buffer-&amp;gt;Height, 0xff87de87); /* DrawRect(Buffer, 10, 10, 50, 80, 0xff00aa44); */ DrawRect(Buffer, Box.</description>
     </item>
     <item>
-      <title>Creating windows from scratch with Xlib on Linux</title>
+      <title>Xlib 01: Creating windows from scratch with Xlib on Linux</title>
       <link>https://hereket.com/posts/linux_creating_x11_windows/</link>
       <pubDate>Wed, 20 Mar 2024 22:18:19 +0500</pubDate>
       <guid>https://hereket.com/posts/linux_creating_x11_windows/</guid>

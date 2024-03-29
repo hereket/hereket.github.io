@@ -3,12 +3,15 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://hereket.com/</loc>
-    <lastmod>2024-03-25T22:18:19+05:00</lastmod>
-  </url><url>
-    <loc>https://hereket.com/posts/x11_opengl_window_fixed_function/</loc>
-    <lastmod>2024-03-25T22:18:19+05:00</lastmod>
+    <lastmod>2024-03-26T22:18:19+05:00</lastmod>
   </url><url>
     <loc>https://hereket.com/posts/</loc>
+    <lastmod>2024-03-26T22:18:19+05:00</lastmod>
+  </url><url>
+    <loc>https://hereket.com/posts/x11_window_with_shaders/</loc>
+    <lastmod>2024-03-26T22:18:19+05:00</lastmod>
+  </url><url>
+    <loc>https://hereket.com/posts/x11_opengl_window_fixed_function/</loc>
     <lastmod>2024-03-25T22:18:19+05:00</lastmod>
   </url><url>
     <loc>https://hereket.com/posts/x11_software_rendering_window/</loc>

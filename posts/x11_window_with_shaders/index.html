@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="icon" type="image/x-icon" href="/image/favicon.ico">
+    <link rel="canonical" href="https://hereket.com/posts/x11_window_with_shaders/" />
+
+    
+    
+    
+    
+    <link rel="stylesheet" type="text/css" href="/css/base.css?1711754700">
+
+    <script type="text/javascript" src="/js/base.js?" ></script>
+
+    
+    
+    <title>Xlib 04: From scratch opengl and shaders with raw Xlib | Hereket</title>
+</head>
+
+
+<body><div id="nav-border" class="container header">
+    <div class='page-wrap content'>
+        <a href="/"><div class="header-logo"> Hereket </div></a>
+        <nav id="nav" class="nav">
+            
+            <a class="nav-link" href="/">
+            
+            Posts
+            </a>
+            
+            <a class="nav-link" href="/tiny/">
+            
+            Tiny
+            </a>
+            
+            <a class="nav-link" href="/contact/">
+            
+            Contact
+            </a>
+            
+        </nav>
+    </div>
+</div>
+<div id="content">
+<div class="page-wrap article">
+    <div class='main-content article'>
+        <h1>Xlib 04: From scratch opengl and shaders with raw Xlib</h1>
+        
+        <div><time class='post-time' datetime="2024-03-26">2024-03-26</time></div>
+        
+        <br><br>
+        <nav id="TableOfContents">
+  <ul>
+    <li><a href="#introduction">Introduction</a></li>
+    <li><a href="#explanation">Explanation</a></li>
+    <li><a href="#conclusion">Conclusion</a></li>
+  </ul>
+</nav>
+        <h2 id="introduction">Introduction</h2>
+<p>In the <a href="/posts/x11_opengl_window_fixed_function">last post</a> we looked into how
+to create a window with basic OpenGL using fixed function pipeline. In this post
+we will try to recreate the same scene but using more modern aproach using
+shaders. Here we will &ldquo;bake&rdquo; shaders inside our source code.</p>
+<p>Here is the final code of 07_window_opengl_core_profile.c:</p>
+<pre tabindex="0"><code>#include &lt;stdio.h&gt;
+#include &lt;X11/Xlib.h&gt;
+#include &lt;unistd.h&gt;
+#include &lt;stdlib.h&gt;
+
+#define GL_GLEXT_PROTOTYPES
+#include &lt;GL/glx.h&gt;
+#include &lt;GL/glext.h&gt;
+
+static int DoubleBufferAttributes[] = {
+    GLX_RGBA,
+    GLX_RED_SIZE, 1,
+    GLX_GREEN_SIZE, 1,
+    GLX_BLUE_SIZE, 1,
+    GLX_DEPTH_SIZE, 12,
+    GLX_DOUBLEBUFFER,
+    None,
+};
+
+void VerifyOrDie(int ResultStatus, const char *Message) {
+    if(ResultStatus == 0) {
+        fprintf(stderr, &#34;%s&#34;, Message);
+        exit(2);
+    }
+}
+
+void CheckShaderCompilation(unsigned int Shader) {
+    int ResultStatus;
+    char Buffer[512];
+    glGetShaderiv(Shader, GL_COMPILE_STATUS, &amp;ResultStatus);
+
+    if(ResultStatus == 0) {
+        glGetShaderInfoLog(Shader, sizeof(Buffer), NULL, Buffer);
+        printf(&#34;ERROR: Shader compilation failed. -----------------------------------\n&#34;);
+        printf(&#34;%s\n&#34;, Buffer);
+    }
+}
+
+void CheckProgramCompilation(unsigned int Program) {
+    int  ResultStatus;
+    char Buffer[512];
+    glGetProgramiv(Program, GL_COMPILE_STATUS, &amp;ResultStatus);
+
+    if(ResultStatus == 0)
+    {
+        glGetShaderInfoLog(Program, sizeof(Buffer), NULL, Buffer);
+        printf(&#34;ERROR: Failed compiling program\n&#34;);
+        printf(&#34;%s\n&#34;, Buffer);
+    }
+}
+
+
+int main()
+{
+    Display* MainDisplay = XOpenDisplay(0);
+    int MainScreen = XDefaultScreen(MainDisplay);
+    Window RootWindow = XDefaultRootWindow(MainDisplay);
+
+    int Dummy;
+    int ResultStatus = glXQueryExtension(MainDisplay, &amp;Dummy, &amp;Dummy);
+    VerifyOrDie(ResultStatus != 0, &#34;Error: X Server has not GLX extension\n&#34;);
+
+    XVisualInfo* VisualInfo = glXChooseVisual(MainDisplay, MainScreen, DoubleBufferAttributes);
+    VerifyOrDie(VisualInfo != 0, &#34;glXChooseVisual returned 0&#34;);
+    VerifyOrDie(VisualInfo-&gt;class == TrueColor, &#34;No True Color support. Cannot run program without it&#34;);
+
+    GLXContext ShareList = None;
+    int IsDirectRendering = True;
+    GLXContext OpenGLContext = glXCreateContext(MainDisplay, VisualInfo, ShareList, IsDirectRendering);
+    VerifyOrDie(OpenGLContext != 0, &#34;ERROR: Couldn&#39;t create rendering context\n&#34;);
+
+    int WindowX = 0;
+    int WindowY = 0;
+    int WindowWidth = 800;
+    int WindowHeight = 600;
+    int BorderWidth = 0;
+    int WindowClass = InputOutput;
+    int WindowDepth = VisualInfo-&gt;depth;
+    Visual* WindowVisual = VisualInfo-&gt;visual;
+
+    int AttributeValueMask = CWBackPixel | CWEventMask | CWColormap;
+
+    XSetWindowAttributes WindowAttributes = {};
+    WindowAttributes.colormap = XCreateColormap(MainDisplay, RootWindow, VisualInfo-&gt;visual, AllocNone);
+    WindowAttributes.background_pixel = 0xffafe9af;
+    WindowAttributes.event_mask = StructureNotifyMask | KeyPressMask | KeyReleaseMask | PointerMotionMask;
+
+    Window MainWindow = XCreateWindow(MainDisplay, RootWindow, 
+            WindowX, WindowY, WindowWidth, WindowHeight,
+            BorderWidth, WindowDepth, WindowClass, WindowVisual,
+            AttributeValueMask, &amp;WindowAttributes);
+
+    XStoreName(MainDisplay, MainWindow, &#34;General app&#34;);
+
+    glXMakeCurrent(MainDisplay, MainWindow, OpenGLContext);
+
+    XMapWindow(MainDisplay, MainWindow);
+
+    Atom WM_DELETE_WINDOW = XInternAtom(MainDisplay, &#34;WM_DELETE_WINDOW&#34;, False);
+    if(!XSetWMProtocols(MainDisplay, MainWindow, &amp;WM_DELETE_WINDOW, 1)) {
+        printf(&#34;Couldn&#39;t register WM_DELETE_WINDOW\n&#34;);
+    }
+
+
+    /* ------------------------------------------------------------------------------------------------------------ */
+    /* ---------- OPENGL ------------------------------------------------------------------------------------------ */
+    /* ------------------------------------------------------------------------------------------------------------ */
+
+    float S = 0.5;
+    float Vertices[] = {
+          -S, -S, 0.0f,     1.0f, 0.0f, 0.0f,
+        0.0f,  S, 0.0f,     0.0f, 1.0f, 0.0f,
+           S, -S, 0.0f,     0.0f, 0.0f, 1.0f,
+    };
+
+    unsigned int VBO;
+    glGenBuffers(1, &amp;VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertices), Vertices, GL_STATIC_DRAW);
+
+    const char* VertexShaderSource = 
+        &#34;#version 330 core\n&#34;
+        &#34;layout (location = 0) in vec3 Pos;&#34;
+        &#34;layout (location = 1) in vec3 InColor;&#34;
+        &#34;out vec3 Color;&#34;
+        &#34;&#34;
+        &#34;void main()&#34;
+        &#34;{&#34;
+        &#34;   gl_Position = vec4(Pos.x, Pos.y, 0.0f, 1.0f);&#34;
+        &#34;   Color = InColor;&#34;
+        &#34;}\0&#34;;
+    unsigned int VertexShader = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(VertexShader, 1, &amp;VertexShaderSource, NULL);
+    glCompileShader(VertexShader);
+    CheckShaderCompilation(VertexShader);
+
+    const char* FragmentShaderSource = 
+        &#34;#version 330 core\n&#34;
+        &#34;out vec4 FragColor;&#34;
+        &#34;in vec3 Color;&#34;
+        &#34;void main()&#34;
+        &#34;{&#34;
+        /* &#34;   FragColor = vec4(1.0f, 0.5f, 0.5f, 1.0f);&#34; */
+        &#34;   FragColor = vec4(Color, 1.0f);&#34;
+        &#34;}\0&#34;;
+    unsigned int FragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(FragmentShader, 1, &amp;FragmentShaderSource, NULL);
+    glCompileShader(FragmentShader);
+    CheckShaderCompilation(FragmentShader);
+
+    unsigned int ShaderProgram = glCreateProgram();
+    glAttachShader(ShaderProgram, VertexShader);
+    glAttachShader(ShaderProgram, FragmentShader);
+    glLinkProgram(ShaderProgram);
+
+    CheckProgramCompilation(ShaderProgram);
+
+    glDeleteShader(VertexShader);
+    glDeleteShader(FragmentShader);
+
+    glUseProgram(ShaderProgram);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), (void *)(3*sizeof(float)));
+    glEnableVertexAttribArray(1);
+
+
+    /* ------------------------------------------------------------------------------------------------------------ */
+    /* ------------------------------------------------------------------------------------------------------------ */
+    /* ------------------------------------------------------------------------------------------------------------ */
+
+    int IsProgramRunning = 1;
+    while(IsProgramRunning) {
+
+        while(XPending(MainDisplay)) {
+            XEvent GeneralEvent = {};
+            XNextEvent(MainDisplay, &amp;GeneralEvent);
+            switch(GeneralEvent.type) {
+                case ClientMessage: 
+                {
+                    IsProgramRunning = 0;
+                } break;
+            }
+        }
+
+        {
+            glClearColor(0.0, 0.0, 0.2, 1.0);
+            glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+
+            glDrawArrays(GL_TRIANGLES, 0, 3);
+
+            glXSwapBuffers(MainDisplay, MainWindow);
+        }
+    }
+}
+</code></pre><p>Compile it with <code>gcc 07_window_opengl_core_profile.c -o 07_window_opengl_core_profile -lX11 -lGL</code></p>
+<p>It should look like this.</p>
+<p><img src="/posts/x11_window_with_shaders/image/basic_shader_triangle.png" alt="Basic triangle window with shaders"></p>
+<h2 id="explanation">Explanation</h2>
+<p>All the OpenGL initialization that we did in previous post is exactly the same.
+So we first verify that OpenGL is available, get correct visual, get context,
+create window and enable context. After that we start initialization proces
+related to shaders and vertex data. In this post we use only VBO (vertext buffer
+object) and skip usage of VAO.</p>
+<p>Initially we create array of vertices and color. I wanted to use only vertices
+but then decided to add colors just to match visual of previous program. So this
+array contains 3 vertices. It contains X, Y, Z of vertex followed with R, G, B
+floats of color. In total we get 3x6=18 floats. So onsider it being 6 floats per
+vertex. Then we bind this array with <strong>glBindBuffer(&hellip;)</strong>. Since we will not be
+chaning this vertices frequently we can use <strong>GL_STATIC_DRAW</strong> for
+glBufferData(&hellip;).</p>
+<p>Since OpenGL does not not how the data that we linked is structured we need to
+define it. For that we will use <strong>glVertexAttribPointer(&hellip;)</strong>. We give it
+index, size, type, normalized, stride and pointer. So for vertex position points
+we will use index 0. The element size is 3 (X, Y, Z) and type of data is
+**GL_FLOAT. Normalized is to GL_FALSE to not use normalization for our data so
+that it wont&rsquo; change. Stride is set as 6<em>size(float) which means that to get
+next values for position we need to move 6</em>4=24 bytes forward in the data. And
+the very last we set offset of the first component inside passed data. And then
+we enable this attribute with <strong>glEnableVertexAttribArray(&hellip;)</strong></p>
+<p>For describing color in the data use pretty much the same approach but need to
+fix offsets and index. Index will be 1 and data will start 3*4=12 bytes after
+the start of data. Everthing else stays the same as colors is the same size as
+position.</p>
+<p>For shaders we will be using vertex shader and fragment shader. To simplify
+things a little we will just &ldquo;manually&rdquo; define them in our main C source code as
+a string. To make it a bit more readable we will use a trick of C language of
+mergin of multiple strings that are followed one after the other. Considering
+that C language is has clear delimeters we can skip using new lines (\n) between
+string. But we still will have to add one new line at the top of definition to
+separate glsl version declaration. One very important that will be a problem if
+forgotten is to add null terminator (\0) at the very last string. This is due
+<strong>glShaderSource</strong> require source to be null terminated and can be a troublesome
+to debug if you are new to this and forget to null terminate shader source.</p>
+<p>This is Vertex shader:</p>
+<pre tabindex="0"><code>#version 330 core
+layout (location = 0) in vec3 Pos;
+layout (location = 1) in vec3 InColor;
+out vec3 Color;
+
+void main()
+{
+   gl_Position = vec4(Pos.x, Pos.y, 0.0f, 1.0f);
+   Color = InColor;
+}
+</code></pre><p>It is a very simple and straightworward shader just to get things going. Since
+we decided to pack color information in our VBO we will extract position and
+color into their respective vec3 input params: Pos and InColor. To compile this
+shader we need to first request an id with <strong>glCreateShader(GL_VERTEX_SHADER)</strong>
+and then provide the source to OpenGL with <strong>glShaderSource(&hellip;)</strong>. After that
+just compile this shader with <strong>glCompile(&hellip;)</strong>. Then the code checks the
+shader for compilation errors and if found it prints it to a terminal.</p>
+<p>For Fragment shader we used:</p>
+<pre tabindex="0"><code>#version 330 core
+out vec4 FragColor;
+in vec3 Color;
+void main()
+{
+   FragColor = vec4(Color, 1.0f);
+}
+</code></pre><p>To compile this shader we use exactly the same approach as for vertex shader.
+The only thing to pay attention that always gets me is to change
+GL_VERTEX_SHADER to GL_FRAGMENT_SHADER when you do copy pasting. Apart from the
+logic is pretty much the same. Since the shader is pretty simple for education
+purposes we just get extracted color from vertex shader and pass it down the
+pipleline after converting it vec4.</p>
+<p>Once we compiled our shaders it is time to link them into a &lsquo;program&rsquo; that will
+run on the GPU. First we program with <strong>glCreateProgram()</strong> and then attach both
+shaders with <strong>glAttachShader(&hellip;)</strong> to that program. After that we link the
+program with <strong>glLinkProgram(&hellip;)</strong> and check if had any errors in the process.
+Since our program is not dynamic we just &lsquo;use&rsquo; this program once  with
+<strong>glUseProgram(&hellip;)</strong>. For a more dynamic application you would need to move
+this into a render loop.</p>
+<p>The setup was a bit daunting but if you look at the rest of the code it looks
+not that different. We removed all the fixed-function commands for rendering and
+just call <strong>glDrawArrays(GL_TRIANGLES, 0, 3)</strong> to draw primitive data that we
+defined earlier. Basically we asking OpenGL to draw triangle in the data
+specified earlier starting at index 0 and do 3 of them. This 3 vertices are
+drawn as one triangle.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>In this post we built a simple program to draw a colored rectangle using raw
+Xlib and OpenGL. I don&rsquo;t suggest you build your apps with this approach. These
+posts were intended to build everything from scratch, play around with different
+approaches and get a feeling of how X Server windows are woring and a bit of
+OpenGL.</p>
+<p>One of the things to try is to move shaders to separate files and load them
+dynamically on startup. You would need to just <strong>fread(&hellip;)</strong> the shaders into
+VertexShaderSource and FragmentShaderSource and that is pretty much it. With
+this you can try getting simple examples from shader toy and try to run them
+localy on your linux box. Unfortunately described system is not fully ready to
+start doing that because current version does not pass any time and resolution
+information to shaders. I will probably write about it a bit later but if you
+want to try yoursel you should research <strong>uniform</strong> variable for glsl and easily
+add them to this solution.</p>
+<p>Bear in mind that code in this post is written in a way to be simpler for
+reading sequentially and for a real project you would need to break it apart for
+for maintainability.</p>
+<p>Here is a sample scene I created using approach described in this post as
+illustration. If you want source code for these theme I might share it once I do
+a little cleanup (or just write me and I will send directly).</p>
+
+    
+<iframe style="background: gray;" class="full-width" height="400" src="https://www.youtube.com/embed/QcGzG51SYNc " title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
+
+
+
+    </div>
+</div>
+
+        </div><div class='footer'>
+    <div class='page-wrap'>
+    &copy; 2024, Hereket 
+    </div>
+</div>
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-7KHD5ET3Y7"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-7KHD5ET3Y7');
+</script>
+
+
+
+
+<script type="text/javascript" >
+   (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+   m[i].l=1*new Date();
+   for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+   k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+   (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+   ym(94210403, "init", {
+        clickmap:true,
+        trackLinks:true,
+        accurateTrackBounce:true,
+        webvisor:true
+   });
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/94210403" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>
