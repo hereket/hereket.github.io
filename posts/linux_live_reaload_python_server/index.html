@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html><head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="icon" type="image/x-icon" href="/image/favicon.ico">
+    <link rel="canonical" href="http://localhost:1313/posts/linux_live_reaload_python_server/" />
+
+    
+    
+    <link rel="stylesheet" type="text/css" href="/css/base.css?0">
+
+    <script type="text/javascript" src="/js/base.js?" ></script>
+
+    
+    
+    <title>Poor mans autoreload server in single file python on linux | Hereket</title>
+</head>
+
+
+<body><div id="nav-border" class="container header">
+    <div class='page-wrap content'>
+        <a href="/"><div class="header-logo"> Hereket </div></a>
+        <nav id="nav" class="nav">
+            
+            <a class="nav-link" href="/">
+            
+            Posts
+            </a>
+            
+            <a class="nav-link" href="/tiny/">
+            
+            Tiny
+            </a>
+            
+            <a class="nav-link" href="/contact/">
+            
+            Contact
+            </a>
+            
+        </nav>
+    </div>
+</div>
+<div id="content">
+<div class="page-wrap article">
+    <div class='main-content article'>
+        <h1>Poor mans autoreload server in single file python on linux</h1>
+        
+        <div><time class='post-time' datetime="2024-04-20">2024-04-20</time></div>
+        
+        <br><br>
+        <nav id="TableOfContents">
+  <ul>
+    <li><a href="#introduction">Introduction</a></li>
+    <li><a href="#setup">Setup</a></li>
+    <li><a href="#inotify">Inotify</a></li>
+    <li><a href="#server">Server</a></li>
+    <li><a href="#final-code">Final code</a></li>
+    <li><a href="#conclusion">Conclusion</a></li>
+  </ul>
+</nav>
+        <h2 id="introduction">Introduction</h2>
+
+    
+<iframe style="background: gray;" class="full-width" height="400" src="https://www.youtube.com/embed/4BDpljbI5Vc" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
+
+
+<p>In this post I wanted to explore creating a simple python server with automatic
+browser page reload on content change. There are many livereload servers in the
+wild and I used quite a few of them. For example Hugo has a local server with
+auto reload, javascript developers have pretty good local servers when using
+react and etc.</p>
+<p>But all these servers requre setup, download a lot of files, download runtimes
+or to put simply they have some friction. This is fine if used for a bigger
+project and I do use them but I quite often do some crazy experiments with
+js/css/html and don&rsquo;t want to any setup, configure settings or do anything not
+related to the idea. My most favourite tool for this is <code>python -m http.server</code></p>
+<p>It is not the best tool but a tool that happens to be available on all my
+copmuters and it just works(Long time ago when I did php development &lsquo;php -S&rsquo;
+was also good enough). I waited for several years and not after not finding
+anything that scratches my itch, during on of such experiments I decided to
+spend couple to create it myself for my own needs. Of course it took more than
+couple hours but it is regular programmer self lie.</p>
+<p><strong>Disclaimer</strong>: Code in this projet is bad, architecture is bad, error handling
+is bad and don&rsquo;t use this in production. But, I used it for my own local project
+and it made MY development time happier.</p>
+<h2 id="setup">Setup</h2>
+<p>For this to work we need three things: a <strong>simple server</strong>, <strong>websockets</strong> and
+<strong>inotify</strong>. Websockets are needed because web browsers do not give access to
+regular sockets and any full duplex communication should be done through
+websockets. For this project we do not need full duplex and half duplex
+communication like SSE (Server Sent Events) should be enough but I chose
+websockets and will stick with it.</p>
+<p>Inotify is an API to monitor file system events. It is faster to inotify
+compared to manually monitoring file date changes and is not that hard to
+implement manually without using any additional packages. Even though it is not
+the fastest solution it is more widespread and probably present in the system.</p>
+<h2 id="inotify">Inotify</h2>
+<p>When I was building I left inotify for the last part but here we will start with
+inotify because it is simpler and will be easier to explain in this order. First
+let&rsquo;s create a class SmallInotify and inner class Flags for encapsulation.</p>
+<pre tabindex="0"><code>class SmallINotify():
+    class Flags():
+        # NOTE: Values from inotify.h. There are more values but these are the ones we can wait on
+        ACCESS        = 0x00000001    # File was accessed.
+        MODIFY        = 0x00000002    # File was modified.
+        ATTRIB        = 0x00000004    # Metadata changed.
+        CLOSE_WRITE   = 0x00000008    # Writtable file was closed.
+        CLOSE_NOWRITE = 0x00000010    # Unwrittable file closed.
+        OPEN          = 0x00000020    # File was opened.
+        MOVED_FROM    = 0x00000040    # File was moved from X.
+        MOVED_TO      = 0x00000080    # File was moved to Y.
+        CREATE        = 0x00000100    # Subfile was created.
+        DELETE        = 0x00000200    # Subfile was deleted.
+        DELETE_SELF   = 0x00000400    # Self was deleted.
+        MOVE_SELF     = 0x00000800    # Self was moved.
+</code></pre><p>We won&rsquo;t need all this event types but I added them for later experiments. For
+this task we need only <strong>MODIFY</strong>, <strong>CREATE</strong> and <strong>DELETE</strong> flags.</p>
+<p>From inotify we will need only two function <strong>inotify_init</strong> and
+<strong>inotify_add_watch</strong>. There is <strong>inotify_init1</strong> function for more control but
+won&rsquo;t be needed in our example. Since these are not built into python we need to
+get it from libc manually.</p>
+<p>In the instance inialization we first manually load libc and then get inotify event queue.
+At the same time we setup system to wait for data on that event queue and notify
+us one it has some data for us to process.</p>
+<pre tabindex="0"><code>def __init__(self):
+    try: libc_so = ctypes.util.find_library(&#39;c&#39;)
+    except: libc_so = None
+    self._libc = ctypes.CDLL(libc_so or &#39;libc.so.6&#39;, use_errno=True)
+    self._inotify_event_queue_fd = self._libc_call(self._libc.inotify_init)
+    self._poller = select.poll()
+    self._poller.register(self._inotify_event_queue_fd)
+
+def _libc_call(self, function, *args):
+    rc = function(*args)
+    return rc
+</code></pre><p>Now we create a method to read data when data is available. <strong>read()</strong> will try
+to ready everything from the queue and if there were no data wait/block untill there
+is there is some changes to the filesystem. In this example, once there is a
+change it will just return the size of read data without any processing because
+we are not interesed (currently) in differentiating events. Any change in the
+watched folders will result in later reload. (If you are want to have different
+actions for different event type then you would have to parse it and return
+event types)</p>
+<pre tabindex="0"><code>def read(self):
+    data = self._readall()
+    timeout = -1
+    if not data  and self._poller.poll(timeout):
+        data = self._readall()
+    return len(data) # TODO: Actually parse data and return list of events?
+
+def _readall(self):
+    bytes_avail = ctypes.c_int()
+    fcntl.ioctl(self._inotify_event_queue_fd, termios.FIONREAD, bytes_avail)
+    if not bytes_avail.value:
+        return b&#39;&#39;
+    return os.read(self._inotify_event_queue_fd, bytes_avail.value)
+</code></pre><p>And now methods to setup watching directories with <strong>inotify_add_watch</strong>. For my
+initial setup I used just a single watch directly as my structure was flat but
+if you have folders and subfolders then you need to watch them all recursively.
+Since we are talking about small &rsquo;toy&rsquo; projects then it should not be a problem.
+inotify_add_watch will add specified directory to the list of directories to be
+watched and all changes will come back to us through single event queue.</p>
+<pre tabindex="0"><code>    def add_watch(self, path, mask):
+        return self._libc_call(self._libc.inotify_add_watch, self._inotify_event_queue_fd, os.fsencode(path), mask)
+
+    def add_watch_recursive(self, root, mask):
+        # TODO: Add exclude dirs. Remove &#39;.git&#39;, maybe all hidden files and just add a param to filter
+        self.add_watch(root, mask)
+        for current_root, dirs, files in os.walk(root):
+            for _dir in dirs:
+                dir_path = os.path.join(current_root, _dir)
+                self.add_watch(dir_path, mask)
+</code></pre><p>And this is pretty much it with inotify. Of course there is more to be done like
+remove deleted directories from watch list and etc but for our usecase these are
+more than enough.</p>
+<h2 id="server">Server</h2>
+<p>Initially, during experiment phase, I split file server and websocket server
+into different servers which listened on different ports but then I quickly came
+to conclusion that a better approach is to have one server. The server be just a
+regular file server but will serve websocket messages over a specified path.</p>
+<pre tabindex="0"><code>class Server:
+    def __init__(self, listen_port = 5000):
+        self.listen_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.listen_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.listen_socket.bind((&#39;&#39;, listen_port)) 
+        self.listen_socket.listen(10)
+
+        self.event_obj = threading.Event()
+
+        inotify = SmallINotify()
+        inotify.add_watch_recursive(&#39;.&#39;, inotify.Flags.CREATE | inotify.Flags.MODIFY  | inotify.Flags.DELETE)
+        thread = threading.Thread(target = self.check_filechanges_loop, args=(inotify,))
+        thread.start()
+
+        while True:
+            client_socket, client_address = self.listen_socket.accept()
+            thread = threading.Thread(
+                target = self.process_request,
+                args = (client_socket, client_address, self.event_obj),
+            )
+            thread.start()
+</code></pre><p>First of all we create a listening socket that will be listening on port 5000 by
+default and broker all other connections. <strong>event_obj</strong> is a thread event object
+for thread synchronization to fire update event to all client serving threads.
+Threading might not be the best approach to serving many clients but good
+enough for local setup in my more than one week testing didn&rsquo;t show any obvius
+limitations. And using just one event object is good enough since we care about
+only one event type.</p>
+<p>Then we setup filesystem monitoring and pass it to a separate thread whose sole
+job is to monitor file system events and notify other threads about changes.
+Again, since we have only one event type that we care about it is pretty simple
+and does not require any complex management.</p>
+<p>And at the very end we just start an endless loop waiting for new connections
+and when clients connect just allocate a separate thread for that. Each client
+processing thread will be responsible for understanding what client actually
+wanted and setup websocket connections if needed.</p>
+<pre tabindex="0"><code>def process_request(self, client_socket, client_address, event_obj):
+    request_str = client_socket.recv(MAX_REQUEST_LENGTH)
+    request_str = request_str.decode(&#39;utf-8&#39;)
+
+    parts = request_str.split(&#39;\r\n\r\n&#39;)
+
+    raw_headers = parts[0]
+    raw_body = parts[1]
+
+    header_parts =  raw_headers.split(&#39;\r\n&#39;)
+    request_line = header_parts[0]
+
+    method, path, http_version = request_line.split(&#39; &#39;)
+
+    if path == WEBSOCKET_PATH:
+        headers = self.headers_str_to_map(raw_headers)
+        self.websocket_init_and_process(client_socket, headers)
+    else:
+        file_path = self.get_file_path(path)
+        self.process_file_request(client_socket, file_path)
+
+    client_socket.close()
+</code></pre><p>Here we do manual request processing by getting all the request HTTP data and
+splitting it into request lines, headers and body. Of course we should have
+checked for errors and for bad requests from client but to reduce code size I
+decided against it.</p>
+<p>So when request comes we check for the request path. If it is <strong>/websocket</strong>
+(which comes from a specific js code shown later) then it be processed by a
+<strong>websocket_init_and_process</strong> which will initialize the connection and wait int
+a loop to send events. If the path is anything else then it will assume that it
+is a regular &ldquo;file&rdquo; request and process it accordingly.</p>
+<pre tabindex="0"><code>def process_file_request(self, client_socket, file_path):
+    if os.path.exists(file_path):
+        with open(file_path, &#39;rb&#39;) as f:
+            data = f.read()
+        if file_path == &#39;index.html&#39;:
+            data += EXTRA_INDEX_DATA.encode()
+        self.send_response(client_socket, 200, &#39;OK&#39;, &#34;text/html&#34;, data)
+        print(&#39;served: {}&#39;.format(file_path))
+    else:
+        output_data = &#34;File {} not found&#34;.format(file_path)
+        message = &#34;File not found&#34;
+        self.send_response(client_socket, 404, message, &#34;text/html&#34;, output_data.encode())
+        print(&#39;Not found: {}&#39;.format(file_path))
+</code></pre><p>The file handling part of the code is very straightforward. Take that path,
+check if it is available in the system and if is available just load it as bytes
+and send over the network to the client. Otherwise assume that is is missing and
+send back 404 error response.</p>
+<p>Now comes websocket request processsing.</p>
+<pre tabindex="0"><code>WEBSOCKET_MAGIC_KEY = &#39;258EAFA5-E914-47DA-95CA-C5AB0DC85B11&#39;
+
+def websocket_init_and_process(self, client_socket, headers):
+    client_key = headers.get(&#39;sec-websocket-key&#39;, &#39;&#39;)
+    combined_key = client_key + WEBSOCKET_MAGIC_KEY
+    hashed_combined_key = hashlib.sha1(combined_key.encode())
+    encoded_key = base64.b64encode(hashed_combined_key.digest())
+
+    output = &#34;HTTP/1.1 {} {}\r\n&#34;.format(101, &#34;Switching protocols&#34;)
+    output += &#34;Upgrade: Websocket\r\n&#34;
+    output += &#34;Connection: Upgrade\r\n&#34;
+    output += &#34;Sec-WebSocket-Accept: {}\r\n&#34;.format(encoded_key.decode())
+    output += &#34;\r\n&#34;
+
+    client_socket.send(output.encode())
+
+    message = &#39;reload&#39;
+    message_data = bytes([
+        0b10000001,  # Type TEXT
+        len(message),
+    ])
+    message_data += message.encode()
+
+    try:
+        while self.event_obj.wait():
+            client_socket.send(message_data)
+            self.event_obj.clear() # TODO: This synchronization method is stupid. But good enough for now. Move everything to select(...)
+    except:
+        pass # NOTE: Client probably refreshed and closed the socket.
+</code></pre><p>It is a bit more involved but not too much. Initially websockets request start
+as a regular HTTTP request but send us a websocket client key which we combine
+with a special magic key and send it back to client to indicate that we are
+ready to do websocket communication. We prepare special binary binary header
+which indicate that we will be sending short text and extend it with &lsquo;reload&rsquo;
+message. This &lsquo;reload&rsquo; does not mean anything it is just arbitrary text that I
+chose to send to the client everytime our files are modified.</p>
+<p>There is a special python package to do websocket communication properly but
+since our goal is to not use pip or other tools and have just one file I chose
+to use this handmade binary header. Good enough for this purpose.</p>
+<p><strong>The only question left is who starts the websocket session?</strong> Well back when
+we described file serving part of the server there was a <strong>EXTRA_INDEX_DATA</strong>
+that was appended to the end of the data if the path was <strong>index.html</strong>.
+EXTRA_INDEX_DATA contains some some little javascript snippet that does all the
+the websocket connection setup and processing. It is does it on every connection
+restart. Here is how it looks.</p>
+<pre tabindex="0"><code>&lt;script&gt;
+addEventListener(&#39;DOMContentLoaded&#39;, function() {
+    const socket = new WebSocket(&#39;ws://localhost:5000/websocket&#39;);
+    socket.addEventListener(&#39;message&#39;, function (event) {
+        socket.close();
+        window.location.reload();
+    });
+});
+&lt;/script&gt;
+</code></pre><p>It&rsquo;s been a while since I looked into HTML spec but it is probably against the
+specification and &lsquo;spec pollice&rsquo; will be very unhappy but hey if it works it
+works. I had a limited budget and squized what I could.</p>
+<h2 id="final-code">Final code</h2>
+<p>Here is final code that you can copy into project root or put it into some some
+folder that is included in PATH and you can load it anytime.</p>
+<pre tabindex="0"><code>#!/usr/bin/env python3
+import socket
+import threading
+import os
+import hashlib
+import base64
+import time
+
+import ctypes
+import select
+import fcntl
+import termios
+import signal
+
+
+WEBSOCKET_PATH = &#34;/websocket&#34;
+MAX_REQUEST_LENGTH = 8*1024
+WEBSOCKET_MAGIC_KEY = &#39;258EAFA5-E914-47DA-95CA-C5AB0DC85B11&#39;
+
+EXTRA_INDEX_DATA = &#39;&#39;&#39;
+&lt;script&gt;
+addEventListener(&#39;DOMContentLoaded&#39;, function() {
+    const socket = new WebSocket(&#39;ws://LISTENING_HOST_REPLACE:LISTENING_PORT_REPLACE/websocket&#39;);
+    socket.addEventListener(&#39;message&#39;, function (event) {
+        socket.close();
+        window.location.reload();
+    });
+});
+&lt;/script&gt;
+&#39;&#39;&#39;
+
+class SmallINotify():
+    class Flags():
+        # NOTE: Values from inotify.h. There are more values but these are the ones we can wait on
+        ACCESS        = 0x00000001    # File was accessed.
+        MODIFY        = 0x00000002    # File was modified.
+        ATTRIB        = 0x00000004    # Metadata changed.
+        CLOSE_WRITE   = 0x00000008    # Writtable file was closed.
+        CLOSE_NOWRITE = 0x00000010    # Unwrittable file closed.
+        OPEN          = 0x00000020    # File was opened.
+        MOVED_FROM    = 0x00000040    # File was moved from X.
+        MOVED_TO      = 0x00000080    # File was moved to Y.
+        CREATE        = 0x00000100    # Subfile was created.
+        DELETE        = 0x00000200    # Subfile was deleted.
+        DELETE_SELF   = 0x00000400    # Self was deleted.
+        MOVE_SELF     = 0x00000800    # Self was moved.
+
+    def __init__(self):
+        try: libc_so = ctypes.util.find_library(&#39;c&#39;)
+        except: libc_so = None
+        self._libc = ctypes.CDLL(libc_so or &#39;libc.so.6&#39;, use_errno=True)
+        self._inotify_event_queue_fd = self._libc_call(self._libc.inotify_init)
+        self._poller = select.poll()
+        self._poller.register(self._inotify_event_queue_fd)
+
+    def _libc_call(self, function, *args):
+        # TODO: error check for intterupts?. EINTR
+        return_code = function(*args)
+        return return_code
+
+    def read(self):
+        data = self._readall()
+        timeout = -1
+        if not data  and self._poller.poll(timeout):
+            data = self._readall()
+        return len(data) # TODO: Actually parse data and return list of events?
+
+    def _readall(self):
+        bytes_avail = ctypes.c_int()
+        fcntl.ioctl(self._inotify_event_queue_fd, termios.FIONREAD, bytes_avail)
+        if not bytes_avail.value:
+            return b&#39;&#39;
+        return os.read(self._inotify_event_queue_fd, bytes_avail.value)
+
+    def add_watch(self, path, mask):
+        return self._libc_call(self._libc.inotify_add_watch, self._inotify_event_queue_fd, os.fsencode(path), mask)
+
+    def add_watch_recursive(self, root, mask):
+        # TODO: Add exclude dirs. Remove &#39;.git&#39;, maybe all hidden files and just add a param to filter
+        self.add_watch(root, mask)
+        for current_root, dirs, files in os.walk(root):
+            for _dir in dirs:
+                dir_path = os.path.join(current_root, _dir)
+                self.add_watch(dir_path, mask)
+
+
+
+class Server:
+    def __init__(self, host = &#34;localhost&#34;, listen_port = 5000):
+        self.host = host
+        self.listen_port = listen_port
+        self.listen_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.listen_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.listen_socket.bind((host, self.listen_port)) 
+        self.listen_socket.listen(10)
+        self.event_obj = threading.Event()
+
+
+        print(&#34;serving content on {}:{}&#34;.format(host, listen_port));
+
+        inotify = SmallINotify()
+        watch_flags = inotify.Flags.CREATE | inotify.Flags.MODIFY  | inotify.Flags.DELETE
+        wd = inotify.add_watch(&#39;.&#39;, watch_flags)
+
+        thread = threading.Thread(target = self.check_filechanges_loop, args=(inotify,))
+        thread.start()
+
+        while True:
+            client_socket, client_address = self.listen_socket.accept()
+            thread = threading.Thread(
+                target = self.process_request,
+                args = (client_socket, client_address, self.event_obj),
+            )
+            thread.start()
+
+
+    def check_filechanges_loop(self, inotify):
+        while True:
+            inotify.read() # NOTE: Read all events
+            print(&#39;--------: Event&#39;);
+            self.event_obj.set()
+
+        # while True:
+        #     time.sleep(2)
+        #     self.event_obj.set()
+
+    def process_file_request(self, client_socket, file_path):
+        if os.path.exists(file_path):
+            with open(file_path, &#39;rb&#39;) as f:
+                data = f.read()
+            if file_path == &#39;index.html&#39;:
+                new_data = EXTRA_INDEX_DATA
+                new_data = new_data.replace(&#39;LISTENING_HOST_REPLACE&#39;, str(self.host))
+                new_data = new_data.replace(&#39;LISTENING_PORT_REPLACE&#39;, str(self.listen_port))
+                data += new_data.encode()
+            self.send_response(client_socket, 200, &#39;OK&#39;, &#34;text/html&#34;, data)
+            print(&#39;served: {}&#39;.format(file_path))
+        else:
+            output_data = &#34;File {} not found&#34;.format(file_path)
+            message = &#34;File not found&#34;
+            self.send_response(client_socket, 404, message, &#34;text/html&#34;, output_data.encode())
+            print(&#39;Not found: {}&#39;.format(file_path))
+
+    def websocket_init_and_process(self, client_socket, headers):
+        # TODO: Verify that request is correct websocket initialization request
+
+        client_key = headers.get(&#39;sec-websocket-key&#39;, &#39;&#39;)
+        combined_key = client_key + WEBSOCKET_MAGIC_KEY
+        hashed_combined_key = hashlib.sha1(combined_key.encode())
+        encoded_key = base64.b64encode(hashed_combined_key.digest())
+
+        output = &#34;HTTP/1.1 {} {}\r\n&#34;.format(101, &#34;Switching protocols&#34;)
+        output += &#34;Upgrade: Websocket\r\n&#34;
+        output += &#34;Connection: Upgrade\r\n&#34;
+        output += &#34;Sec-WebSocket-Accept: {}\r\n&#34;.format(encoded_key.decode())
+        output += &#34;\r\n&#34;
+
+        client_socket.send(output.encode())
+
+        message = &#39;reload&#39;
+        message_data = bytes([
+            0b10000001,  # Type TEXT
+            len(message),
+        ])
+        message_data += message.encode()
+
+        try:
+            while self.event_obj.wait():
+                client_socket.send(message_data)
+                self.event_obj.clear() # TODO: This synchronization method is stupid. But good enough for now. Move everything to select(...)
+        except:
+            pass # NOTE: Client probably refreshed and closed the socket.
+
+    def headers_str_to_map(self, headers_str):
+        lines = headers_str.split(&#39;\r\n&#39;)
+        result = {}
+        for line in lines[1:]:
+            key, value = line.split(&#39;:&#39;, 1)
+            result[key.lower()] = value.strip()
+        return result
+
+
+    def process_request(self, client_socket, client_address, event_obj):
+        # TODO: Do it in a loop
+        request_str = client_socket.recv(MAX_REQUEST_LENGTH)
+        request_str = request_str.decode(&#39;utf-8&#39;)
+
+        #TODO: break if no parts available
+        parts = request_str.split(&#39;\r\n\r\n&#39;)
+
+        raw_headers = parts[0]
+        raw_body = parts[1]
+
+        header_parts =  raw_headers.split(&#39;\r\n&#39;)
+        request_line = header_parts[0]
+
+        method, path, http_version = request_line.split(&#39; &#39;)
+
+        if path == WEBSOCKET_PATH:
+            headers = self.headers_str_to_map(raw_headers)
+            self.websocket_init_and_process(client_socket, headers)
+        else:
+            file_path = self.get_file_path(path)
+            self.process_file_request(client_socket, file_path)
+
+        client_socket.close()
+
+    def send_response(self, client_socket, code, message, content_type, data):
+        output = &#34;HTTP/1.1 {} {}\r\n&#34;.format(code, message)
+        # output += b&#34;Content-Type: {}\r\n&#34;.format(content_type,)
+        output += &#34;\r\n&#34;
+        output = output.encode()
+        output += data
+
+        client_socket.send(output)
+
+    def get_file_path(self, path):
+        file_path = path[1:]
+        if path == &#39;/&#39;:
+            file_path = &#39;index.html&#39;
+        return file_path
+
+def signal_handler(sig, frame):
+    os._exit(1)
+
+if __name__ == &#39;__main__&#39;:
+    signal.signal(signal.SIGINT, signal_handler)
+    Server()
+</code></pre><p>Here is another video showing this script serving content on different devices on
+local network.
+
+    
+<iframe style="background: gray;" class="full-width" height="400" src="https://www.youtube.com/embed/4BDpljbI5Vc" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
+
+</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>Final result turned out to be pretty good and very fun to use. I have built
+several small toys with it and it increased my productivity. Ofcourse this
+solution is not for everybody and not for production but pretty good and fun to
+use for local development.</p>
+<p>I want to remind that this code will work only linux because I built it for
+myself, I don&rsquo;t use Windows much and Mac is used only for iOS development. There
+probably will be at most 10 people interested in this approach and if it helps
+you save some time and have some fun then this post reached its goal. If for
+some reason you want to do this on a Mac or Windows and don&rsquo;t know how too
+approach it yourself you can ping me and I will look at it on one of the
+weekends.</p>
+
+    </div>
+</div>
+
+        </div><div class='footer'>
+    <div class='page-wrap'>
+    &copy; 2024, Hereket 
+    </div>
+</div>
+
+
+</body>
+</html>

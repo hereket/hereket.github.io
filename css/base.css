@@ -126,6 +126,17 @@ video {
     font-size: 1.6em;
     font-weight: bold;
 }
+.header .contacts{
+    display: flex;
+    align-items: center;
+}
+.header .contacts .item{
+    height: 25px;
+    display: inline-block;
+}
+.header .contacts .item img{
+    max-height: 100%;
+}
 
 .main-content {
     padding-top: 50px;
