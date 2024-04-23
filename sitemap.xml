@@ -2,129 +2,129 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>https://hereket.com/</loc>
+    <loc>http://localhost:1313/</loc>
     <lastmod>2024-04-20T14:45:52+05:00</lastmod>
   </url><url>
-    <loc>https://hereket.com/posts/linux_live_reload_python_server/</loc>
+    <loc>http://localhost:1313/posts/linux_live_reload_python_server/</loc>
     <lastmod>2024-04-20T14:45:52+05:00</lastmod>
   </url><url>
-    <loc>https://hereket.com/posts/</loc>
+    <loc>http://localhost:1313/posts/</loc>
     <lastmod>2024-04-20T14:45:52+05:00</lastmod>
   </url><url>
-    <loc>https://hereket.com/tiny/des-algorithm/</loc>
+    <loc>http://localhost:1313/tiny/des-algorithm/</loc>
     <lastmod>2024-04-12T16:05:40+05:00</lastmod>
   </url><url>
-    <loc>https://hereket.com/tiny/</loc>
+    <loc>http://localhost:1313/tiny/</loc>
     <lastmod>2024-04-12T16:05:40+05:00</lastmod>
   </url><url>
-    <loc>https://hereket.com/posts/x11_window_with_shaders/</loc>
+    <loc>http://localhost:1313/posts/x11_window_with_shaders/</loc>
     <lastmod>2024-03-26T22:18:19+05:00</lastmod>
   </url><url>
-    <loc>https://hereket.com/posts/x11_opengl_window_fixed_function/</loc>
+    <loc>http://localhost:1313/posts/x11_opengl_window_fixed_function/</loc>
     <lastmod>2024-03-25T22:18:19+05:00</lastmod>
   </url><url>
-    <loc>https://hereket.com/posts/x11_software_rendering_window/</loc>
+    <loc>http://localhost:1313/posts/x11_software_rendering_window/</loc>
     <lastmod>2024-03-23T22:18:19+05:00</lastmod>
   </url><url>
-    <loc>https://hereket.com/posts/linux_creating_x11_windows/</loc>
+    <loc>http://localhost:1313/posts/linux_creating_x11_windows/</loc>
     <lastmod>2024-03-20T22:18:19+05:00</lastmod>
   </url><url>
-    <loc>https://hereket.com/tiny/react-resume-invoice-builder-other/</loc>
+    <loc>http://localhost:1313/tiny/react-resume-invoice-builder-other/</loc>
     <lastmod>2024-01-13T16:05:40+05:00</lastmod>
   </url><url>
-    <loc>https://hereket.com/tiny/wasm-pong-game/</loc>
+    <loc>http://localhost:1313/tiny/wasm-pong-game/</loc>
     <lastmod>2024-01-03T16:05:40+05:00</lastmod>
   </url><url>
-    <loc>https://hereket.com/posts/flutter-ca-certificates/</loc>
+    <loc>http://localhost:1313/posts/flutter-ca-certificates/</loc>
     <lastmod>2023-12-20T14:01:14+05:00</lastmod>
   </url><url>
-    <loc>https://hereket.com/posts/django-populate-with-random-data/</loc>
+    <loc>http://localhost:1313/posts/django-populate-with-random-data/</loc>
     <lastmod>2023-12-12T05:59:52+05:00</lastmod>
   </url><url>
-    <loc>https://hereket.com/tiny/ligatures/</loc>
+    <loc>http://localhost:1313/tiny/ligatures/</loc>
     <lastmod>2023-09-06T16:22:30+05:00</lastmod>
   </url><url>
-    <loc>https://hereket.com/posts/iconified_ligatures/</loc>
+    <loc>http://localhost:1313/posts/iconified_ligatures/</loc>
     <lastmod>2023-09-06T16:22:30+05:00</lastmod>
   </url><url>
-    <loc>https://hereket.com/posts/monitoring-raw-x11-communication/</loc>
+    <loc>http://localhost:1313/posts/monitoring-raw-x11-communication/</loc>
     <lastmod>2023-08-11T03:45:55+05:00</lastmod>
   </url><url>
-    <loc>https://hereket.com/posts/exploring-xorg-connections/</loc>
+    <loc>http://localhost:1313/posts/exploring-xorg-connections/</loc>
     <lastmod>2023-08-07T03:04:42+05:00</lastmod>
   </url><url>
-    <loc>https://hereket.com/posts/flutter-embedded-ca/</loc>
+    <loc>http://localhost:1313/posts/flutter-embedded-ca/</loc>
     <lastmod>2023-08-02T14:01:14+05:00</lastmod>
   </url><url>
-    <loc>https://hereket.com/posts/flutter-vs-vanilla-js/</loc>
+    <loc>http://localhost:1313/posts/flutter-vs-vanilla-js/</loc>
     <lastmod>2023-08-01T02:37:38+05:00</lastmod>
   </url><url>
-    <loc>https://hereket.com/posts/vim_ide_compile_cycle/</loc>
+    <loc>http://localhost:1313/posts/vim_ide_compile_cycle/</loc>
     <lastmod>2023-07-24T15:25:51+05:00</lastmod>
   </url><url>
-    <loc>https://hereket.com/posts/vim_tmux_ide/</loc>
+    <loc>http://localhost:1313/posts/vim_tmux_ide/</loc>
     <lastmod>2023-07-22T17:22:46+05:00</lastmod>
   </url><url>
-    <loc>https://hereket.com/posts/todo_note_management/</loc>
+    <loc>http://localhost:1313/posts/todo_note_management/</loc>
     <lastmod>2023-07-22T02:24:15+05:00</lastmod>
   </url><url>
-    <loc>https://hereket.com/posts/instant_code_reload/</loc>
+    <loc>http://localhost:1313/posts/instant_code_reload/</loc>
     <lastmod>2023-07-21T02:00:19+05:00</lastmod>
   </url><url>
-    <loc>https://hereket.com/posts/android_from_command_line/</loc>
+    <loc>http://localhost:1313/posts/android_from_command_line/</loc>
     <lastmod>2023-07-19T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://hereket.com/posts/flutter_without_gradle/</loc>
+    <loc>http://localhost:1313/posts/flutter_without_gradle/</loc>
     <lastmod>2023-07-13T12:01:36+05:00</lastmod>
   </url><url>
-    <loc>https://hereket.com/posts/web_analytics_effects/</loc>
+    <loc>http://localhost:1313/posts/web_analytics_effects/</loc>
     <lastmod>2023-07-06T20:48:32+05:00</lastmod>
   </url><url>
-    <loc>https://hereket.com/tiny/x11-function-list/</loc>
+    <loc>http://localhost:1313/tiny/x11-function-list/</loc>
     <lastmod>2023-07-01T16:05:40+05:00</lastmod>
   </url><url>
-    <loc>https://hereket.com/contact/</loc>
+    <loc>http://localhost:1313/contact/</loc>
     <lastmod>2023-06-03T16:05:40+05:00</lastmod>
   </url><url>
-    <loc>https://hereket.com/tiny/dna-color-app/</loc>
+    <loc>http://localhost:1313/tiny/dna-color-app/</loc>
     <lastmod>2023-06-03T16:05:40+05:00</lastmod>
   </url><url>
-    <loc>https://hereket.com/tiny/sphere-generation/</loc>
+    <loc>http://localhost:1313/tiny/sphere-generation/</loc>
     <lastmod>2023-06-03T16:05:40+05:00</lastmod>
   </url><url>
-    <loc>https://hereket.com/tiny/tree-generation/</loc>
+    <loc>http://localhost:1313/tiny/tree-generation/</loc>
     <lastmod>2023-06-03T16:05:40+05:00</lastmod>
   </url><url>
-    <loc>https://hereket.com/tiny/labyrinth-lighting/</loc>
+    <loc>http://localhost:1313/tiny/labyrinth-lighting/</loc>
     <lastmod>2023-06-03T16:05:40+05:00</lastmod>
   </url><url>
-    <loc>https://hereket.com/tiny/optical-illusion-pyramid/</loc>
+    <loc>http://localhost:1313/tiny/optical-illusion-pyramid/</loc>
     <lastmod>2023-06-03T16:05:40+05:00</lastmod>
   </url><url>
-    <loc>https://hereket.com/tiny/arkanoid-game-rendered-in-pdf/</loc>
+    <loc>http://localhost:1313/tiny/arkanoid-game-rendered-in-pdf/</loc>
     <lastmod>2023-06-03T16:05:40+05:00</lastmod>
   </url><url>
-    <loc>https://hereket.com/tiny/gears-rotation/</loc>
+    <loc>http://localhost:1313/tiny/gears-rotation/</loc>
     <lastmod>2023-06-03T16:05:40+05:00</lastmod>
   </url><url>
-    <loc>https://hereket.com/tiny/light/</loc>
+    <loc>http://localhost:1313/tiny/light/</loc>
     <lastmod>2023-06-03T16:05:40+05:00</lastmod>
   </url><url>
-    <loc>https://hereket.com/tiny/tree-generation-leaves/</loc>
+    <loc>http://localhost:1313/tiny/tree-generation-leaves/</loc>
     <lastmod>2023-06-03T16:05:40+05:00</lastmod>
   </url><url>
-    <loc>https://hereket.com/dna-color-app/</loc>
+    <loc>http://localhost:1313/dna-color-app/</loc>
   </url><url>
-    <loc>https://hereket.com/other/chromium-sigsegv/</loc>
+    <loc>http://localhost:1313/other/chromium-sigsegv/</loc>
   </url><url>
-    <loc>https://hereket.com/other/dna-app-flutter-html-renderer/</loc>
+    <loc>http://localhost:1313/other/dna-app-flutter-html-renderer/</loc>
   </url><url>
-    <loc>https://hereket.com/other/dna-color-app-flutter-canvaskit/</loc>
+    <loc>http://localhost:1313/other/dna-color-app-flutter-canvaskit/</loc>
   </url><url>
-    <loc>https://hereket.com/categories/</loc>
+    <loc>http://localhost:1313/categories/</loc>
   </url><url>
-    <loc>https://hereket.com/other/</loc>
+    <loc>http://localhost:1313/other/</loc>
   </url><url>
-    <loc>https://hereket.com/tags/</loc>
+    <loc>http://localhost:1313/tags/</loc>
   </url>
 </urlset>
