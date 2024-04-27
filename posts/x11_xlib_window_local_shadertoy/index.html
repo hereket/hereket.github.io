@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="icon" type="image/x-icon" href="/image/favicon.ico">
+    <link rel="canonical" href="https://hereket.com/posts/x11_xlib_window_local_shadertoy/" />
+
+    
+    
+    
+    
+
+    <link rel="stylesheet" type="text/css" href="/css/base.css?1714176890">
+
+    <script type="text/javascript" src="/js/base.js?1714176890" ></script>
+
+    
+    
+    <title>Xlib 05: Single file (almost) local shadertoy with hot reloading | Hereket</title>
+</head>
+
+
+<body><div id="nav-border" class="container header">
+    <div class='page-wrap content'>
+        <a href="/"><div class="header-logo"> Hereket </div></a>
+        <nav id="nav" class="nav">
+            
+            <a class="nav-link" href="/">
+            
+            Posts
+            </a>
+            
+            <a class="nav-link" href="/tiny/">
+            
+            Tiny
+            </a>
+            
+        </nav>
+        <div class="contacts">
+            <a class="item" href="mailto:info123@hereket.com"><img src="/image/icon-email.png"></a>
+            <a class="item" href="https://twitter.com/alfred_tweet"><img src="/image/icon-twitter.png"></a>
+    <link rel="icon" type="image/x-icon" href="/image/favicon.ico">
+        </div>
+    </div>
+</div>
+<div id="content">
+<div class="page-wrap article">
+    <div class='main-content article'>
+        <h1>Xlib 05: Single file (almost) local shadertoy with hot reloading</h1>
+        
+        <div><time class='post-time' datetime="2024-04-27">2024-04-27</time></div>
+        
+        <br><br>
+        <nav id="TableOfContents">
+  <ul>
+    <li><a href="#setup">Setup</a></li>
+    <li><a href="#hot-reloading">Hot reloading</a></li>
+    <li><a href="#some-larger-example-from-shadertoy">Some larger example from shadertoy</a></li>
+    <li><a href="#final-code">Final Code</a></li>
+    <li><a href="#demo">Demo</a></li>
+    <li><a href="#conclusion">Conclusion</a></li>
+  </ul>
+</nav>
+        <p><img src="/posts/x11_xlib_window_local_shadertoy/program-with-code.png" alt="asdfasdf"></p>
+<p>In last post we looked at doing some opengl and shaders with raw xlib. It was
+done in with single &lsquo;.c&rsquo; file for simplicity. Here we will create almost the
+same thing but with autoreloading shaders on content change. There still will be
+just one &lsquo;.c&rsquo; file but shaders will be split into their own files for easier
+editing.</p>
+<p>The code as usual will be focused around simplicity and ignoring some error
+checking, speed optimization and etc.</p>
+<h2 id="setup">Setup</h2>
+<p>Up till this post everything used just one file and we didn&rsquo;t need to do any
+file management or seting up some build process. Here we will put all &lsquo;.c&rsquo; code
+in one file <strong>08_window_local_shadertoy.c</strong> and shader files will be in
+<strong>08_shader.vert</strong> and <strong>08_shader.frag</strong>. Names and extensions are arbitrary
+and you can use whatever you want but I chose these names for now.</p>
+<p>In my own setup I have separate <strong>&lsquo;src&rsquo;</strong> and <strong>&lsquo;build&rsquo;</strong> neighboring folders.
+All binary files and intermediary files go to &lsquo;build&rsquo; folder and all source code
+lives in &lsquo;src&rsquo; folder. But instead of loading &lsquo;../src/shader.vert&rsquo; from withing
+binary I chose to copy shader files from src folder to build folder on each
+build so that final binary can access shader files directory within its own
+location. Since this is a toy program to play with shaders it does not really
+matter how you organize this as we will be playing with fragment shader most of
+the time. So obvious solution was to put them as close as possible.</p>
+<p>In the privous post I drew a triangle by defining vertices in VBO. Here don&rsquo;t
+really care about vertices and want to play with all pixels with fragment
+shader. We still need to define some vertices to draw a rectrangle. For that we
+will use 6 points to draw 2 triangles that will cover whole sreen.</p>
+<p><img src="/posts/x11_xlib_window_local_shadertoy/screens-and-points.png" alt="asdfasdf"></p>
+<pre tabindex="0"><code>float S = 1.0;
+float Vertices[] = {
+    -S,  S, 0.0f,
+     S,  S, 0.0f,
+    -S, -S, 0.0f,
+
+     S,  S, 0.0f,
+     S, -S, 0.0f,
+    -S, -S, 0.0f,
+};
+
+unsigned int VBO;
+glGenBuffers(1, &amp;VBO);
+glBindBuffer(GL_ARRAY_BUFFER, VBO);
+glBufferData(GL_ARRAY_BUFFER, sizeof(Vertices), Vertices, GL_STATIC_DRAW);
+</code></pre><p>Now we specify where are our shaders located. In this example I put them
+directly in code but if you plan to play with a lot of different shaders you
+should pass shader file names as parameter to binary and access them through
+<strong>argv</strong>. Here we use just simple char* variables.</p>
+<pre tabindex="0"><code>char* VertexShaderPath = &#34;08_shader.vert&#34;;
+char* FragmentShaderPath = &#34;08_shader_big.frag&#34;;
+</code></pre><p>After that we need to load and compile our shaders. Then create a shader program
+and link them together. This time the code is moved to a separate function as we
+will need to use it more than once. Also shader code will be loaded from from
+disk instead of being part of the binary. The function take <strong>OldProgram</strong> as a
+parameter but we can just pass 0 for the first use as it is needed to clear old
+program when we request a new one.</p>
+<pre tabindex="0"><code>u32 CompileProgramAndShaders(u32 OldProgram, char* VertexShaderPath, char* FragmentShaderPath) {
+    file_result VertexFileResult = ReadEntireFile(VertexShaderPath);
+    file_result FragmentFileResult = ReadEntireFile(FragmentShaderPath);
+
+    const char* VertexShaderSource = VertexFileResult.Bytes;
+    const char* FragmentShaderSource = FragmentFileResult.Bytes;
+
+    unsigned int VertexShader = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(VertexShader, 1, &amp;VertexShaderSource, NULL);
+    glCompileShader(VertexShader);
+    CheckShaderCompilation(VertexShader);
+
+    unsigned int FragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(FragmentShader, 1, &amp;FragmentShaderSource, NULL);
+    glCompileShader(FragmentShader);
+    CheckShaderCompilation(FragmentShader);
+
+    unsigned int ShaderProgram = glCreateProgram();
+    glAttachShader(ShaderProgram, VertexShader);
+    glAttachShader(ShaderProgram, FragmentShader);
+    glLinkProgram(ShaderProgram);
+
+    CheckProgramCompilation(ShaderProgram);
+
+    glDeleteShader(VertexShader);
+    glDeleteShader(FragmentShader);
+
+    if(OldProgram) {
+        glDeleteProgram(OldProgram);
+    }
+
+    if(VertexFileResult.Bytes) { free(VertexFileResult.Bytes); }
+    if(FragmentFileResult.Bytes) { free(FragmentFileResult.Bytes); }
+
+    return ShaderProgram;
+}
+</code></pre><p>Here we use <strong>ReadEntireFile(&hellip;)</strong> as utility function to load all contents of
+a file and put it into <strong>file_result</strong> structure for convinience. It reads all
+bytes into memory and passes it back for later processing.</p>
+<pre tabindex="0"><code>typedef struct file_result{
+    u8* Bytes;
+    u64 Size;
+} file_result;
+
+file_result ReadEntireFile(char* Path) {
+    FILE* File = fopen(Path, &#34;rb&#34;);
+    file_result Result = {};
+
+    if(File != 0) {
+        struct stat FileStats = {};
+        stat(Path, &amp;FileStats);
+        u64 FileSize = FileStats.st_size;
+
+        if(FileSize &gt; 0) {
+            Result.Size = FileSize;
+            Result.Bytes = (u8*)malloc(Result.Size + 1);
+            fread(Result.Bytes, Result.Size, 1, File);
+            Result.Bytes[Result.Size] = 0;
+        } else {
+            // TODO: Log
+        }
+        fclose(File);
+    } else {
+        fprintf(stderr, &#34;Couldn&#39;t open file &#39;%s&#39;\n&#34;, Path);
+    }
+
+    return Result;
+}
+</code></pre><p>With this setup everything else remains the same. Nothing really changed much
+apart from now moving all shaders out of binary into their own files.</p>
+<p>Here is basic vertex shader.</p>
+<pre tabindex="0"><code>#version 330 core
+layout (location = 0) in vec3 aPos;
+
+void main()
+{
+   gl_Position = vec4(aPos.x, aPos.y, 0.0f, 1.0f);
+}
+</code></pre><p>And here is basic fragment shader with small animation.</p>
+<pre tabindex="0"><code>out vec4 FragColor;
+uniform float iTime;
+uniform vec2 iResolution;
+
+void main()
+{
+   vec2 uv = gl_FragCoord.xy / iResolution;
+   uv.x += cos(iTime);
+   FragColor = vec4(uv.x, uv.y, 0.0f, 1.0f);
+}
+</code></pre><p>Unfortunately this fragment shader will not work with our old C code as we are
+using some <strong>uniform</strong> variable like iTime and iResolution which are not avaible
+in our shader. These will need to be passed from C code to the shader. Passing
+iResolution is pretty straightforward as it is just a vec2 with width and height
+of our screen. In this example we will use just static screen width and height
+but a better approach would be to update them on window size change.</p>
+<p>So first we ask for location for iResolution and then just fill it with values.</p>
+<pre tabindex="0"><code>int ResultionLocation = glGetUniformLocation(ShaderProgram, &#34;iResolution&#34;);
+glUniform2f(ResultionLocation, WindowWidth, WindowHeight);
+</code></pre><p>Passing time is similar but we will have to get that time.</p>
+<pre tabindex="0"><code>int TimeLocation = glGetUniformLocation(ShaderProgram, &#34;iTime&#34;);
+float Time = GetTimeDouble(ProgramStartTime);
+glUniform1f(TimeLocation, Time);
+</code></pre><p>First isues with time is that we want to pass float and resolution of float is
+not enough to pass detailed time. So instead of passing current time we can
+pass (like shadertoy), time from the start of program execution. So somewhere
+before our main loop we just get passed time. We will be storing everything in
+<strong>struct timeval</strong> and converting them to float right before sending data to
+graphics card. <code>struct timeval ProgramStartTime = GetTime();</code></p>
+<p>So what does GetTimeDouble() does? It takes program start time and calculate the
+difference with current time and converts that to float.</p>
+<pre tabindex="0"><code>double TimevalToDouble(struct timeval Time) {
+    double Result = (double)Time.tv_sec + (double)Time.tv_usec / MICROSECONS_IN_SECOND;
+    return Result;
+}
+
+float GetTimeDouble(struct timeval StartTime) {
+    float Result = 0;
+    struct timeval EndTime;
+    gettimeofday(&amp;EndTime, 0);
+
+    struct timeval ResultTime = {};
+
+    if(EndTime.tv_usec &lt; StartTime.tv_usec) {
+        ResultTime.tv_sec = EndTime.tv_sec - StartTime.tv_sec - 1;
+        ResultTime.tv_usec = MICROSECONS_IN_SECOND - StartTime.tv_usec + EndTime.tv_usec;
+    } else {
+        ResultTime.tv_sec = EndTime.tv_sec - StartTime.tv_sec;
+        ResultTime.tv_usec = EndTime.tv_usec - StartTime.tv_usec;
+    }
+
+    Result = (double)ResultTime.tv_sec + (double)ResultTime.tv_usec / MICROSECONS_IN_SECOND;
+    Result = TimevalToDouble(ResultTime);
+
+    return Result;
+}
+</code></pre><p>And with this out of the way we can actually run our program and see an
+animation of gradients.</p>
+
+    
+<video height="400px" controls>
+    <source src="/posts/x11_xlib_window_local_shadertoy/opengl-gradient.mp4" type="video/mp4">
+    Your browser does not support the video tag.  
+</video>
+
+
+
+<h2 id="hot-reloading">Hot reloading</h2>
+<p>Even though now we don&rsquo;t need to recompile our application each time we change
+something in a shader we still need to close the application and the open it to
+see the results. It is a bit annoying and not exactly fun way to play.</p>
+<p>Let&rsquo;s reload our shaders each time we change one of them with full shader
+recompilation and linking. To do that there are multiple ways to approach it
+with better way to do it with <strong>poll</strong> and <strong>inotify</strong>. It is relatively
+straighforward apparoch and already described how to do that for python in
+<a href="/posts/linux_live_reload_python_server/">Poor mans autoreload server in single file python on linux</a>.
+Even though it is in python it uses couple functions from libc which could be easily replicated here but I don&rsquo;t want
+to introduct new concepts here.</p>
+<p>Instead we will just super dump and wasteful apparoch of checking for file
+modification time every 16 milliseconds. At the begininning I thought we should do it each second
+but I found that my computer had zero issues with processing it 60 times a
+second so I decided to be piggy here as it is simple to explain.</p>
+<pre tabindex="0"><code>time_t GetFileModificationTime(char* FilePath) {
+    struct stat FileStats;
+    stat(FilePath, &amp;FileStats);
+    time_t FileModificationTime = FileStats.st_mtime;
+    return FileModificationTime;
+    printf(&#34;%d\n&#34;, FileModificationTime);
+}
+
+int DidShaderFilesChange(char* VertexShaderPath, size_t* VertexOldTime, char* FragmentShaderPath, size_t* FragmentOldTime) {
+    int Result = 0;
+    time_t VertexTime = GetFileModificationTime(VertexShaderPath);
+    time_t FragmentTime = GetFileModificationTime(FragmentShaderPath);
+
+    if((VertexTime &gt; *VertexOldTime) || (FragmentTime &gt; *FragmentOldTime)) {
+        Result = 1;
+    }
+
+    *VertexOldTime = VertexTime;
+    *FragmentOldTime = FragmentTime;
+
+    return Result;
+}
+</code></pre><p>So initially we store file modification time somewhere outside the main loop.</p>
+<pre tabindex="0"><code>size_t VertexLastModificationTime = 0;
+size_t FragmentLastModificationTime = 0;
+</code></pre><p>And then inside the loop on each cycle we ask <strong>DidShaderFilesChange()</strong> if
+files modification time is newer compared to old store time. And if so we just
+call again <strong>CompileProgramAndShaders(&hellip;)</strong> which will do all the loading and
+linking of shaders.</p>
+<pre tabindex="0"><code>if(DidShaderFilesChange(VertexShaderPath, &amp;VertexLastModificationTime, FragmentShaderPath, &amp;FragmentLastModificationTime)){
+    printf(&#34;Changed\n&#34;);
+    ShaderProgram = CompileProgramAndShaders(ShaderProgram, VertexShaderPath, FragmentShaderPath);
+}
+
+glUseProgram(ShaderProgram);
+</code></pre><p>This is how it looks to work with this setup.</p>
+
+    
+<video height="400px" controls>
+    <source src="/posts/x11_xlib_window_local_shadertoy/shader-hot-reload.mp4" type="video/mp4">
+    Your browser does not support the video tag.  
+</video>
+
+
+
+<h2 id="some-larger-example-from-shadertoy">Some larger example from shadertoy</h2>
+<p>Next thing is was to try some larger example from shader to see if this approach
+could be used for larger examples. The issue is that tools like shadertoy use
+special variables, function and convention to allow short shader programs that
+fits into a twit. I don&rsquo;t want to replacate all of its functionality but show a
+path to try to do it.</p>
+<p>I chose a random shader from shadertoy that I liked. It pretty program from user
+<strong>kaiware007</strong> and is available at <a href="https://www.shadertoy.com/view/Wt33Wf">https://www.shadertoy.com/view/Wt33Wf</a>.</p>
+<p>First of all I just copy pasted all code from that page into
+<strong>08_shader_big.frag</strong>. Of course it didn&rsquo;t work and gave a bunch of errors.</p>
+<p>Initially let&rsquo;s rename <strong>mainImage(&hellip;)</strong> to <strong>main()</strong> and remove all params
+and add version at the top of the file <strong>#version 330 core</strong>. Then add out
+variable <strong>fragColor</strong> and <strong>iTime</strong> and <strong>iResolution</strong> uniform variable.</p>
+<pre tabindex="0"><code>out vec4 fragColor;
+uniform float iTime;
+uniform vec2 iResolution;
+</code></pre><p>If you try to compile run it, it will error out saying that it needs <strong>fragCoord</strong>. For this we will need
+to change our vertex shader to look like this:</p>
+<pre tabindex="0"><code>#version 330 core
+layout (location = 0) in vec3 aPos;
+
+uniform vec2 iResolution;
+out vec4 fragCoord;
+
+void main()
+{
+   gl_Position = vec4(aPos.x, aPos.y, 0.0f, 1.0f);
+   fragCoord = vec4(
+           gl_Position.x * iResolution.x,
+           gl_Position.y * iResolution.y,
+           0.0, 1.0);
+}
+</code></pre><p>What we did is we added <strong>fragCoord</strong> as an output variable and it is just vec4
+with a mapping of normalized screen coordinates to actual screen size pixel
+positions. We could have done this in fragment shader but if we add it here we
+just add it one and never bother with it again. Now we just need to declare
+<strong>fragCoord</strong> input variable <code>in vec4 fragCoord;</code></p>
+<p>And this is pretty much it. It works!</p>
+<h2 id="final-code">Final Code</h2>
+<p>Here is a single file C code source: <strong>08_window_local_shader_toy.c</strong></p>
+<pre tabindex="0"><code>#include &lt;stdio.h&gt;
+#include &lt;X11/Xlib.h&gt;
+#include &lt;unistd.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;sys/stat.h&gt;
+#include &lt;sys/time.h&gt;
+
+// TODO: How to remove this?
+#define GL_GLEXT_PROTOTYPES
+#include &lt;GL/glx.h&gt;
+#include &lt;GL/glext.h&gt;
+
+#include &lt;stdint.h&gt;
+
+typedef uint8_t u8;
+typedef uint16_t u16;
+typedef uint32_t u32;
+typedef uint64_t u64;
+
+#define MICROSECONS_IN_SECOND 1000000
+
+static int DoubleBufferAttributes[] = {
+    GLX_RGBA,
+    GLX_RED_SIZE, 1,
+    GLX_GREEN_SIZE, 1,
+    GLX_BLUE_SIZE, 1,
+    GLX_DEPTH_SIZE, 12,
+    GLX_DOUBLEBUFFER,
+    None,
+};
+
+void VerifyOrDie(int ResultStatus, const char *Message) {
+    if(ResultStatus == 0) {
+        fprintf(stderr, &#34;%s&#34;, Message);
+        exit(2);
+    }
+}
+
+void CheckShaderCompilation(u32 Shader) {
+    int ResultStatus;
+    char Buffer[512];
+    glGetShaderiv(Shader, GL_COMPILE_STATUS, &amp;ResultStatus);
+
+    if(ResultStatus == 0) {
+        glGetShaderInfoLog(Shader, sizeof(Buffer), NULL, Buffer);
+        printf(&#34;ERROR::SHADER::VERTEX::COMPILATION_FAILED -----------------------------------\n&#34;);
+        printf(&#34;%s\n&#34;, Buffer);
+    }
+}
+
+void CheckProgramCompilation(unsigned int Program) {
+    int  ResultStatus;
+    char Buffer[512];
+    glGetProgramiv(Program, GL_COMPILE_STATUS, &amp;ResultStatus);
+
+    if(ResultStatus == 0)
+    {
+        glGetShaderInfoLog(Program, sizeof(Buffer), NULL, Buffer);
+        printf(&#34;ERROR::PROGRAM::COMPILATION_FAILED\n&#34;);
+        printf(&#34;%s\n&#34;, Buffer);
+    }
+}
+
+typedef struct file_result{
+    u8* Bytes;
+    u64 Size;
+} file_result;
+file_result
+ReadEntireFile(char* Path) {
+    FILE* File = fopen(Path, &#34;rb&#34;);
+    file_result Result = {};
+
+    if(File != 0) {
+        struct stat FileStats = {};
+        stat(Path, &amp;FileStats);
+        u64 FileSize = FileStats.st_size;
+
+        if(FileSize &gt; 0) {
+            Result.Size = FileSize;
+            Result.Bytes = (u8*)malloc(Result.Size + 1);
+            fread(Result.Bytes, Result.Size, 1, File);
+            Result.Bytes[Result.Size] = 0;
+        } else {
+            // TODO: Log
+        }
+        fclose(File);
+    } else {
+        fprintf(stderr, &#34;Couldn&#39;t open file &#39;%s&#39;\n&#34;, Path);
+    }
+
+    return Result;
+}
+
+struct timeval GetTime() {
+    struct timeval TimeValue;
+    gettimeofday(&amp;TimeValue, 0);
+    return TimeValue;
+}
+
+double TimevalToDouble(struct timeval Time) {
+    double Result = (double)Time.tv_sec + (double)Time.tv_usec / MICROSECONS_IN_SECOND;
+    return Result;
+}
+
+float GetTimeDouble(struct timeval StartTime) {
+    float Result = 0;
+    struct timeval EndTime;
+    gettimeofday(&amp;EndTime, 0);
+
+    struct timeval ResultTime = {};
+
+    if(EndTime.tv_usec &lt; StartTime.tv_usec) {
+        ResultTime.tv_sec = EndTime.tv_sec - StartTime.tv_sec - 1;
+        ResultTime.tv_usec = MICROSECONS_IN_SECOND - StartTime.tv_usec + EndTime.tv_usec;
+    } else {
+        ResultTime.tv_sec = EndTime.tv_sec - StartTime.tv_sec;
+        ResultTime.tv_usec = EndTime.tv_usec - StartTime.tv_usec;
+    }
+
+    Result = (double)ResultTime.tv_sec + (double)ResultTime.tv_usec / MICROSECONS_IN_SECOND;
+    Result = TimevalToDouble(ResultTime);
+
+    return Result;
+}
+
+u32 CompileProgramAndShaders(u32 OldProgram, char* VertexShaderPath, char* FragmentShaderPath) {
+    file_result VertexFileResult = ReadEntireFile(VertexShaderPath);
+    file_result FragmentFileResult = ReadEntireFile(FragmentShaderPath);
+
+    const char* VertexShaderSource = VertexFileResult.Bytes;
+    const char* FragmentShaderSource = FragmentFileResult.Bytes;
+
+    unsigned int VertexShader = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(VertexShader, 1, &amp;VertexShaderSource, NULL);
+    glCompileShader(VertexShader);
+    CheckShaderCompilation(VertexShader);
+
+    unsigned int FragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(FragmentShader, 1, &amp;FragmentShaderSource, NULL);
+    glCompileShader(FragmentShader);
+    CheckShaderCompilation(FragmentShader);
+
+    unsigned int ShaderProgram = glCreateProgram();
+    glAttachShader(ShaderProgram, VertexShader);
+    glAttachShader(ShaderProgram, FragmentShader);
+    glLinkProgram(ShaderProgram);
+
+    CheckProgramCompilation(ShaderProgram);
+
+    glDeleteShader(VertexShader);
+    glDeleteShader(FragmentShader);
+
+    if(OldProgram) {
+        glDeleteProgram(OldProgram);
+    }
+
+    if(VertexFileResult.Bytes) { free(VertexFileResult.Bytes); }
+    if(FragmentFileResult.Bytes) { free(FragmentFileResult.Bytes); }
+
+    /* glUseProgram(ShaderProgram); */
+
+    return ShaderProgram;
+}
+
+time_t GetFileModificationTime(char* FilePath) {
+    struct stat FileStats;
+    stat(FilePath, &amp;FileStats);
+    time_t FileModificationTime = FileStats.st_mtime;
+    return FileModificationTime;
+    printf(&#34;%d\n&#34;, FileModificationTime);
+}
+
+int DidShaderFilesChange(char* VertexShaderPath, size_t* VertexOldTime, char* FragmentShaderPath, size_t* FragmentOldTime) {
+    int Result = 0;
+    time_t VertexTime = GetFileModificationTime(VertexShaderPath);
+    time_t FragmentTime = GetFileModificationTime(FragmentShaderPath);
+
+    if((VertexTime &gt; *VertexOldTime) || (FragmentTime &gt; *FragmentOldTime)) {
+        Result = 1;
+    }
+
+    *VertexOldTime = VertexTime;
+    *FragmentOldTime = FragmentTime;
+
+    return Result;
+}
+
+int main()
+{
+    Display* MainDisplay = XOpenDisplay(0);
+    int MainScreen = XDefaultScreen(MainDisplay);
+    Window RootWindow = XDefaultRootWindow(MainDisplay);
+
+    int Dummy;
+    int ResultStatus = glXQueryExtension(MainDisplay, &amp;Dummy, &amp;Dummy);
+    VerifyOrDie(ResultStatus != 0, &#34;Error: X Server has not GLX extension\n&#34;);
+
+    XVisualInfo* VisualInfo = glXChooseVisual(MainDisplay, MainScreen, DoubleBufferAttributes);
+    VerifyOrDie(VisualInfo != 0, &#34;glXChooseVisual returned 0&#34;);
+    VerifyOrDie(VisualInfo-&gt;class == TrueColor, &#34;No True COlor support. Cannot run program without it&#34;);
+
+
+    GLXContext ShareList = None;
+    int IsDirectRendering = True;
+    GLXContext OpenGLContext = glXCreateContext(MainDisplay, VisualInfo, ShareList, IsDirectRendering);
+    VerifyOrDie(OpenGLContext != 0, &#34;ERROR: Couldn&#39;t create rendering context\n&#34;);
+
+
+    int WindowX = 0;
+    int WindowY = 0;
+    int WindowWidth = 800;
+    int WindowHeight = 600;
+    /* int WindowWidth = 800; */
+    /* int WindowHeight = 450; */
+    int BorderWidth = 0;
+    int WindowClass = InputOutput;
+    int WindowDepth = VisualInfo-&gt;depth;
+    Visual* WindowVisual = VisualInfo-&gt;visual;
+
+    int AttributeValueMask = CWBackPixel | CWEventMask | CWColormap;
+
+    XSetWindowAttributes WindowAttributes = {};
+    WindowAttributes.colormap = XCreateColormap(MainDisplay, RootWindow, VisualInfo-&gt;visual, AllocNone);
+    WindowAttributes.background_pixel = 0xffafe9af;
+    WindowAttributes.event_mask = StructureNotifyMask | KeyPressMask | KeyReleaseMask | PointerMotionMask;
+
+    Window MainWindow = XCreateWindow(MainDisplay, RootWindow, 
+            WindowX, WindowY, WindowWidth, WindowHeight,
+            BorderWidth, WindowDepth, WindowClass, WindowVisual,
+            AttributeValueMask, &amp;WindowAttributes);
+
+    XStoreName(MainDisplay, MainWindow, &#34;General app&#34;);
+
+    glXMakeCurrent(MainDisplay, MainWindow, OpenGLContext);
+
+    XMapWindow(MainDisplay, MainWindow);
+
+    Atom WM_DELETE_WINDOW = XInternAtom(MainDisplay, &#34;WM_DELETE_WINDOW&#34;, False);
+    if(!XSetWMProtocols(MainDisplay, MainWindow, &amp;WM_DELETE_WINDOW, 1)) {
+        printf(&#34;Couldn&#39;t register WM_DELETE_WINDOW\n&#34;);
+    }
+
+
+    /* ------------------------------------------------------------------------------------------------------------ */
+    /* ------------------------------------------------------------------------------------------------------------ */
+    /* ------------------------------------------------------------------------------------------------------------ */
+
+
+    float S = 1.0;
+    float Vertices[] = {
+        -S,  S, 0.0f,
+         S,  S, 0.0f,
+        -S, -S, 0.0f,
+
+         S,  S, 0.0f,
+         S, -S, 0.0f,
+        -S, -S, 0.0f,
+    };
+
+    unsigned int VBO;
+    glGenBuffers(1, &amp;VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertices), Vertices, GL_STATIC_DRAW);
+
+
+    char* VertexShaderPath = &#34;08_shader.vert&#34;;
+    char* FragmentShaderPath = &#34;08_shader_big.frag&#34;;
+
+    u32 ShaderProgram = 0;
+    ShaderProgram = CompileProgramAndShaders(ShaderProgram, VertexShaderPath, FragmentShaderPath);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    /* ----------------------------------------------------------------------- */
+
+
+    /* ------------------------------------------------------------------------------------------------------------ */
+    /* ------------------------------------------------------------------------------------------------------------ */
+    /* ------------------------------------------------------------------------------------------------------------ */
+
+    struct timeval ProgramStartTime = GetTime();
+    struct timeval LastTime = ProgramStartTime;
+
+    size_t VertexLastModificationTime = 0;
+    size_t FragmentLastModificationTime = 0;
+
+    int IsProgramRunning = 1;
+    while(IsProgramRunning) {
+        XEvent GeneralEvent = {};
+
+        // NOTE: Process all events
+        while(XPending(MainDisplay)) {
+            XNextEvent(MainDisplay, &amp;GeneralEvent);
+            switch(GeneralEvent.type) {
+                case ClientMessage: 
+                {
+                    IsProgramRunning = 0;
+                } break;
+            }
+        }
+
+        if(DidShaderFilesChange(VertexShaderPath, &amp;VertexLastModificationTime, FragmentShaderPath, &amp;FragmentLastModificationTime)){
+            printf(&#34;Changed\n&#34;);
+            ShaderProgram = CompileProgramAndShaders(ShaderProgram, VertexShaderPath, FragmentShaderPath);
+        }
+
+        glUseProgram(ShaderProgram);
+
+        {
+            glClearColor(0.0, 0.0, 0.2, 1.0);
+            glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+
+            /* int TimeLocation = glGetUniformLocation(ShaderProgram, &#34;time&#34;); */
+            /* int ResultionLocation = glGetUniformLocation(ShaderProgram, &#34;resolution&#34;); */
+
+            int TimeLocation = glGetUniformLocation(ShaderProgram, &#34;iTime&#34;);
+            int ResultionLocation = glGetUniformLocation(ShaderProgram, &#34;iResolution&#34;);
+            int FrameRateLocation = glGetUniformLocation(ShaderProgram, &#34;iFrameRate&#34;);
+            int TimeDeltaLocation = glGetUniformLocation(ShaderProgram, &#34;iTimeDelta&#34;);
+
+            float Time = GetTimeDouble(ProgramStartTime);
+
+            glUniform2f(ResultionLocation, WindowWidth, WindowHeight);
+            glUniform1f(TimeLocation, Time);
+            glUniform1f(FrameRateLocation, 60);
+            glUniform1f(TimeDeltaLocation, 1/60);
+
+            glDrawArrays(GL_TRIANGLES, 0, 6);
+
+            glXSwapBuffers(MainDisplay, MainWindow);
+        }
+
+    }
+}
+</code></pre><p>And this is slightly changed code of final shader (I hope author don&rsquo;t mind me
+posting it here directly).
+<strong>08_shader_big.frag</strong></p>
+<pre tabindex="0"><code>#version 330 core
+
+in vec4 fragCoord;
+
+out vec4 fragColor;
+uniform float iTime;
+uniform vec2 iResolution;
+
+float sun(vec2 uv, float battery)
+{
+ 	float val = smoothstep(0.3, 0.29, length(uv));
+ 	float bloom = smoothstep(0.7, 0.0, length(uv));
+    float cut = 3.0 * sin((uv.y + iTime * 0.2 * (battery + 0.02)) * 100.0) 
+				+ clamp(uv.y * 14.0 + 1.0, -6.0, 6.0);
+    cut = clamp(cut, 0.0, 1.0);
+    return clamp(val * cut, 0.0, 1.0) + bloom * 0.6;
+}
+
+float grid(vec2 uv, float battery)
+{
+    vec2 size = vec2(uv.y, uv.y * uv.y * 0.2) * 0.01;
+    uv += vec2(0.0, iTime * 4.0 * (battery + 0.05));
+    uv = abs(fract(uv) - 0.5);
+ 	vec2 lines = smoothstep(size, vec2(0.0), uv);
+ 	lines += smoothstep(size * 5.0, vec2(0.0), uv) * 0.4 * battery;
+    return clamp(lines.x + lines.y, 0.0, 3.0);
+}
+
+float dot2(in vec2 v ) { return dot(v,v); }
+
+float sdTrapezoid( in vec2 p, in float r1, float r2, float he )
+{
+    vec2 k1 = vec2(r2,he);
+    vec2 k2 = vec2(r2-r1,2.0*he);
+    p.x = abs(p.x);
+    vec2 ca = vec2(p.x-min(p.x,(p.y&lt;0.0)?r1:r2), abs(p.y)-he);
+    vec2 cb = p - k1 + k2*clamp( dot(k1-p,k2)/dot2(k2), 0.0, 1.0 );
+    float s = (cb.x&lt;0.0 &amp;&amp; ca.y&lt;0.0) ? -1.0 : 1.0;
+    return s*sqrt( min(dot2(ca),dot2(cb)) );
+}
+
+float sdLine( in vec2 p, in vec2 a, in vec2 b )
+{
+    vec2 pa = p-a, ba = b-a;
+    float h = clamp( dot(pa,ba)/dot(ba,ba), 0.0, 1.0 );
+    return length( pa - ba*h );
+}
+
+float sdBox( in vec2 p, in vec2 b )
+{
+    vec2 d = abs(p)-b;
+    return length(max(d,vec2(0))) + min(max(d.x,d.y),0.0);
+}
+
+float opSmoothUnion(float d1, float d2, float k){
+	float h = clamp(0.5 + 0.5 * (d2 - d1) /k,0.0,1.0);
+    return mix(d2, d1 , h) - k * h * ( 1.0 - h);
+}
+
+float sdCloud(in vec2 p, in vec2 a1, in vec2 b1, in vec2 a2, in vec2 b2, float w)
+{
+	//float lineVal1 = smoothstep(w - 0.0001, w, sdLine(p, a1, b1));
+    float lineVal1 = sdLine(p, a1, b1);
+    float lineVal2 = sdLine(p, a2, b2);
+    vec2 ww = vec2(w*1.5, 0.0);
+    vec2 left = max(a1 + ww, a2 + ww);
+    vec2 right = min(b1 - ww, b2 - ww);
+    vec2 boxCenter = (left + right) * 0.5;
+    //float boxW = right.x - left.x;
+    float boxH = abs(a2.y - a1.y) * 0.5;
+    //float boxVal = sdBox(p - boxCenter, vec2(boxW, boxH)) + w;
+    float boxVal = sdBox(p - boxCenter, vec2(0.04, boxH)) + w;
+    
+    float uniVal1 = opSmoothUnion(lineVal1, boxVal, 0.05);
+    float uniVal2 = opSmoothUnion(lineVal2, boxVal, 0.05);
+    
+    return min(uniVal1, uniVal2);
+}
+
+/* void mainImage( out vec4 fragColor, in vec2 fragCoord ) */
+void main()
+{
+    vec2 uv = (2.0 * fragCoord.xy - iResolution.xy)/iResolution.y;
+    float battery = 1.0;
+    //if (iMouse.x &gt; 1.0 &amp;&amp; iMouse.y &gt; 1.0) battery = iMouse.y / iResolution.y;
+    //else battery = 0.8;
+    
+    //if (abs(uv.x) &lt; (9.0 / 16.0))
+    {
+        // Grid
+        float fog = smoothstep(0.1, -0.02, abs(uv.y + 0.2));
+        vec3 col = vec3(0.0, 0.1, 0.2);
+        if (uv.y &lt; -0.2)
+        {
+            uv.y = 3.0 / (abs(uv.y + 0.2) + 0.05);
+            uv.x *= uv.y * 1.0;
+            float gridVal = grid(uv, battery);
+            col = mix(col, vec3(1.0, 0.5, 1.0), gridVal);
+        }
+        else
+        {
+            float fujiD = min(uv.y * 4.5 - 0.5, 1.0);
+            uv.y -= battery * 1.1 - 0.51;
+            
+            vec2 sunUV = uv;
+            vec2 fujiUV = uv;
+            
+            // Sun
+            sunUV += vec2(0.75, 0.2);
+            //uv.y -= 1.1 - 0.51;
+            col = vec3(1.0, 0.2, 1.0);
+            float sunVal = sun(sunUV, battery);
+            
+            col = mix(col, vec3(1.0, 0.4, 0.1), sunUV.y * 2.0 + 0.2);
+            col = mix(vec3(0.0, 0.0, 0.0), col, sunVal);
+            
+            // fuji
+            float fujiVal = sdTrapezoid( uv  + vec2(-0.75+sunUV.y * 0.0, 0.5), 1.75 + pow(uv.y * uv.y, 2.1), 0.2, 0.5);
+            float waveVal = uv.y + sin(uv.x * 20.0 + iTime * 2.0) * 0.05 + 0.2;
+            float wave_width = smoothstep(0.0,0.01,(waveVal));
+            
+            // fuji color
+            col = mix( col, mix(vec3(0.0, 0.0, 0.25), vec3(1.0, 0.0, 0.5), fujiD), step(fujiVal, 0.0));
+            // fuji top snow
+            col = mix( col, vec3(1.0, 0.5, 1.0), wave_width * step(fujiVal, 0.0));
+            // fuji outline
+            col = mix( col, vec3(1.0, 0.5, 1.0), 1.0-smoothstep(0.0,0.01,abs(fujiVal)) );
+            //col = mix( col, vec3(1.0, 1.0, 1.0), 1.0-smoothstep(0.03,0.04,abs(fujiVal)) );
+            //col = vec3(1.0, 1.0, 1.0) *(1.0-smoothstep(0.03,0.04,abs(fujiVal)));
+            
+            // horizon color
+            col += mix( col, mix(vec3(1.0, 0.12, 0.8), vec3(0.0, 0.0, 0.2), clamp(uv.y * 3.5 + 3.0, 0.0, 1.0)), step(0.0, fujiVal) );
+            
+            // cloud
+            vec2 cloudUV = uv;
+            cloudUV.x = mod(cloudUV.x + iTime * 0.1, 4.0) - 2.0;
+            float cloudTime = iTime * 0.5;
+            float cloudY = -0.5;
+            float cloudVal1 = sdCloud(cloudUV, 
+                                     vec2(0.1 + sin(cloudTime + 140.5)*0.1,cloudY), 
+                                     vec2(1.05 + cos(cloudTime * 0.9 - 36.56) * 0.1, cloudY), 
+                                     vec2(0.2 + cos(cloudTime * 0.867 + 387.165) * 0.1,0.25+cloudY), 
+                                     vec2(0.5 + cos(cloudTime * 0.9675 - 15.162) * 0.09, 0.25+cloudY), 0.075);
+            cloudY = -0.6;
+            float cloudVal2 = sdCloud(cloudUV, 
+                                     vec2(-0.9 + cos(cloudTime * 1.02 + 541.75) * 0.1,cloudY), 
+                                     vec2(-0.5 + sin(cloudTime * 0.9 - 316.56) * 0.1, cloudY), 
+                                     vec2(-1.5 + cos(cloudTime * 0.867 + 37.165) * 0.1,0.25+cloudY), 
+                                     vec2(-0.6 + sin(cloudTime * 0.9675 + 665.162) * 0.09, 0.25+cloudY), 0.075);
+            
+            float cloudVal = min(cloudVal1, cloudVal2);
+            
+            //col = mix(col, vec3(1.0,1.0,0.0), smoothstep(0.0751, 0.075, cloudVal));
+            col = mix(col, vec3(0.0, 0.0, 0.2), 1.0 - smoothstep(0.075 - 0.0001, 0.075, cloudVal));
+            col += vec3(1.0, 1.0, 1.0)*(1.0 - smoothstep(0.0,0.01,abs(cloudVal - 0.075)));
+        }
+
+        col += fog * fog * fog;
+        col = mix(vec3(col.r, col.r, col.r) * 0.5, col, battery * 0.7);
+
+        fragColor = vec4(col,1.0);
+    }
+}
+</code></pre><h2 id="demo">Demo</h2>
+
+    
+<iframe style="background: gray;" class="full-width" height="400" src="https://www.youtube.com/embed/DSPhJjxdQb0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
+
+
+<h2 id="conclusion">Conclusion</h2>
+<p>With this post I hope to conclude my posts related to creating windows with raw
+Xlib. Even I have couple more crazy ideas to write about but they won&rsquo;t be
+anytime soon.</p>
+<p>Apart from than we achieved a bad but still function local toy to play with
+shaders with just over 300 lines of C code. It is instantenous, fast and easy to
+play with. I think it is a good tool to learn basic shaders as you can easily
+play with shader code and if you need to look under the hood you can just look
+at a relatively small amount of code.</p>
+<p>I hope it was as fun to your as it was fun for me to play with it.</p>
+
+    </div>
+</div>
+
+        </div><div class='footer'>
+    <div class='page-wrap'>
+    &copy; 2024, Hereket 
+    </div>
+</div>
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-7KHD5ET3Y7"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-7KHD5ET3Y7');
+</script>
+
+
+
+
+<script type="text/javascript" >
+   (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+   m[i].l=1*new Date();
+   for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+   k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+   (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+   ym(94210403, "init", {
+        clickmap:true,
+        trackLinks:true,
+        accurateTrackBounce:true,
+        webvisor:true
+   });
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/94210403" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

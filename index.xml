@@ -6,8 +6,15 @@
     <description>Recent content on Hereket</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 20 Apr 2024 14:45:52 +0500</lastBuildDate>
+    <lastBuildDate>Sat, 27 Apr 2024 02:27:07 +0500</lastBuildDate>
     <atom:link href="https://hereket.com/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Xlib 05: Single file (almost) local shadertoy with hot reloading</title>
+      <link>https://hereket.com/posts/x11_xlib_window_local_shadertoy/</link>
+      <pubDate>Sat, 27 Apr 2024 02:27:07 +0500</pubDate>
+      <guid>https://hereket.com/posts/x11_xlib_window_local_shadertoy/</guid>
+      <description>In last post we looked at doing some opengl and shaders with raw xlib. It was done in with single &amp;lsquo;.c&amp;rsquo; file for simplicity. Here we will create almost the same thing but with autoreloading shaders on content change. There still will be just one &amp;lsquo;.c&amp;rsquo; file but shaders will be split into their own files for easier editing.&#xA;The code as usual will be focused around simplicity and ignoring some error checking, speed optimization and etc.</description>
+    </item>
     <item>
       <title>Poor mans autoreload server in single file python on linux</title>
       <link>https://hereket.com/posts/linux_live_reload_python_server/</link>
