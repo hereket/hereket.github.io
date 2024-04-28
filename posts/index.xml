@@ -9,7 +9,7 @@
     <lastBuildDate>Sat, 27 Apr 2024 02:27:07 +0500</lastBuildDate>
     <atom:link href="https://hereket.com/posts/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>Xlib 05: Single file (almost) local shadertoy with hot reloading</title>
+      <title>Xlib 05: Single file,local shadertoy with hot reloading</title>
       <link>https://hereket.com/posts/x11_xlib_window_local_shadertoy/</link>
       <pubDate>Sat, 27 Apr 2024 02:27:07 +0500</pubDate>
       <guid>https://hereket.com/posts/x11_xlib_window_local_shadertoy/</guid>
