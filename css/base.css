@@ -168,7 +168,7 @@ video {
 
 .article img {
     max-width: 100%;
-    border: 1px solid rgba(0,0,0, 0.4);
+    /* border: 1px solid rgba(0,0,0, 0.4); */
 }
 .article h2, h3 {
     margin-top: 40px;

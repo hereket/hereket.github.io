@@ -6,8 +6,15 @@
     <description>Recent content on Hereket</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 27 Apr 2024 02:27:07 +0500</lastBuildDate>
+    <lastBuildDate>Wed, 01 May 2024 19:22:47 +0500</lastBuildDate>
     <atom:link href="https://hereket.com/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Equally distributing uploaded files with md5 hashing of timestamp</title>
+      <link>https://hereket.com/posts/hash-naming-uploaded-files/</link>
+      <pubDate>Wed, 01 May 2024 19:22:47 +0500</pubDate>
+      <guid>https://hereket.com/posts/hash-naming-uploaded-files/</guid>
+      <description>Lately I have been digging into django source code to find out how to get access to actual file field for renaming during upload in general case. This turned out to be impossible because this information is lost as django passes whole instance to upload_to instead of file field itself. There was a need to do some magic during file upload based on the actual file content hash. But during the exploration I found that for a long time I have been using two level depth folder structure to limit amount of files stored per folder.</description>
+    </item>
     <item>
       <title>Xlib 05: Single file,local shadertoy with hot reloading</title>
       <link>https://hereket.com/posts/x11_xlib_window_local_shadertoy/</link>
