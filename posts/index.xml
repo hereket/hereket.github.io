@@ -9,7 +9,7 @@
     <lastBuildDate>Wed, 08 May 2024 01:35:54 +0500</lastBuildDate>
     <atom:link href="https://hereket.com/posts/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>Opening Windows in linux X11 using just C Lang, sockets and bare hands</title>
+      <title>Opening Windows in linux with sockets, bare hands and 200 lines of C</title>
       <link>https://hereket.com/posts/from-scratch-x11-windowing/</link>
       <pubDate>Wed, 08 May 2024 01:35:54 +0500</pubDate>
       <guid>https://hereket.com/posts/from-scratch-x11-windowing/</guid>
