@@ -6,8 +6,15 @@
     <description>Recent content on Hereket</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 01 May 2024 19:22:47 +0500</lastBuildDate>
+    <lastBuildDate>Wed, 08 May 2024 01:35:54 +0500</lastBuildDate>
     <atom:link href="https://hereket.com/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Opening Windows in linux X11 using just C Lang, sockets and bare hands</title>
+      <link>https://hereket.com/posts/from-scratch-x11-windowing/</link>
+      <pubDate>Wed, 08 May 2024 01:35:54 +0500</pubDate>
+      <guid>https://hereket.com/posts/from-scratch-x11-windowing/</guid>
+      <description>Intro In this post I want to create a single file C file program to open a windows inside Linux without using xlib or any similar libraries. The idea is to explore X11 protocol and see how it is used to interact with X server to create windows.&#xA;Before I had strong association that X11 was some magic thing to manipulate windows and it&amp;rsquo;s resources. I was very surprised to learn that it is actually just a &amp;ldquo;regular&amp;rdquo; network protocol for two parties to communicate like HTTP, FTP, IMAP, SMPT and etc.</description>
+    </item>
     <item>
       <title>Equally distributing uploaded files with md5 hashing of timestamp</title>
       <link>https://hereket.com/posts/hash-naming-uploaded-files/</link>

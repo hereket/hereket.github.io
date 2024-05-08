@@ -1,0 +1,1342 @@
+<!DOCTYPE html>
+<html><head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    
+
+    <link rel="icon" type="image/x-icon" href="/image/favicon.ico">
+    <link rel="canonical" href="http://localhost:1313/posts/from-scratch-x11-windowing/" />
+
+    
+    
+
+    <link rel="stylesheet" type="text/css" href="/css/base.css?0">
+
+    <script type="text/javascript" src="/js/base.js?0" ></script>
+
+    
+    
+    <title>Opening Windows in linux with sockets, bare hands and 200 lines of C | Hereket</title>
+</head>
+<body>
+        <div id="nav-border" class="container header">
+    <div class='page-wrap content'>
+        <a href="/"><div class="header-logo"> Hereket </div></a>
+        <nav id="nav" class="nav">
+            
+            <a class="nav-link" href="/">
+            
+            Posts
+            </a>
+            
+            <a class="nav-link" href="/tiny/">
+            
+            Tiny
+            </a>
+            
+        </nav>
+        <div class="contacts">
+            <a class="item" href="mailto:info123@hereket.com"><img src="/image/icon-email.png"></a>
+            <a class="item" href="https://twitter.com/alfred_tweet"><img src="/image/icon-twitter.png"></a>
+    <link rel="icon" type="image/x-icon" href="/image/favicon.ico">
+        </div>
+    </div>
+</div>
+<div id="content">
+<div class="page-wrap article">
+    <div class='main-content article'>
+        <h1>Opening Windows in linux with sockets, bare hands and 200 lines of C</h1>
+        
+        <div><time class='post-time' datetime="2024-05-08">2024-05-08</time></div>
+        
+        <br><br>
+        <nav id="TableOfContents">
+  <ul>
+    <li><a href="#intro">Intro</a></li>
+    <li><a href="#open-connection">Open connection</a></li>
+    <li><a href="#creating-window">Creating window</a>
+      <ul>
+        <li><a href="#mapping-showing-window">Mapping (showing) window</a></li>
+        <li><a href="#event-loop">Event loop</a></li>
+      </ul>
+    </li>
+    <li><a href="#additional-functionality">Additional Functionality</a>
+      <ul>
+        <li><a href="#open-font">Open font</a></li>
+        <li><a href="#create-graphic-context-gc">Create Graphic Context (GC)</a></li>
+        <li><a href="#writing-text">Writing text</a></li>
+        <li><a href="#final-code">Final code</a></li>
+      </ul>
+    </li>
+    <li><a href="#conclusion">Conclusion</a></li>
+  </ul>
+</nav>
+        <p><img src="/posts/from-scratch-x11-windowing/images/base.png" alt="Simple x11 window opened with
+sockets"></p>
+<h2 id="intro">Intro</h2>
+<p>In this post I want to create a single file C file program to open a windows
+inside Linux without using xlib or any similar libraries. The idea is to explore
+X11 protocol and see how it is used to interact with X server to create windows.</p>
+<p>Before I had strong association that X11 was some magic thing to manipulate windows
+and it&rsquo;s resources. I was very surprised to learn that it is actually just a
+&ldquo;regular&rdquo; <strong>network</strong> protocol for two parties to communicate like HTTP, FTP,
+IMAP, SMPT and etc. But if in IMAP your have a server that contains all your
+emails and you send it commands to get information about emails and get their
+content. In X11 you have a server that contains all your windows and its
+resources and you just communicate with it via a connection.</p>
+<p>To do this the only resource we need is <a href="https://www.x.org/releases/X11R7.7/doc/xproto/x11protocol.html">X11
+documentation</a>.
+It is a very small document and can be easily consumed to better understand
+window communication in linux systems that still use Xorg for window management.
+The strange thing is that this document is way more approachable that Xlib&rsquo;s
+documentation which totally broke my illusion that Xlib was supposed to
+simplify X11.</p>
+<p>In this post we will try to implement this model:
+<img src="/posts/from-scratch-x11-windowing/images/client-server-communication.png" alt="X11 Initialization
+request"></p>
+<h2 id="open-connection">Open connection</h2>
+<p>Xorg uses unix sockets instead of regular sockets for the communication with the
+apps. (You can switch it to using regular sockets if you want to monitor
+connections in wireshark. Look in  <a href="/posts/monitoring-raw-x11-communication/">one of my old articles</a>
+on how to do it) For us, regular users, it does not really matter as everything
+will be pretty much the same with only tiny difference in socket setup.</p>
+<pre tabindex="0"><code>int Socket = socket(AF_UNIX, SOCK_STREAM, 0);
+VerifyOrDie(Socket &gt; 0, &#34;Couldn&#39;t open a socket(...)&#34;);
+
+struct sockaddr_un Address;
+memset(&amp;Address, 0, sizeof(struct sockaddr_un));
+Address.sun_family = AF_UNIX;
+strncpy(Address.sun_path, &#34;/tmp/.X11-unix/X0&#34;, sizeof(Address.sun_path)-1);
+
+int Status = connect(Socket, (struct sockaddr *)&amp;Address, sizeof(Address));
+VerifyOrDieWidthErrno(Status == 0, &#34;Couldn&#39;t connect to a unix socket with connect(...)&#34;);
+</code></pre><p>We just get socket from the kernel with <strong>socket(&hellip;)</strong> but use <strong>AF_UNIX</strong> instead
+of <strong>AF_INET</strong> to tell it that we are plan to setup unix socket communication.
+Then we use regular <strong>connect(&hellip;)</strong> to connect the socket. Another difference
+is that we are using <strong>struct sockaddr_un</strong> for the connection description and
+set it&rsquo;s path to: <code>/tmp/.X11-unix/X0</code></p>
+<p>To simplify error checking and to reduce code size I am using this two utility
+function for easier error checking and reporting. They check if condition is
+correct. If not they just print error and fully exit out of program execution.</p>
+<pre tabindex="0"><code>void VerifyOrDie(int IsSuccess, const char *Message) {
+    if(!IsSuccess)  {
+        fprintf(stderr, &#34;%s&#34;, Message);
+        exit(13);
+    }
+}
+
+void VerifyOrDieWidthErrno(int IsSuccess, const char *Message) {
+    if(!IsSuccess)  {
+        perror(Message);
+        exit(13);
+    }
+}
+</code></pre><p>This is pretty much. With just this we are ready to comuunicate with the X
+server. Initially server expects a connection iniation from user and the very
+first byte of the request must be a identification of communication byte order:
+little endian or big endian. Documentation calls it MSB (Most significant byte)
+and LSB(Least signification byte). After this byte is sent all data will be
+processed as either little endian or big endian untill connection termination.
+Two possible values for this first byte is &rsquo;l&rsquo; (0x6c) or &lsquo;B&rsquo; (0x42).</p>
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<p><img src="/posts/from-scratch-x11-windowing/images/initialization-request.png" alt="X11 Initialization request"></p>
+<p>In earlier implementation of this program I used struct to hold this
+initialization data and later just serialize it to send over the socket. But
+then I came to a conclusion that for demonstration purposes using just an array
+and filling it &lsquo;by hand&rsquo; is a better and simpler approach to show the concept.</p>
+<p>Initial request seems like a lot of information to fill but if we skip
+authorization process we can drastically reduce amount of code we need to write
+and understand. So for this I chose to not use authorization with a little
+trick. This give us just two parameters that we need to fill: stream endiannes
+and major version (minor version is set automatically).</p>
+<pre tabindex="0"><code>uint8_t InitializationRequest[12] = {};
+InitializationRequest[0] = &#39;l&#39;;
+InitializationRequest[2] = 11;
+</code></pre><p>We are creating an array of 12 bytes. First byte we set to &rsquo;l&rsquo; or 0x6c and third
+byte to 11 to indicate 11th version of the protocol. Everything else is set to 0
+by initialization and indicates to X server that we will not be using and
+sending any authorization data.</p>
+<p>For this simplification to work we need to disable regular cookie based
+authentication and allow all app on local machine to connect to X server
+directly. To to that you need to open a terminal and type <code>xhost +local:</code></p>
+<p>Later if you want to revert back you could use <strong>xhost -local:</strong> to force cookie
+based authentication back. We could have implemented basic authentication but it
+is not described in the general X11 documentation page linked above and we
+decided to stick only to that one document. Plus it is not really that
+interesting and we can save some screen space. If you forget to disable
+authentication you will get this error when you run final program:</p>
+<pre tabindex="0"><code>State: 0
+MajorVersion: 11
+MinorVersion: 0
+AdditionalDataLength: 16
+Reason: Authorization required, but no authorization protocol specified
+</code></pre><p>With this details done we can just simply send our initialization request and
+read back data.</p>
+<pre tabindex="0"><code>char SendBuffer[16*1024] = {};
+char ReadBuffer[16*1024] = {};
+
+int BytesWritten = write(Socket, (char*)&amp;InitializationRequest, sizeof(InitializationRequest));
+VerifyOrDie(BytesWritten == sizeof(InitializationRequest), &#34;Wrong amount of bytes written during initialization&#34;);
+
+int BytesRead = read(Socket, ReadBuffer, 8);
+</code></pre><p>If we look into documentation, we will see that there are three possible
+responses to initialization request: error, authentication and sucess. We can
+safely ignore authentication as we are using it in this example. Error usually
+means that the connection is refused (with some explanation why). No matter what
+response type we get back first byte will always indicate response type: 0 -
+Failed, 2 - Authenticate, 1 - Success. Success response will pretty big and
+error/authenticate responses will be at least 8 bytes. For this reason we can
+safely request to read 8 bytes to get basic info about what happend with our
+request and info about server.</p>
+<p>One importannt sidenote is that we create two buffers of 16 killobytes on the
+stack and use it for reading and writing data. This is safe amount for basic
+communication with server and helps use to not think about about rosource
+management in this context. Also we don&rsquo;t need to clear whole buffer after we
+done processing it since specification allows having &lsquo;dirty bytes&rsquo; in areas that
+are not in the perimeter of current request/response.</p>
+<p>After that we can choose how to continue our processing based on the first byte.</p>
+<pre tabindex="0"><code>if(ReadBuffer[0] == RESPONSE_STATE_FAILED) {
+    DumpResponseError(Socket, ReadBuffer);
+}
+else if(ReadBuffer[0] == RESPONSE_STATE_AUTHENTICATE) {
+    AuthenticateX11();
+}
+else if(ReadBuffer[0] == RESPONSE_STATE_SUCCESS) {
+...
+}
+</code></pre><p>Here are utility functions to dump information on error.</p>
+<pre tabindex="0"><code>void DumpResponseError(int Socket, char* ReadBuffer) {
+        uint8_t ReasonLength = ReadBuffer[1];
+        uint16_t MajorVersion = *((uint16_t*)&amp;ReadBuffer[2]);
+        uint16_t MinorVersion = *((uint16_t*)&amp;ReadBuffer[4]);
+        uint16_t AdditionalDataLength = *((uint16_t*)&amp;ReadBuffer[6]); // Length in 4-byte units of &#34;additional data&#34;
+        uint8_t *Message = (uint8_t*)&amp;ReadBuffer[8];
+
+        int BytesRead = read(Socket, ReadBuffer + 8, READ_BUFFER_SIZE-8);
+
+        printf(&#34;State: %d\n&#34;, ReadBuffer[0]);
+        printf(&#34;MajorVersion: %d\n&#34;, MajorVersion);
+        printf(&#34;MinorVersion: %d\n&#34;, MinorVersion);
+        printf(&#34;AdditionalDataLength: %d\n&#34;, AdditionalDataLength);
+        printf(&#34;Reason: %s\n&#34;, Message);
+}
+
+
+void AuthenticateX11() {
+    fprintf(stderr, &#34;Current version of the app does not support authentication.\n&#34;);
+    exit(13);
+}
+</code></pre><p><img src="/posts/from-scratch-x11-windowing/images/initialization-response-error.png" alt="X11 Initialization request"></p>
+<p>So if we get anything but success we just print debug information and exit the
+program. When we get normal success response we have to do some work to process
+returned response.</p>
+<pre tabindex="0"><code>BytesRead = read(Socket, ReadBuffer + 8, READ_BUFFER_SIZE-8);
+
+uint16_t MajorVersion = *((uint16_t*)&amp;ReadBuffer[2]);
+uint16_t MinorVersion = *((uint16_t*)&amp;ReadBuffer[4]);
+uint16_t AdditionalDataLength = *((uint16_t*)&amp;ReadBuffer[6]); // Length in 4-byte units of &#34;additional data&#34;
+
+uint32_t ResourceIdBase = *((uint32_t*)&amp;ReadBuffer[12]);
+uint32_t ResourceIdMask = *((uint32_t*)&amp;ReadBuffer[16]);
+uint16_t LengthOfVendor = *((uint16_t*)&amp;ReadBuffer[24]);
+uint8_t NumberOfFormants = *((uint16_t*)&amp;ReadBuffer[29]);
+uint8_t *Vendor = (uint8_t *)&amp;ReadBuffer[40];
+
+int32_t VendorPad = PAD(LengthOfVendor);
+int32_t FormatByteLength = 8 * NumberOfFormants;
+int32_t ScreensStartOffset = 40 + LengthOfVendor + VendorPad + FormatByteLength;
+
+uint32_t RootWindow = *((uint32_t*)&amp;ReadBuffer[ScreensStartOffset]);
+uint32_t RootVisualId = *((uint32_t*)&amp;ReadBuffer[ScreensStartOffset + 32]);
+
+GlobalIdBase = ResourceIdBase;
+GlobalIdMask = ResourceIdMask;
+GlobalRootWindow = RootWindow;
+GlobalRootVisualId = RootVisualId;
+</code></pre><p>First of all we read all output from server. We ask to read buffer size (16k)
+minus 8 bytes that we already read an put it inside our buffer by offsetting 8
+bytes of already read data. In my system this second read(&hellip;) returned 9804
+bytes or 9804+8 = 9812 total response bytes for our initialization request.
+Documentation show that this binary format contains quite a few information:
+basic server info, root window, data formats, types, screen info, depth info,
+visual types and etc. For a full blown production system it better to parse it
+it all but in our exploratory phase we can get just the basics and get away with
+it.</p>
+<p>Major version, minor version, additional length are not required but I got them
+to verify that everything is working as expected.</p>
+<p>Then we get <strong>Resource Id Base</strong> and <strong>Resource Id Mask</strong>. What are these? Well
+unfortunately even though X server is managing window resources it delegates
+&ldquo;naming&rdquo; resource to us (the client). It might me for optimisation purposes. So
+what this means is that when we need to create a window, crete graphic context
+or font we must provide the &ldquo;name&rdquo; for it. This &ldquo;name&rdquo; is just an increasing
+integer value with some processing. Id does not have to be contigous and can be
+reused once resource is freed but we won&rsquo;t be doing ID management here just get
+increasing numbers without reusing. Also Resource ID&rsquo;s have never top three bits
+set. To get id we take our local id and OR it with resource base id.</p>
+<p>In my system when I run this code I get base id of &lsquo;0x3200000&rsquo; and mask of
+&lsquo;0x1fffff&rsquo;. So let&rsquo;s if I have a local resouce if of 1 then I OR it with
+0x3200000 and just mask it with 0x1fffff just to make sure that id has to three
+bits &rsquo;turned off&rsquo;.</p>
+<p>Next we use  NumberOfFormants, VendorPad, FormatByteLength to get
+ScreensStartOffset which in turn is used to get offset to first screen data
+bytes. From this we need <strong>RootWindow</strong> and <strong>RootVisualId</strong>. And this is pretty
+much all that wee needed from all that 9kb response. Then I just put them into
+global variables for later use. (A better approach is to contain it all in a
+struct but we are not architecturing software here but just exploring a
+protocol). PAD macro just calculates padding to make sure that data length is
+multiple of 4;</p>
+<p>And with this we conclude intiation. There are a lot of words but basically we
+just send one small request and get back large response.</p>
+<h2 id="creating-window">Creating window</h2>
+<p>Here we will be create a request to create a window.</p>
+<p><img src="/posts/from-scratch-x11-windowing/images/create-window-request.png" alt="X11 Initialization
+request"></p>
+<pre tabindex="0"><code>int32_t WindowId = GetNextId();
+int32_t Depth = 0;
+int32_t X = 100;
+int32_t Y = 100;
+uint32_t Width = 600;
+uint32_t Height = 300;
+uint32_t BorderWidth = 1;
+int32_t CreateWindowFlagCount = 2;
+int RequestLength = 8+CreateWindowFlagCount;
+
+SendBuffer[0] = X11_REQUEST_CREATE_WINDOW;
+SendBuffer[1] = Depth;
+*((int16_t *)&amp;SendBuffer[2]) = RequestLength;
+*((int32_t *)&amp;SendBuffer[4]) = WindowId;
+*((int32_t *)&amp;SendBuffer[8]) = GlobalRootWindow;
+*((int16_t *)&amp;SendBuffer[12]) = X;
+*((int16_t *)&amp;SendBuffer[14]) = Y;
+*((int16_t *)&amp;SendBuffer[16]) = Width;
+*((int16_t *)&amp;SendBuffer[18]) = Height;
+*((int16_t *)&amp;SendBuffer[20]) = BorderWidth;
+*((int16_t *)&amp;SendBuffer[22]) = WINDOWCLASS_INPUTOUTPUT;
+*((int32_t *)&amp;SendBuffer[24]) = GlobalRootVisualId;
+*((int32_t *)&amp;SendBuffer[28]) = X11_FLAG_WIN_EVENT | X11_FLAG_BACKGROUND_PIXEL;
+*((int32_t *)&amp;SendBuffer[32]) = 0xff000000;
+*((int32_t *)&amp;SendBuffer[36]) = X11_EVENT_FLAG_EXPOSURE | X11_EVENT_FLAG_KEY_PRESS;
+
+BytesWritten = write(Socket, (char *)&amp;SendBuffer, RequestLength*4);
+</code></pre><p>Here we just setup basic variables for readability puproses and the fill an
+array SenbBuffer array with relevant data. And then just send it. First byte is
+always describes request. In this case we are creating a window and set it to 1.
+Depth parameter is not that important and we can set it to 0. Next we calclate
+RequestLength. This always indicates total request size including header and
+extra parameters. The only caveat is that it is measured in 4 byte chunks. So we
+have 32 required bytes and some extra. Thus we have 32/4=8 bytes and extra 2
+four byte blocks for extra data.</p>
+<p>Documentation explains this dynamic LISTofVALUE as &ldquo;The value-list contains one
+value for each bit set to 1 in the mask, from least significant to most
+significant bit in the mask.&rdquo; Since the mask is X11_FLAG_WIN_EVENT |
+X11_FLAG_BACKGROUND_PIXEL or 0x00000002 | 0x00000800. This in turn give us
+&lsquo;0b100000000010&rsquo;. So background pixel will be first value to be provided and
+second is a list of event masks. For the background we provided just a black
+color with 0xff000000. You can easily change it to green by replacing it with
+0xff00ff00.</p>
+<p>Next value (starting byte 36) we provide xored list of events that we want to
+recieve back from X server. In this case we want to get back Exposure (0x8000) and
+KeyPress (0x0001) events. These will be important later once we start processing
+event from server.</p>
+<p>One thing I didn&rsquo;t show is <strong>GetNextId()</strong>. It is just a utility function of the
+functionality discussed earlier about how to &ldquo;generate&rdquo; new if for a resource.
+For simplicity it uses global index of last id and increases it by on each
+iteration.</p>
+<pre tabindex="0"><code>int32_t GetNextId() {
+    int32_t Result = (GlobalIdMask &amp; GlobalId) | GlobalIdBase;
+    GlobalId += 1;
+    return Result;
+}
+</code></pre><h3 id="mapping-showing-window">Mapping (showing) window</h3>
+<p>By this time we have already create a window resource on the server side. It is
+not shown to the screen yet because we need to map it first. Compared to
+creating window this request is pretty small.</p>
+<pre tabindex="0"><code>SendBuffer[0] = X11_REQUEST_MAP_WINDOW;
+SendBuffer[1] = 0; // NOTE: Unused
+*((int16_t *)&amp;SendBuffer[2]) = 2;
+*((int32_t *)&amp;SendBuffer[4]) = WindowId;
+
+BytesWritten = write(Socket, (char *)&amp;SendBuffer, 2*4);
+</code></pre><p><img src="/posts/from-scratch-x11-windowing/images/map-window-request.png" alt="X11 Initialization
+request"></p>
+<p>As usual we user first byte to set request type. This time it is &ldquo;Map Window&rdquo; or
+0x8. Second byte is unused and can be set to anything. Third byte is request
+size which we set to 2 (result of 8/4). And the last byte parameter we set the
+window ID created in the last step.</p>
+<p>With this we are pretty much done with basic window opening. Now if we just put
+something like <strong>sleep(5)</strong> at the end of the code we will get a window which
+will be shown for 5 seconds. Then after the 5 seconds are passed the program
+will close and X server will recycle all resources.</p>
+<h3 id="event-loop">Event loop</h3>
+<p>Instead of sleeping let&rsquo;s try to actually create a loop that will listen events
+sent back to us from server and just block when there is nothing to do or to
+show. Since when creating we indicated that we are interested in Exposure and
+KeyPress events there will be event to notify about regions that need to up
+repainted and pressed keys.</p>
+<p>For this I chose to use linux regular polling mechanism which will block us
+untill we have something to do. Nothing special. Just setup one socket
+descriptor into list.</p>
+<pre tabindex="0"><code>struct pollfd PollDescriptors[1] = {};
+PollDescriptors[0].fd = Socket;
+PollDescriptors[0].events = POLLIN;
+int32_t DescriptorCount = 1;
+</code></pre><p>Then we can create an endless loop which will be check if a IsProgramRunning
+variable set to true or false (1 or 0).</p>
+<pre tabindex="0"><code>int32_t IsProgramRunning = 1;
+while(IsProgramRunning){
+    int32_t EventCount = poll(PollDescriptors, DescriptorCount, -1);
+
+    if(PollDescriptors[0].revents &amp; POLLERR) {
+        fprintf(stderr, &#34;------- Error\n&#34;);
+    }
+
+    if(PollDescriptors[0].revents &amp; POLLHUP) {
+        printf(&#34;---- Connection close\n&#34;);
+        IsProgramRunning = 0;
+    }
+
+    GetAndProcessReply(PollDescriptors[0].fd);
+}
+</code></pre><p>When we call poll(&hellip;) we set timeout to -1 to make sure it never times out.
+Once there is an event the program will unblock and continue execution. Then we
+check if the event was error or we the connection hung up. On error we just log
+it and continue like nothing happened. On POLLHUP (program close) just terminate
+program. Else we just process the reply.</p>
+<pre tabindex="0"><code>void PrintResponseError(char *Data, int32_t Size) {
+    char ErrorCode = Data[1];
+    printf(&#34;\033[0;31m&#34;);
+    printf(&#34;Response Error: [%d]&#34;, ErrorCode);
+    printf(&#34;\033[0m\n&#34;);
+}
+
+void PrintAndProcessEvent(char *Data, int32_t Size) {
+    char EventCode = Data[0];
+    printf(&#34;Some event occured: %d\n&#34;, EventCode);
+}
+
+void GetAndProcessReply(int Socket) {
+    char Buffer[1024] = {};
+    int32_t BytesRead = read(Socket, Buffer, 1024);
+    uint8_t Code = Buffer[0];
+
+    if(Code == 0) {
+        PrintResponseError(Buffer, BytesRead);
+    } else if (Code == 1) {
+        printf(&#34;---------------- Reply to request\n&#34;);
+    } else {
+        PrintAndProcessEvent(Buffer, BytesRead);
+    }
+}
+</code></pre><p>And with this we have a &ldquo;fully functional&rdquo; window with event loop. Even though
+the processing is pretty simple and we just log errors and events but still from
+here it will be that hard to extend and try more advanced events processing.</p>
+<p>Whole code for simple version for this program (about 200 lines of code)</p>
+<pre tabindex="0"><code>#include &lt;sys/socket.h&gt;
+#include &lt;sys/un.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;stdint.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;unistd.h&gt;
+#include &lt;fcntl.h&gt;
+#include &lt;poll.h&gt;
+
+
+int32_t GlobalId = 0;
+int32_t GlobalIdBase = 0;
+int32_t GlobalIdMask = 0;
+int32_t GlobalRootWindow = 0;
+int32_t GlobalRootVisualId = 0;
+
+#define READ_BUFFER_SIZE 16*1024
+
+#define RESPONSE_STATE_FAILED 0
+#define RESPONSE_STATE_SUCCESS 1
+#define RESPONSE_STATE_AUTHENTICATE 2
+
+#define X11_REQUEST_CREATE_WINDOW 1
+#define X11_REQUEST_MAP_WINDOW 8
+#define X11_REQUEST_IMAGE_TEXT_8 76
+#define X11_REQUEST_OPEN_FONT 45
+#define X11_REQUEST_CREATE_GC 55
+
+
+#define X11_EVENT_FLAG_KEY_PRESS 0x00000001
+#define X11_EVENT_FLAG_KEY_RELEASE 0x00000002
+#define X11_EVENT_FLAG_EXPOSURE 0x8000
+
+#define PAD(N) ((4 - (N % 4)) % 4)
+
+void VerifyOrDie(int IsSuccess, const char *Message) {
+    if(!IsSuccess)  {
+        fprintf(stderr, &#34;%s&#34;, Message);
+        exit(13);
+    }
+}
+
+void VerifyOrDieWidthErrno(int IsSuccess, const char *Message) {
+    if(!IsSuccess)  {
+        perror(Message);
+        exit(13);
+    }
+}
+
+void DumpResponseError(int Socket, char* ReadBuffer) {
+        uint8_t ReasonLength = ReadBuffer[1];
+        uint16_t MajorVersion = *((uint16_t*)&amp;ReadBuffer[2]);
+        uint16_t MinorVersion = *((uint16_t*)&amp;ReadBuffer[4]);
+        uint16_t AdditionalDataLength = *((uint16_t*)&amp;ReadBuffer[6]); // Length in 4-byte units of &#34;additional data&#34;
+        uint8_t *Message = (uint8_t*)&amp;ReadBuffer[8];
+
+        int BytesRead = read(Socket, ReadBuffer + 8, READ_BUFFER_SIZE-8);
+
+        printf(&#34;State: %d\n&#34;, ReadBuffer[0]);
+        printf(&#34;MajorVersion: %d\n&#34;, MajorVersion);
+        printf(&#34;MinorVersion: %d\n&#34;, MinorVersion);
+        printf(&#34;AdditionalDataLength: %d\n&#34;, AdditionalDataLength);
+        printf(&#34;Reason: %s\n&#34;, Message);
+}
+
+void AuthenticateX11() {
+    fprintf(stderr, &#34;Current version of the app does not support authentication.\n&#34;);
+    fprintf(stderr, &#34;Please run &#39;xhost +local:&#39; in your terminal to disable cookie based authentication\n&#34;);
+    fprintf(stderr, &#34;and allow local apps to communication with Xorg without it.&#34;);
+}
+
+int32_t GetNextId() {
+    int32_t Result = (GlobalIdMask &amp; GlobalId) | GlobalIdBase;
+    GlobalId += 1;
+    return Result;
+}
+
+void PrintResponseError(char *Data, int32_t Size) {
+    char ErrorCode = Data[1];
+    printf(&#34;\033[0;31m&#34;);
+    printf(&#34;Response Error: [%d]&#34;, ErrorCode);
+    printf(&#34;\033[0m\n&#34;);
+}
+
+void PrintAndProcessEvent(char *Data, int32_t Size) {
+    char EventCode = Data[0];
+    printf(&#34;Some event occured: %d\n&#34;, EventCode);
+
+}
+
+void GetAndProcessReply(int Socket) {
+    char Buffer[1024] = {};
+    int32_t BytesRead = read(Socket, Buffer, 1024);
+
+    uint8_t Code = Buffer[0];
+
+    if(Code == 0) {
+        PrintResponseError(Buffer, BytesRead);
+    } else if (Code == 1) {
+        printf(&#34;---------------- Unexpected reply\n&#34;);
+    } else {
+        // NOTE: Event?
+        PrintAndProcessEvent(Buffer, BytesRead);
+    }
+}
+
+int main(){
+    int Socket = socket(AF_UNIX, SOCK_STREAM, 0);
+    VerifyOrDie(Socket &gt; 0, &#34;Couldn&#39;t open a socket(...)&#34;);
+
+    struct sockaddr_un Address;
+    memset(&amp;Address, 0, sizeof(struct sockaddr_un));
+    Address.sun_family = AF_UNIX;
+    strncpy(Address.sun_path, &#34;/tmp/.X11-unix/X0&#34;, sizeof(Address.sun_path)-1);
+
+    int Status = connect(Socket, (struct sockaddr *)&amp;Address, sizeof(Address));
+    VerifyOrDieWidthErrno(Status == 0, &#34;Couldn&#39;t connect to a unix socket with connect(...)&#34;);
+
+    char SendBuffer[16*1024] = {};
+    char ReadBuffer[16*1024] = {};
+
+    uint8_t InitializationRequest[12] = {};
+    InitializationRequest[0] = &#39;l&#39;;
+    InitializationRequest[1] = 0;
+    InitializationRequest[2] = 11;
+
+    int BytesWritten = write(Socket, (char*)&amp;InitializationRequest, sizeof(InitializationRequest));
+    VerifyOrDie(BytesWritten == sizeof(InitializationRequest), &#34;Wrong amount of bytes written during initialization&#34;);
+
+    int BytesRead = read(Socket, ReadBuffer, 8);
+
+    if(ReadBuffer[0] == RESPONSE_STATE_FAILED) {
+        DumpResponseError(Socket, ReadBuffer);
+    }
+    else if(ReadBuffer[0] == RESPONSE_STATE_AUTHENTICATE) {
+        AuthenticateX11();
+    }
+    else if(ReadBuffer[0] == RESPONSE_STATE_SUCCESS) {
+        printf(&#34;INIT Response SUCCESS. BytesRead: %d\n&#34;, BytesRead);
+
+        BytesRead = read(Socket, ReadBuffer + 8, READ_BUFFER_SIZE-8);
+        printf(&#34;---------------------------%d\n&#34;, BytesRead);
+
+        /* -------------------------------------------------------------------------------- */
+        uint8_t _Unused = ReadBuffer[1];
+        uint16_t MajorVersion = *((uint16_t*)&amp;ReadBuffer[2]);
+        uint16_t MinorVersion = *((uint16_t*)&amp;ReadBuffer[4]);
+        uint16_t AdditionalDataLength = *((uint16_t*)&amp;ReadBuffer[6]); // Length in 4-byte units of &#34;additional data&#34;
+
+        uint32_t ResourceIdBase = *((uint32_t*)&amp;ReadBuffer[12]);
+        uint32_t ResourceIdMask = *((uint32_t*)&amp;ReadBuffer[16]);
+        uint16_t LengthOfVendor = *((uint16_t*)&amp;ReadBuffer[24]);
+        uint8_t NumberOfFormants = *((uint16_t*)&amp;ReadBuffer[29]);
+        uint8_t *Vendor = (uint8_t *)&amp;ReadBuffer[40];
+
+        int32_t VendorPad = PAD(LengthOfVendor);
+        int32_t FormatByteLength = 8 * NumberOfFormants;
+        int32_t ScreensStartOffset = 40 + LengthOfVendor + VendorPad + FormatByteLength;
+
+        uint32_t RootWindow = *((uint32_t*)&amp;ReadBuffer[ScreensStartOffset]);
+        uint32_t RootVisualId = *((uint32_t*)&amp;ReadBuffer[ScreensStartOffset + 32]);
+
+        GlobalIdBase = ResourceIdBase;
+        GlobalIdMask = ResourceIdMask;
+        GlobalRootWindow = RootWindow;
+        GlobalRootVisualId = RootVisualId;
+
+        printf(&#34;Base: %d\n&#34;, ResourceIdBase);
+        printf(&#34;IdMask: %d\n&#34;, ResourceIdMask);
+        printf(&#34;LengthOfVendor: %d\n&#34;, LengthOfVendor);
+
+        /* -------------------------------------------------------------------------------- */
+        // ------------------------------ Create Window
+        int32_t WindowId = GetNextId();
+        int32_t Depth = 0;
+        int32_t X = 100;
+        int32_t Y = 100;
+        uint32_t Width = 600;
+        uint32_t Height = 300;
+        uint32_t BorderWidth = 1;
+        int32_t CreateWindowFlagCount = 2;
+        int RequestLength = 8+CreateWindowFlagCount;
+
+
+#define WINDOWCLASS_COPYFROMPARENT 0
+#define WINDOWCLASS_INPUTOUTPUT 1
+#define WINDOWCLASS_INPUTONLY 2
+
+#define X11_FLAG_BACKGROUND_PIXEL 0x00000002 
+#define X11_FLAG_WIN_EVENT 0x00000800 
+
+        SendBuffer[0] = X11_REQUEST_CREATE_WINDOW;
+        SendBuffer[1] = Depth;
+        *((int16_t *)&amp;SendBuffer[2]) = RequestLength;
+        *((int32_t *)&amp;SendBuffer[4]) = WindowId;
+        *((int32_t *)&amp;SendBuffer[8]) = GlobalRootWindow;
+        *((int16_t *)&amp;SendBuffer[12]) = X;
+        *((int16_t *)&amp;SendBuffer[14]) = Y;
+        *((int16_t *)&amp;SendBuffer[16]) = Width;
+        *((int16_t *)&amp;SendBuffer[18]) = Height;
+        *((int16_t *)&amp;SendBuffer[20]) = BorderWidth;
+        *((int16_t *)&amp;SendBuffer[22]) = WINDOWCLASS_INPUTOUTPUT;
+        *((int32_t *)&amp;SendBuffer[24]) = GlobalRootVisualId;
+        *((int32_t *)&amp;SendBuffer[28]) = X11_FLAG_WIN_EVENT | X11_FLAG_BACKGROUND_PIXEL;
+        *((int32_t *)&amp;SendBuffer[32]) = 0xff000000;
+        *((int32_t *)&amp;SendBuffer[36]) = X11_EVENT_FLAG_EXPOSURE | X11_EVENT_FLAG_KEY_PRESS;
+
+
+        BytesWritten = write(Socket, (char *)&amp;SendBuffer, RequestLength*4);
+        printf(&#34;Create Window: BytesWritten: %d\n&#34;, BytesWritten);
+
+
+        // ------------------------------ Map Window
+
+        SendBuffer[0] = X11_REQUEST_MAP_WINDOW;
+        SendBuffer[1] = 0;
+        *((int16_t *)&amp;SendBuffer[2]) = 2;
+        *((int32_t *)&amp;SendBuffer[4]) = WindowId;
+
+        BytesWritten = write(Socket, (char *)&amp;SendBuffer, 2*4);
+        printf(&#34;Map Window: BytesWritten: %d\n&#34;, BytesWritten);
+
+
+        /* ------------------------------------------------------------------------------- */
+
+        struct pollfd PollDescriptors[1] = {};
+        PollDescriptors[0].fd = Socket;
+        PollDescriptors[0].events = POLLIN;
+        int32_t DescriptorCount = 1;
+
+        int32_t IsProgramRunning = 1;
+        while(IsProgramRunning){
+            int32_t EventCount = poll(PollDescriptors, DescriptorCount, -1);
+
+            if(PollDescriptors[0].revents &amp; POLLERR) {
+                printf(&#34;------- Error\n&#34;);
+            }
+
+            if(PollDescriptors[0].revents &amp; POLLHUP) {
+                printf(&#34;---- Connection close\n&#34;);
+                IsProgramRunning = 0;
+            }
+
+            GetAndProcessReply(PollDescriptors[0].fd);
+        }
+    }
+
+}
+</code></pre><p>To compile it just run this from terminal:
+<code>gcc basic.c -o basic</code></p>
+<p>Here is video showing how it looks:
+
+    
+<iframe style="background: gray;" class="full-width" height="400" src="https://www.youtube.com/embed/OUMEAjHHcOI" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
+
+</p>
+<h2 id="additional-functionality">Additional Functionality</h2>
+<p>Now let&rsquo;s try to add some extra functionality and see if will be to complex to
+extend it and see if we can actually see something somewhat useful on the
+screen.</p>
+<p>First of all I will make tiny refactoring and move some code into functions to
+make code a bit more readable. Specifically we will move intiation, window
+creation and mapping into their specific functions. The event loop will remain
+the same for now.</p>
+<pre tabindex="0"><code>int SetupStatus = X_InitiateConnection(Socket);
+
+if(SetupStatus == 0) {
+    // X, Y, Width, Height setup
+    int WindowId = X_CreatWindow(Socket, X, Y, Width, Height);
+    X_MapWindow(Socket, WindowId);
+
+    // Event loop
+}
+</code></pre><p><strong>X_InitiateConnection</strong>, <strong>X_CreatWindow</strong>, <strong>X_MapWindow</strong> are just condensed
+code from previous section.</p>
+<h3 id="open-font">Open font</h3>
+<p>In the end I am planning to use some text for that we will need to ask for a
+front from the X server. The drill is pretty much the same thing. Prepare data,
+stuck into buffer and send it to the server.</p>
+<pre tabindex="0"><code>void X_OpenFont(i32 Socket, i8 *FontName, i32 FontId) {
+    char SendBuffer[16*1024] = {};
+    int BytesWritten = 0;
+    int BytesRead = 0;
+
+    i32 FontNameLength = strlen((char *)FontName);
+    i32 Pad = PAD(FontNameLength);
+    int RequestLength = (3 + (FontNameLength + Pad)/4);
+
+    SendBuffer[0] = X11_REQUEST_OPEN_FONT;
+    SendBuffer[1] = 0;
+    *((u16 *)&amp;SendBuffer[2]) = RequestLength;
+    *((u32 *)&amp;SendBuffer[4]) = FontId;
+    *((u16 *)&amp;SendBuffer[8]) = FontNameLength;
+    strncpy(SendBuffer + 12, (char *)FontName, FontNameLength);
+
+    i32 WriteSize = 12 + FontNameLength + Pad;
+    BytesWritten = write(Socket, (char *)&amp;SendBuffer, WriteSize);
+}
+</code></pre><p><img src="/posts/from-scratch-x11-windowing/images/open-font-request.png" alt="X11 Initialization
+request"></p>
+<p>FontId is something that we as client generate ourself. For that we have
+GetNextId(). We pass it and a font name to the function requesting server to
+create font resource with specified ID and try to find closest match to the name
+we provided.</p>
+<h3 id="create-graphic-context-gc">Create Graphic Context (GC)</h3>
+<p>A lot of window operations require graphic context to do it&rsquo;s operations. So we
+need to get it before we can do any graphic changing actions.</p>
+<pre tabindex="0"><code>void X_CreateGC(int32_t Socket, int32_t GcId, int32_t FontId) {
+    char SendBuffer[16*1024] = {};
+
+    int32_t CreateGcFlagCount = 3;
+    int RequestLength = 4 + CreateGcFlagCount;
+
+    SendBuffer[0] = X11_REQUEST_CREATE_GC;
+    SendBuffer[1] = 0;
+    *((int16_t *)&amp;SendBuffer[2]) = RequestLength;
+    *((int32_t *)&amp;SendBuffer[4]) = GcId;
+    *((int32_t *)&amp;SendBuffer[8]) = GlobalRootWindow;
+    *((int32_t *)&amp;SendBuffer[12]) = X11_FLAG_FG | X11_FLAG_BG | X11_FLAG_FONT;
+    *((int32_t *)&amp;SendBuffer[16]) = 0xFF00FF00; // Foreground
+    *((int32_t *)&amp;SendBuffer[20]) = 0xFF000000; // Background
+    *((int32_t *)&amp;SendBuffer[24]) = FontId; // Font
+
+    write(Socket, (char *)&amp;SendBuffer, RequestLength*4);
+}
+</code></pre><p><img src="/posts/from-scratch-x11-windowing/images/create-gc-request.png" alt="X11 Initialization
+request"></p>
+<p>Here we see similar patter of passing parameters based on mask and it&rsquo;s bit
+offsets. We have required 16 bytes of setup data and extra variable bytes based
+on how much data we want to set. In this example we are setting just font,
+background and forground colors. Thus we set X11_FLAG_FG | X11_FLAG_BG |
+X11_FLAG_FONT mask bits and pass appropriate parameters at the end of the
+request. There are quite a few parameters that can be passed like different
+stroke types, drawing functions and etc. But we stick to simplicity for now.</p>
+<h3 id="writing-text">Writing text</h3>
+<p>The last function for today will be text writing. It is pretty simple.</p>
+<pre tabindex="0"><code>void WriteText(int Socket, int WindowId, int GCid, i16 X, i16 Y, const char *Text, i32 TextLength) {
+    char SendBuffer[16*1024] = {};
+
+    u32 ContentLength = 4 + (TextLength + PAD(TextLength))/4;
+
+    SendBuffer[0] = (u8)X11_REQUEST_IMAGE_TEXT_8;
+    SendBuffer[1] = TextLength;
+    *((i16 *)&amp;SendBuffer[2]) = ContentLength; 
+    *((i32 *)&amp;SendBuffer[4]) = WindowId;
+    *((i32 *)&amp;SendBuffer[8]) = GCid;
+    *((i16 *)&amp;SendBuffer[12]) = X; 
+    *((i16 *)&amp;SendBuffer[14]) = Y; 
+
+    strncpy(&amp;SendBuffer[16], (char *)Text, TextLength);
+    write(Socket, (char *)&amp;SendBuffer, ContentLength*4);
+}
+</code></pre><p><img src="/posts/from-scratch-x11-windowing/images/image-text-8.png" alt="X11 Initialization
+request"></p>
+<p>We repeated this drill so many times that it should be trivial by now.
+Calculating length in 4 byte blocks. Set required where we want to draw
+(window), which brush to draw with (graphic context) and X,Y offsets in the
+window where we want to draw. At the of request copy the text that we want to
+draw. And that is it.</p>
+<p>The only thing left if draw this text on ech refresh. Here for simplicity
+purposes we will be drawing text on each event but correct approach would have
+been to draw it on Expose events. But the text already became too be big so
+simplicity wins today.</p>
+<p>So in the main loop we add this code:</p>
+<pre tabindex="0"><code>const char* t1 = &#34;Hello, World!&#34;;
+const char* t2 = &#34;This is a test text directly written to X&#34;;
+const char* t3 = &#34;Whooha. Is this even legal? Let&#39;s keep a secret!&#34;;
+
+WriteText(Socket, WindowId, GcId, 10, 20, t1, strlen(t1));
+WriteText(Socket, WindowId, GcId, 10, 35, t2, strlen(t2));
+WriteText(Socket, WindowId, GcId, 10, 50, t3, strlen(t3));
+</code></pre><p>And that is it! Hey we build a simple window with text. Congratulations.</p>
+<p>Here is full source code which contains a bit more functionality than discussed
+in post (text movement and more detailed debug info):</p>
+<h3 id="final-code">Final code</h3>
+<pre tabindex="0"><code>#include &lt;sys/socket.h&gt;
+#include &lt;sys/un.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;stdint.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;unistd.h&gt;
+#include &lt;fcntl.h&gt;
+#include &lt;poll.h&gt;
+
+
+int32_t GlobalId = 0;
+int32_t GlobalIdBase = 0;
+int32_t GlobalIdMask = 0;
+int32_t GlobalRootWindow = 0;
+int32_t GlobalRootVisualId = 0;
+
+int32_t GlobalTextOffsetX = 10;
+int32_t GlobalTextOffsetY = 20;
+
+#define READ_BUFFER_SIZE 16*1024
+
+#define RESPONSE_STATE_FAILED 0
+#define RESPONSE_STATE_SUCCESS 1
+#define RESPONSE_STATE_AUTHENTICATE 2
+
+#define X11_REQUEST_CREATE_WINDOW 1
+#define X11_REQUEST_MAP_WINDOW 8
+#define X11_REQUEST_IMAGE_TEXT_8 76
+#define X11_REQUEST_OPEN_FONT 45
+#define X11_REQUEST_CREATE_GC 55
+
+
+#define X11_EVENT_FLAG_KEY_PRESS 0x00000001
+#define X11_EVENT_FLAG_KEY_RELEASE 0x00000002
+#define X11_EVENT_FLAG_EXPOSURE 0x8000
+
+
+#define WINDOWCLASS_COPYFROMPARENT 0
+#define WINDOWCLASS_INPUTOUTPUT 1
+#define WINDOWCLASS_INPUTONLY 2
+
+#define X11_FLAG_BACKGROUND_PIXEL 0x00000002 
+#define X11_FLAG_WIN_EVENT 0x00000800 
+
+#define X11_FLAG_FG 0x00000004
+#define X11_FLAG_BG 0x00000008
+#define X11_FLAG_FONT 0x00004000
+#define X11_FLAG_GC_EXPOSURE 0x00010000
+
+#define PAD(N) ((4 - (N % 4)) % 4)
+
+void VerifyOrDie(int IsSuccess, const char *Message) {
+    if(!IsSuccess)  {
+        fprintf(stderr, &#34;%s&#34;, Message);
+        exit(13);
+    }
+}
+
+void VerifyOrDieWidthErrno(int IsSuccess, const char *Message) {
+    if(!IsSuccess)  {
+        perror(Message);
+        exit(13);
+    }
+}
+
+void DumpResponseError(int Socket, char* ReadBuffer) {
+        uint8_t ReasonLength = ReadBuffer[1];
+        uint16_t MajorVersion = *((uint16_t*)&amp;ReadBuffer[2]);
+        uint16_t MinorVersion = *((uint16_t*)&amp;ReadBuffer[4]);
+        uint16_t AdditionalDataLength = *((uint16_t*)&amp;ReadBuffer[6]); // Length in 4-byte units of &#34;additional data&#34;
+        uint8_t *Message = (uint8_t*)&amp;ReadBuffer[8];
+
+        int BytesRead = read(Socket, ReadBuffer + 8, READ_BUFFER_SIZE-8);
+
+        printf(&#34;State: %d\n&#34;, ReadBuffer[0]);
+        printf(&#34;MajorVersion: %d\n&#34;, MajorVersion);
+        printf(&#34;MinorVersion: %d\n&#34;, MinorVersion);
+        printf(&#34;AdditionalDataLength: %d\n&#34;, AdditionalDataLength);
+        printf(&#34;Reason: %s\n&#34;, Message);
+}
+
+void AuthenticateX11() {
+    fprintf(stderr, &#34;Current version of the app does not support authentication.\n&#34;);
+    fprintf(stderr, &#34;Please run &#39;xhost +local:&#39; in your terminal to disable cookie based authentication\n&#34;);
+    fprintf(stderr, &#34;and allow local apps to communication with Xorg without it.&#34;);
+}
+
+int32_t GetNextId() {
+    int32_t Result = (GlobalIdMask &amp; GlobalId) | GlobalIdBase;
+    GlobalId += 1;
+    return Result;
+}
+
+void PrintResponseError(char *Data, int32_t Size) {
+    char ErrorCode = Data[1];
+    const char *ErrorNames[] = {
+        &#34;Unknown Error&#34;,
+        &#34;Request&#34;,
+        &#34;Value&#34;,
+        &#34;Window&#34;,
+        &#34;Pixmap&#34;,
+        &#34;Atom&#34;,
+        &#34;Cursor&#34;,
+        &#34;Font&#34;,
+        &#34;Match&#34;,
+        &#34;Drawable&#34;,
+        &#34;Access&#34;,
+        &#34;Alloc&#34;,
+        &#34;Colormap&#34;,
+        &#34;GContext&#34;,
+        &#34;IDChoice&#34;,
+        &#34;Name&#34;,
+        &#34;Length&#34;,
+        &#34;Implementation&#34;,
+    };
+
+    const char* ErrorName = &#34;Unknown error&#34;;
+    if(ErrorCode &lt; sizeof(ErrorNames) / sizeof(ErrorNames[0])) {
+        ErrorName = ErrorNames[ErrorCode];
+    }
+
+    
+    uint16_t Minor = *((uint16_t*)&amp;Data[8]);
+    uint8_t Major = *((uint8_t*)&amp;Data[10]);
+
+    printf(&#34;\033[0;31m&#34;);
+    printf(&#34;Response Error: [%d] %s&#34;, ErrorCode, ErrorName);
+    printf(&#34;	Minor: %d, Major: %d&#34;, Minor, Major);
+    printf(&#34;\033[0m\n&#34;);
+
+
+}
+
+void PrintAndProcessEvent(char *Data, int32_t Size) {
+    char EventCode = Data[0];
+    const char* EventNames[] = {
+        &#34;-- Wrong Event Code --&#34;,
+        &#34;-- Wrong Event Code --&#34;,
+        &#34;KeyPress&#34;,
+        &#34;KeyRelease&#34;,
+        &#34;ButtonPress&#34;,
+        &#34;ButtonRelease&#34;,
+        &#34;MotionNotify&#34;,
+        &#34;EnterNotify&#34;,
+        &#34;LeaveNotify&#34;,
+        &#34;FocusIn&#34;,
+        &#34;FocusOut&#34;,
+        &#34;KeymapNotify&#34;,
+        &#34;Expose&#34;,
+        &#34;GraphicsExposure&#34;,
+        &#34;NoExposure&#34;,
+        &#34;VisibilityNotify&#34;,
+        &#34;CreateNotify&#34;,
+        &#34;DestroyNotify&#34;,
+        &#34;UnmapNotify&#34;,
+        &#34;MapNotify&#34;,
+        &#34;MapRequest&#34;,
+        &#34;ReparentNotify&#34;,
+        &#34;ConfigureNotify&#34;,
+        &#34;ConfigureRequest&#34;,
+        &#34;GravityNotify&#34;,
+        &#34;ResizeRequest&#34;,
+        &#34;CirculateNotify&#34;,
+        &#34;CirculateRequest&#34;,
+        &#34;PropertyNotify&#34;,
+        &#34;SelectionClear&#34;,
+        &#34;SelectionRequest&#34;,
+        &#34;SelectionNotify&#34;,
+        &#34;ColormapNotify&#34;,
+        &#34;ClientMessage&#34;,
+        &#34;MappingNotify&#34;,
+    };
+
+#define REPLY_EVENT_CODE_KEY_PRESS 2
+#define REPLY_EVENT_CODE_EXPOSE 12
+
+const char* TERMINAL_TEXT_COLOR_RED = &#34;\033[0;32m&#34;;
+const char* TERMINAL_TEXT_COLOR_CLEAR = &#34;\033[0m&#34;;
+
+    if(EventCode == REPLY_EVENT_CODE_EXPOSE) {
+        // NOTE: Exposure event
+        const char *EventName = &#34;Expose&#34;;
+        uint16_t SequenceNumber = *((uint16_t*)&amp;Data[2]);
+        uint32_t Window = *((uint32_t*)&amp;Data[4]);
+        uint16_t X = *((uint16_t*)&amp;Data[8]);
+        uint16_t Y = *((uint16_t*)&amp;Data[10]);
+        uint16_t Width = *((uint16_t*)&amp;Data[12]);
+        uint16_t Height = *((uint16_t*)&amp;Data[14]);
+        uint16_t Count = *((uint16_t*)&amp;Data[16]);
+
+        printf(TERMINAL_TEXT_COLOR_RED);
+            printf(&#34;%s: &#34;, EventName);
+        printf(TERMINAL_TEXT_COLOR_CLEAR);
+
+        printf(&#34;Seq %d, &#34;, SequenceNumber);
+        printf(&#34;Win %d: &#34;, Window);
+        printf(&#34;X %d: &#34;, X);
+        printf(&#34;Y %d: &#34;, Y);
+        printf(&#34;Width %d: &#34;, Width);
+        printf(&#34;Height %d: &#34;, Height);
+        printf(&#34;Count %d: &#34;, Count);
+        printf(&#34;\n&#34;);
+        /* printf(&#34;%s: Seq %d\n&#34;, EventName, SequenceNumber); */
+    } else if(EventCode == REPLY_EVENT_CODE_KEY_PRESS) {
+        const char *EventName = &#34;KeyPress&#34;;
+        char KeyCode = Data[1];
+        uint16_t SequenceNumber = *((uint16_t*)&amp;Data[2]);
+        uint32_t TimeStamp = *((uint32_t*)&amp;Data[4]);
+        uint32_t RootWindow = *((uint32_t*)&amp;Data[8]);
+        uint32_t EventWindow = *((uint32_t*)&amp;Data[12]);
+        uint32_t ChildWindow = *((uint32_t*)&amp;Data[16]); // NOTE: Always 0
+        int16_t RootX = *((int16_t*)&amp;Data[20]);
+        int16_t RootY = *((int16_t*)&amp;Data[22]);
+        int16_t EventX = *((int16_t*)&amp;Data[24]);
+        int16_t EventY = *((int16_t*)&amp;Data[26]);
+        int16_t SetOfKeyButMask = *((int16_t*)&amp;Data[28]);
+        int8_t IsSameScreen = *((int8_t*)&amp;Data[30]);
+
+        printf(TERMINAL_TEXT_COLOR_RED);
+            printf(&#34;%s: &#34;, EventName);
+        printf(TERMINAL_TEXT_COLOR_CLEAR);
+
+        // NOTE: Temporary hack that will not work everywhere
+        int StepSize = 10;
+        if(KeyCode == 25) { GlobalTextOffsetY += StepSize; }
+        if(KeyCode == 39) { GlobalTextOffsetY -= StepSize; }
+        if(KeyCode == 38) { GlobalTextOffsetX -= StepSize; }
+        if(KeyCode == 40) { GlobalTextOffsetX += StepSize; }
+
+        printf(&#34;Code %u, &#34;, (uint8_t)KeyCode);
+        printf(&#34;Seq %d, &#34;, SequenceNumber);
+        printf(&#34;Time %d, &#34;, TimeStamp);
+        printf(&#34;Root %d, &#34;, RootWindow);
+        printf(&#34;EventW %d, &#34;, EventWindow);
+        printf(&#34;Child %d, &#34;, ChildWindow);
+        printf(&#34;RX %d, &#34;, RootX);
+        printf(&#34;RY %d, &#34;, RootY);
+        printf(&#34;EX %d, &#34;, EventX);
+        printf(&#34;EY %d, &#34;, EventY);
+        printf(&#34;\n&#34;);
+    } else {
+        const char* EventName = &#34; - Unknown Event Code -&#34;;
+        if(EventCode &lt; sizeof(EventNames) / sizeof(EventNames[0])) {
+            EventName = EventNames[EventCode];
+        }
+        // printf(&#34;-------------Event: %s\n&#34;, EventName);
+        // for(int i = 0; i &lt; Size; i++) {
+            // printf(&#34;%c&#34;, Data[i]);
+        // }
+        // printf(&#34;\n&#34;);
+    }
+
+}
+
+void GetAndProcessReply(int Socket) {
+    char Buffer[1024] = {};
+    int32_t BytesRead = read(Socket, Buffer, 1024);
+
+    uint8_t Code = Buffer[0];
+
+    if(Code == 0) {
+        PrintResponseError(Buffer, BytesRead);
+    } else if (Code == 1) {
+        printf(&#34;---------------- Unexpected reply\n&#34;);
+    } else {
+        // NOTE: Event?
+        PrintAndProcessEvent(Buffer, BytesRead);
+    }
+}
+
+int X_InitiateConnection(int Socket) { 
+    // TODO: Remove global variables and put them into &#39;connection&#39; struct.
+    int SetupStatus = 1;
+    char SendBuffer[16*1024] = {};
+    char ReadBuffer[16*1024] = {};
+
+    uint8_t InitializationRequest[12] = {};
+    InitializationRequest[0] = &#39;l&#39;;
+    InitializationRequest[1] = 0;
+    InitializationRequest[2] = 11;
+
+    int BytesWritten = write(Socket, (char*)&amp;InitializationRequest, sizeof(InitializationRequest));
+    VerifyOrDie(BytesWritten == sizeof(InitializationRequest), &#34;Wrong amount of bytes written during initialization&#34;);
+
+    int BytesRead = read(Socket, ReadBuffer, 8);
+
+    if(ReadBuffer[0] == RESPONSE_STATE_FAILED) {
+        DumpResponseError(Socket, ReadBuffer);
+    }
+    else if(ReadBuffer[0] == RESPONSE_STATE_AUTHENTICATE) {
+        AuthenticateX11();
+    }
+    else if(ReadBuffer[0] == RESPONSE_STATE_SUCCESS) {
+        printf(&#34;INIT Response SUCCESS. BytesRead: %d\n&#34;, BytesRead);
+
+        BytesRead = read(Socket, ReadBuffer + 8, READ_BUFFER_SIZE-8);
+        printf(&#34;---------------------------%d\n&#34;, BytesRead);
+
+        /* -------------------------------------------------------------------------------- */
+        uint8_t _Unused = ReadBuffer[1];
+        uint16_t MajorVersion = *((uint16_t*)&amp;ReadBuffer[2]);
+        uint16_t MinorVersion = *((uint16_t*)&amp;ReadBuffer[4]);
+        uint16_t AdditionalDataLength = *((uint16_t*)&amp;ReadBuffer[6]); // Length in 4-byte units of &#34;additional data&#34;
+
+        uint32_t ResourceIdBase = *((uint32_t*)&amp;ReadBuffer[12]);
+        uint32_t ResourceIdMask = *((uint32_t*)&amp;ReadBuffer[16]);
+        uint16_t LengthOfVendor = *((uint16_t*)&amp;ReadBuffer[24]);
+        uint8_t NumberOfFormants = *((uint16_t*)&amp;ReadBuffer[29]);
+        uint8_t *Vendor = (uint8_t *)&amp;ReadBuffer[40];
+
+        int32_t VendorPad = PAD(LengthOfVendor);
+        int32_t FormatByteLength = 8 * NumberOfFormants;
+        int32_t ScreensStartOffset = 40 + LengthOfVendor + VendorPad + FormatByteLength;
+
+        uint32_t RootWindow = *((uint32_t*)&amp;ReadBuffer[ScreensStartOffset]);
+        uint32_t RootVisualId = *((uint32_t*)&amp;ReadBuffer[ScreensStartOffset + 32]);
+
+        GlobalIdBase = ResourceIdBase;
+        GlobalIdMask = ResourceIdMask;
+        GlobalRootWindow = RootWindow;
+        GlobalRootVisualId = RootVisualId;
+
+        SetupStatus = 0;
+    }
+
+    return SetupStatus;
+}
+
+int X_CreatWindow(int Socket, int X, int Y, int Width, int Height) {
+    // TODO: Put this into &#39;connection&#39; struct
+    char SendBuffer[16*1024] = {};
+    char ReadBuffer[16*1024] = {};
+
+    int32_t WindowId = GetNextId();
+    int32_t Depth = 0;
+    uint32_t BorderWidth = 1;
+    int32_t CreateWindowFlagCount = 2;
+    int RequestLength = 8+CreateWindowFlagCount;
+
+    SendBuffer[0] = X11_REQUEST_CREATE_WINDOW;
+    SendBuffer[1] = Depth;
+    *((int16_t *)&amp;SendBuffer[2]) = RequestLength;
+    *((int32_t *)&amp;SendBuffer[4]) = WindowId;
+    *((int32_t *)&amp;SendBuffer[8]) = GlobalRootWindow;
+    *((int16_t *)&amp;SendBuffer[12]) = X;
+    *((int16_t *)&amp;SendBuffer[14]) = Y;
+    *((int16_t *)&amp;SendBuffer[16]) = Width;
+    *((int16_t *)&amp;SendBuffer[18]) = Height;
+    *((int16_t *)&amp;SendBuffer[20]) = BorderWidth;
+    *((int16_t *)&amp;SendBuffer[22]) = WINDOWCLASS_INPUTOUTPUT;
+    *((int32_t *)&amp;SendBuffer[24]) = GlobalRootVisualId;
+    *((int32_t *)&amp;SendBuffer[28]) = X11_FLAG_WIN_EVENT | X11_FLAG_BACKGROUND_PIXEL;
+    *((int32_t *)&amp;SendBuffer[32]) = 0xff000000;
+    *((int32_t *)&amp;SendBuffer[36]) = X11_EVENT_FLAG_EXPOSURE | X11_EVENT_FLAG_KEY_PRESS;
+
+    int BytesWritten = write(Socket, (char *)&amp;SendBuffer, RequestLength*4);
+
+    return WindowId;
+}
+
+int X_MapWindow(int Socket, int WindowId) {
+    // TODO: Put this into &#39;connection&#39; struct
+    char SendBuffer[16*1024] = {};
+    char ReadBuffer[16*1024] = {};
+
+    SendBuffer[0] = X11_REQUEST_MAP_WINDOW;
+    SendBuffer[1] = 0;
+    *((int16_t *)&amp;SendBuffer[2]) = 2;
+    *((int32_t *)&amp;SendBuffer[4]) = WindowId;
+
+    int BytesWritten = write(Socket, (char *)&amp;SendBuffer, 2*4);
+    return 0;
+}
+
+void X_OpenFont(int32_t Socket, char *FontName, int32_t FontId) {
+    char SendBuffer[16*1024] = {};
+    char ReadBuffer[16*1024] = {};
+    int BytesWritten = 0;
+    int BytesRead = 0;
+
+    int32_t FontNameLength = strlen((char *)FontName);
+    int32_t Pad = PAD(FontNameLength);
+    int RequestLength = (3 + (FontNameLength + Pad)/4);
+
+    SendBuffer[0] = X11_REQUEST_OPEN_FONT;
+    SendBuffer[1] = 0;
+    *((uint16_t *)&amp;SendBuffer[2]) = RequestLength;
+    *((uint32_t *)&amp;SendBuffer[4]) = FontId;
+    *((uint16_t *)&amp;SendBuffer[8]) = FontNameLength;
+    strncpy(SendBuffer + 12, (char *)FontName, FontNameLength);
+
+    int32_t WriteSize = 12 + FontNameLength + Pad;
+    BytesWritten = write(Socket, (char *)&amp;SendBuffer, WriteSize);
+}
+
+void X_CreateGC(int32_t Socket, int32_t GcId, int32_t FontId) {
+    char SendBuffer[16*1024] = {};
+
+    int32_t CreateGcFlagCount = 3;
+    int RequestLength = 4 + CreateGcFlagCount;
+
+    SendBuffer[0] = X11_REQUEST_CREATE_GC;
+    SendBuffer[1] = 0;
+    *((int16_t *)&amp;SendBuffer[2]) = RequestLength;
+    *((int32_t *)&amp;SendBuffer[4]) = GcId;
+    *((int32_t *)&amp;SendBuffer[8]) = GlobalRootWindow;
+    *((int32_t *)&amp;SendBuffer[12]) = X11_FLAG_FG | X11_FLAG_BG | X11_FLAG_FONT;
+    *((int32_t *)&amp;SendBuffer[16]) = 0xFF00FF00; // Foreground
+    *((int32_t *)&amp;SendBuffer[20]) = 0xFF000000; // Background
+    *((int32_t *)&amp;SendBuffer[24]) = FontId; // Font
+
+    write(Socket, (char *)&amp;SendBuffer, RequestLength*4);
+}
+
+void WriteText(int Socket, int WindowId, int GCid, int16_t X, int16_t Y, const char *Text, int32_t TextLength) {
+    char Buffer[16*1024] = {};
+
+    uint32_t ContentLength = 4 + (TextLength + PAD(TextLength))/4;
+
+    Buffer[0] = (uint8_t)X11_REQUEST_IMAGE_TEXT_8;
+    Buffer[1] = TextLength;
+    *((int16_t *)&amp;Buffer[2]) = ContentLength; 
+    *((int32_t *)&amp;Buffer[4]) = WindowId;
+    *((int32_t *)&amp;Buffer[8]) = GCid;
+    *((int16_t *)&amp;Buffer[12]) = X; 
+    *((int16_t *)&amp;Buffer[14]) = Y; 
+
+    strncpy(&amp;Buffer[16], (char *)Text, TextLength);
+    int BytesWritten = write(Socket, (char *)&amp;Buffer, ContentLength*4);
+}
+
+int main(){
+    int Socket = socket(AF_UNIX, SOCK_STREAM, 0);
+    VerifyOrDie(Socket &gt; 0, &#34;Couldn&#39;t open a socket(...)&#34;);
+
+    struct sockaddr_un Address;
+    memset(&amp;Address, 0, sizeof(struct sockaddr_un));
+    Address.sun_family = AF_UNIX;
+    strncpy(Address.sun_path, &#34;/tmp/.X11-unix/X0&#34;, sizeof(Address.sun_path)-1);
+
+    int Status = connect(Socket, (struct sockaddr *)&amp;Address, sizeof(Address));
+    VerifyOrDieWidthErrno(Status == 0, &#34;Couldn&#39;t connect to a unix socket with connect(...)&#34;);
+
+    int SetupStatus = X_InitiateConnection(Socket);
+
+    if(SetupStatus == 0) {
+        int32_t X = 100;
+        int32_t Y = 100;
+        uint32_t Width = 600;
+        uint32_t Height = 300;
+        int WindowId = X_CreatWindow(Socket, X, Y, Width, Height);
+
+        X_MapWindow(Socket, WindowId);
+
+        int32_t FontId = GetNextId();
+        X_OpenFont(Socket, (int8_t *)&#34;fixed&#34;, FontId);
+
+        int32_t GcId = GetNextId();
+        X_CreateGC(Socket, GcId, FontId);
+
+        struct pollfd PollDescriptors[1] = {};
+        PollDescriptors[0].fd = Socket;
+        PollDescriptors[0].events = POLLIN;
+        int32_t DescriptorCount = 1;
+        int32_t IsProgramRunning = 1;
+        while(IsProgramRunning){
+            int32_t EventCount = poll(PollDescriptors, DescriptorCount, -1);
+
+            if(PollDescriptors[0].revents &amp; POLLERR) {
+                printf(&#34;------- Error\n&#34;);
+            }
+
+            if(PollDescriptors[0].revents &amp; POLLHUP) {
+                printf(&#34;---- Connection close\n&#34;);
+                IsProgramRunning = 0;
+            }
+
+            char* t1 = &#34;Hello, World!&#34;;
+            char* t2 = &#34;This is a test text directly written to X&#34;;
+            char* t3 = &#34;Whooha. Is this even legal? Let&#39;s keep a secret!&#34;;
+            WriteText(Socket, WindowId, GcId, GlobalTextOffsetX, GlobalTextOffsetY, t1, strlen(t1));
+            WriteText(Socket, WindowId, GcId, GlobalTextOffsetX, GlobalTextOffsetY + 15, t2, strlen(t2));
+            WriteText(Socket, WindowId, GcId, GlobalTextOffsetX, GlobalTextOffsetY + 30, t3, strlen(t3));
+
+            GetAndProcessReply(PollDescriptors[0].fd);
+        }
+    }
+
+}
+</code></pre><p>Compile it with:
+<code>gcc main.c -o main</code></p>
+<p>Here is how it looks.</p>
+
+    
+<iframe style="background: gray;" class="full-width" height="400" src="https://www.youtube.com/embed/Bd8kat3Bisc" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
+
+
+<h2 id="conclusion">Conclusion</h2>
+<p>X Server is slowly being depricated in the linux world and being replaced
+Wayland. Still X11 is an interesting protocol to look at from the perspective of
+binary communication and management of resource which require fast speeds.</p>
+<p>In this post I tried to cover basic information and create a simple but working
+app that is simple, defined in single file and easily compiles. No external code
+except libc was used. I find it fascinating when you can open black boxes and
+see how gears move each other. Hope you liked it as well.</p>
+
+    </div>
+</div>
+
+        </div><div class='footer'>
+    <div class='page-wrap'>
+    &copy; 2024, Hereket 
+    </div>
+</div>
+
+
+</body>
+</html>
