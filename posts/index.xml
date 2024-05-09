@@ -2,164 +2,167 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Posts on Hereket</title>
-    <link>https://hereket.com/posts/</link>
+    <link>http://localhost:1313/posts/</link>
     <description>Recent content in Posts on Hereket</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
+    <managingEditor>info123@hereket.com (Hereket)</managingEditor>
+    <webMaster>info123@hereket.com (Hereket)</webMaster>
+    <copyright>Hereket All rights reserved</copyright>
     <lastBuildDate>Wed, 08 May 2024 01:35:54 +0500</lastBuildDate>
-    <atom:link href="https://hereket.com/posts/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://localhost:1313/posts/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Opening Windows in linux with sockets, bare hands and 200 lines of C</title>
-      <link>https://hereket.com/posts/from-scratch-x11-windowing/</link>
-      <pubDate>Wed, 08 May 2024 01:35:54 +0500</pubDate>
-      <guid>https://hereket.com/posts/from-scratch-x11-windowing/</guid>
+      <link>http://localhost:1313/posts/from-scratch-x11-windowing/</link>
+      <pubDate>Wed, 08 May 2024 01:35:54 +0500</pubDate><author>info123@hereket.com (Hereket)</author>
+      <guid>http://localhost:1313/posts/from-scratch-x11-windowing/</guid>
       <description>Intro In this post I want to create a single file C file program to open a windows inside Linux without using xlib or any similar libraries. The idea is to explore X11 protocol and see how it is used to interact with X server to create windows.&#xA;Before I had strong association that X11 was some magic thing to manipulate windows and it&amp;rsquo;s resources. I was very surprised to learn that it is actually just a &amp;ldquo;regular&amp;rdquo; network protocol for two parties to communicate like HTTP, FTP, IMAP, SMPT and etc.</description>
     </item>
     <item>
       <title>Equally distributing uploaded files with md5 hashing of timestamp</title>
-      <link>https://hereket.com/posts/hash-naming-uploaded-files/</link>
-      <pubDate>Wed, 01 May 2024 19:22:47 +0500</pubDate>
-      <guid>https://hereket.com/posts/hash-naming-uploaded-files/</guid>
+      <link>http://localhost:1313/posts/hash-naming-uploaded-files/</link>
+      <pubDate>Wed, 01 May 2024 19:22:47 +0500</pubDate><author>info123@hereket.com (Hereket)</author>
+      <guid>http://localhost:1313/posts/hash-naming-uploaded-files/</guid>
       <description>Lately I have been digging into django source code to find out how to get access to actual file field for renaming during upload in general case. This turned out to be impossible because this information is lost as django passes whole instance to upload_to instead of file field itself. There was a need to do some magic during file upload based on the actual file content hash. But during the exploration I found that for a long time I have been using two level depth folder structure to limit amount of files stored per folder.</description>
     </item>
     <item>
       <title>Xlib 05: Single file,local shadertoy with hot reloading</title>
-      <link>https://hereket.com/posts/x11_xlib_window_local_shadertoy/</link>
-      <pubDate>Sat, 27 Apr 2024 02:27:07 +0500</pubDate>
-      <guid>https://hereket.com/posts/x11_xlib_window_local_shadertoy/</guid>
+      <link>http://localhost:1313/posts/x11_xlib_window_local_shadertoy/</link>
+      <pubDate>Sat, 27 Apr 2024 02:27:07 +0500</pubDate><author>info123@hereket.com (Hereket)</author>
+      <guid>http://localhost:1313/posts/x11_xlib_window_local_shadertoy/</guid>
       <description>In last post we looked at doing some opengl and shaders with raw xlib. It was done in with single &amp;lsquo;.c&amp;rsquo; file for simplicity. Here we will create almost the same thing but with autoreloading shaders on content change. There still will be just one &amp;lsquo;.c&amp;rsquo; file but shaders will be split into their own files for easier editing.&#xA;The code as usual will be focused around simplicity and ignoring some error checking, speed optimization and etc.</description>
     </item>
     <item>
       <title>Poor mans autoreload server in single file python on linux</title>
-      <link>https://hereket.com/posts/linux_live_reload_python_server/</link>
-      <pubDate>Sat, 20 Apr 2024 14:45:52 +0500</pubDate>
-      <guid>https://hereket.com/posts/linux_live_reload_python_server/</guid>
+      <link>http://localhost:1313/posts/linux_live_reload_python_server/</link>
+      <pubDate>Sat, 20 Apr 2024 14:45:52 +0500</pubDate><author>info123@hereket.com (Hereket)</author>
+      <guid>http://localhost:1313/posts/linux_live_reload_python_server/</guid>
       <description>Introduction In this post I wanted to explore creating a simple python server with automatic browser page reload on content change. There are many livereload servers in the wild and I used quite a few of them. For example Hugo has a local server with auto reload, javascript developers have pretty good local servers when using react and etc.&#xA;But all these servers requre setup, download a lot of files, download runtimes or to put simply they have some friction.</description>
     </item>
     <item>
       <title>Xlib 04: From scratch opengl and shaders with raw Xlib</title>
-      <link>https://hereket.com/posts/x11_window_with_shaders/</link>
-      <pubDate>Tue, 26 Mar 2024 22:18:19 +0500</pubDate>
-      <guid>https://hereket.com/posts/x11_window_with_shaders/</guid>
+      <link>http://localhost:1313/posts/x11_window_with_shaders/</link>
+      <pubDate>Tue, 26 Mar 2024 22:18:19 +0500</pubDate><author>info123@hereket.com (Hereket)</author>
+      <guid>http://localhost:1313/posts/x11_window_with_shaders/</guid>
       <description>Introduction In the last post we looked into how to create a window with basic OpenGL using fixed function pipeline. In this post we will try to recreate the same scene but using more modern aproach using shaders. Here we will &amp;ldquo;bake&amp;rdquo; shaders inside our source code.&#xA;Here is the final code of 07_window_opengl_core_profile.c:&#xA;#include &amp;lt;stdio.h&amp;gt; #include &amp;lt;X11/Xlib.h&amp;gt; #include &amp;lt;unistd.h&amp;gt; #include &amp;lt;stdlib.h&amp;gt; #define GL_GLEXT_PROTOTYPES #include &amp;lt;GL/glx.h&amp;gt; #include &amp;lt;GL/glext.h&amp;gt; static int DoubleBufferAttributes[] = { GLX_RGBA, GLX_RED_SIZE, 1, GLX_GREEN_SIZE, 1, GLX_BLUE_SIZE, 1, GLX_DEPTH_SIZE, 12, GLX_DOUBLEBUFFER, None, }; void VerifyOrDie(int ResultStatus, const char *Message) { if(ResultStatus == 0) { fprintf(stderr, &amp;#34;%s&amp;#34;, Message); exit(2); } } void CheckShaderCompilation(unsigned int Shader) { int ResultStatus; char Buffer[512]; glGetShaderiv(Shader, GL_COMPILE_STATUS, &amp;amp;ResultStatus); if(ResultStatus == 0) { glGetShaderInfoLog(Shader, sizeof(Buffer), NULL, Buffer); printf(&amp;#34;ERROR: Shader compilation failed.</description>
     </item>
     <item>
       <title>Xlib 03: Opengl fixed function from scratch window in Xlib</title>
-      <link>https://hereket.com/posts/x11_opengl_window_fixed_function/</link>
-      <pubDate>Mon, 25 Mar 2024 22:18:19 +0500</pubDate>
-      <guid>https://hereket.com/posts/x11_opengl_window_fixed_function/</guid>
+      <link>http://localhost:1313/posts/x11_opengl_window_fixed_function/</link>
+      <pubDate>Mon, 25 Mar 2024 22:18:19 +0500</pubDate><author>info123@hereket.com (Hereket)</author>
+      <guid>http://localhost:1313/posts/x11_opengl_window_fixed_function/</guid>
       <description>Introduction We will continue exploring creating windows from scratch in linux using Xlib. Here we will look into opening basic window and draw onto it using opengl using fixed function pipeline. You can look into previous post if you want to compare this approach with software rendering.&#xA;I wanted to start with fixed-function because it is a lot easier and can help understand basics of opengl setup. Once you know how to start with basic opengl then moving to shaders will be a bit easier than trying to grasp all at the same time.</description>
     </item>
     <item>
       <title>Xlib 02: Software rendering window in X11</title>
-      <link>https://hereket.com/posts/x11_software_rendering_window/</link>
-      <pubDate>Sat, 23 Mar 2024 22:18:19 +0500</pubDate>
-      <guid>https://hereket.com/posts/x11_software_rendering_window/</guid>
+      <link>http://localhost:1313/posts/x11_software_rendering_window/</link>
+      <pubDate>Sat, 23 Mar 2024 22:18:19 +0500</pubDate><author>info123@hereket.com (Hereket)</author>
+      <guid>http://localhost:1313/posts/x11_software_rendering_window/</guid>
       <description>Introduction This is continuation of the previous post about creating windows using Xlib/X11. In this post I will show how to start basic software rendering inside linux from scratch usin Xlib.&#xA;Full Code 05_window_software_renderer.c&#xA;#include &amp;lt;X11/Xlib.h&amp;gt; #include &amp;lt;X11/Xutil.h&amp;gt; #include &amp;lt;stdio.h&amp;gt; #include &amp;lt;stdint.h&amp;gt; #include &amp;lt;stdlib.h&amp;gt; #define STATUS_ERROR 0 typedef struct { int X; int Y; int Width; int Height; } entity; typedef struct { uint8_t *Memory; uint64_t Size; uint32_t Width; uint32_t Height; uint32_t Pitch; } buffer ; float Clamp(float Min, float Value, float Max) { if(Value &amp;lt; Min) { Value = Min; } else if(Value &amp;gt; Max) { Value = Max; } return Value; } void DrawRect(buffer *Buffer, int32_t X, int32_t Y, int32_t Width, int32_t Height, uint32_t Color) { int32_t StartX = X; int32_t EndX = X + Width; int32_t StartY = Y; int32_t EndY = Y + Height; StartX = Clamp(0, StartX, Buffer-&amp;gt;Width); EndX = Clamp(0, EndX , Buffer-&amp;gt;Width); StartY = Clamp(0, StartY, Buffer-&amp;gt;Height); EndY = Clamp(0, EndY , Buffer-&amp;gt;Height); for(int Y = StartY; Y &amp;lt; EndY; Y++) { for(int X = StartX; X &amp;lt; EndX; X++) { uint32_t *Pixel = (uint32_t *)((uint32_t *)Buffer-&amp;gt;Memory + Y*Buffer-&amp;gt;Width + X); *Pixel = Color; } } } void DoRender(buffer* Buffer, entity Box) { DrawRect(Buffer, 0, 0, Buffer-&amp;gt;Width, Buffer-&amp;gt;Height, 0xff87de87); /* DrawRect(Buffer, 10, 10, 50, 80, 0xff00aa44); */ DrawRect(Buffer, Box.</description>
     </item>
     <item>
       <title>Xlib 01: Creating windows from scratch with Xlib on Linux</title>
-      <link>https://hereket.com/posts/linux_creating_x11_windows/</link>
-      <pubDate>Wed, 20 Mar 2024 22:18:19 +0500</pubDate>
-      <guid>https://hereket.com/posts/linux_creating_x11_windows/</guid>
+      <link>http://localhost:1313/posts/linux_creating_x11_windows/</link>
+      <pubDate>Wed, 20 Mar 2024 22:18:19 +0500</pubDate><author>info123@hereket.com (Hereket)</author>
+      <guid>http://localhost:1313/posts/linux_creating_x11_windows/</guid>
       <description>Introduction In this post I wanted to go over creating windows using raw Xlib (X11) and show how to approach the task if you want to do it from scratch. Current trend is to use Wayland and a lot of distros already switched to using it but still there are a very large portion of computers that are using X11.&#xA;When I first was learning how to open working with X11 it was very problematic to find any tutorial that clearly showed basics and allowed me to start playing around quickly.</description>
     </item>
     <item>
       <title>How flutter uses certificate authorities</title>
-      <link>https://hereket.com/posts/flutter-ca-certificates/</link>
-      <pubDate>Wed, 20 Dec 2023 14:01:14 +0500</pubDate>
-      <guid>https://hereket.com/posts/flutter-ca-certificates/</guid>
+      <link>http://localhost:1313/posts/flutter-ca-certificates/</link>
+      <pubDate>Wed, 20 Dec 2023 14:01:14 +0500</pubDate><author>info123@hereket.com (Hereket)</author>
+      <guid>http://localhost:1313/posts/flutter-ca-certificates/</guid>
       <description>Few month ago I wrote an article explaining which CAs flutter compiles inside the app but recently I was trying to explore how it loads those certificaes from memory and found out that my assumption about compiled-in root certificates was probably wrong.&#xA;I did a quick skim through dart source code and it looked to me that it was not compiling in CAs into the final app. So I decided a quick test on android to see if the app even tries to look into system list of Certificate Authorities.</description>
     </item>
     <item>
       <title>Programmatically populating django with random and real data</title>
-      <link>https://hereket.com/posts/django-populate-with-random-data/</link>
-      <pubDate>Tue, 12 Dec 2023 05:59:52 +0500</pubDate>
-      <guid>https://hereket.com/posts/django-populate-with-random-data/</guid>
+      <link>http://localhost:1313/posts/django-populate-with-random-data/</link>
+      <pubDate>Tue, 12 Dec 2023 05:59:52 +0500</pubDate><author>info123@hereket.com (Hereket)</author>
+      <guid>http://localhost:1313/posts/django-populate-with-random-data/</guid>
       <description>Introduction One of the best features of Django is the speed it provides to develop fast prototypes. It does not mean that it is a framework to develop prototypes but it is very helpful for building quick and fast prototypes when you need one. It is my first when I need to build a proof of concept for something or when I want quickly prepare something for a presentation. Yet one feature that I was always missing is the ability to quickly populate datatabase with some random (or real) data just to see how it all fits together while you are just shaping your ideas.</description>
     </item>
     <item>
       <title>Using ligatures as icons on a website</title>
-      <link>https://hereket.com/posts/iconified_ligatures/</link>
-      <pubDate>Wed, 06 Sep 2023 16:22:30 +0500</pubDate>
-      <guid>https://hereket.com/posts/iconified_ligatures/</guid>
+      <link>http://localhost:1313/posts/iconified_ligatures/</link>
+      <pubDate>Wed, 06 Sep 2023 16:22:30 +0500</pubDate><author>info123@hereket.com (Hereket)</author>
+      <guid>http://localhost:1313/posts/iconified_ligatures/</guid>
       <description>You can look at font icons here: Font icon ligatures&#xA;Intro There are two reasons why I got interested in reasearching about this topic. First of a lot of google products loads garbage when you are not using super fast internet speeds. The main most noticeble one used to gmail but it looks like they fixed it now.&#xA;But even though it was annoying it didn&amp;rsquo;t spark enough enterest to go and dig deeper to understand reasons behind it.</description>
     </item>
     <item>
       <title>Monitoring Raw X11 Communication or why Chromium opens 7 Xorg connections</title>
-      <link>https://hereket.com/posts/monitoring-raw-x11-communication/</link>
-      <pubDate>Fri, 11 Aug 2023 03:45:55 +0500</pubDate>
-      <guid>https://hereket.com/posts/monitoring-raw-x11-communication/</guid>
+      <link>http://localhost:1313/posts/monitoring-raw-x11-communication/</link>
+      <pubDate>Fri, 11 Aug 2023 03:45:55 +0500</pubDate><author>info123@hereket.com (Hereket)</author>
+      <guid>http://localhost:1313/posts/monitoring-raw-x11-communication/</guid>
       <description>This is partly a continuation of previous article on this topic: Exploring Xorg connections&#xA;While exploring Xorg and its connections I stumbled upong interesting fact that some apps open multiple connections to Xorg even though they have just one window. For example chromium had 7, skype 8, firefox and telegram had each 2 connections. Since Skype connection count was suspisiously close to chromeium I immediately assumed that it is all because of Electron since it is based on chromium.</description>
     </item>
     <item>
       <title>Exploring Xorg connections</title>
-      <link>https://hereket.com/posts/exploring-xorg-connections/</link>
-      <pubDate>Mon, 07 Aug 2023 03:04:42 +0500</pubDate>
-      <guid>https://hereket.com/posts/exploring-xorg-connections/</guid>
+      <link>http://localhost:1313/posts/exploring-xorg-connections/</link>
+      <pubDate>Mon, 07 Aug 2023 03:04:42 +0500</pubDate><author>info123@hereket.com (Hereket)</author>
+      <guid>http://localhost:1313/posts/exploring-xorg-connections/</guid>
       <description>There is part two: Monitoring Raw X11 Communication or why Chromium opens 7 Xorg connections&#xA;Lately I have been playing around with raw X11 protocol by writing apps that work directly with Xorg by establishing a unix socket connection with it. It was pretty fun to play with and feels like easier than Xlib (but maybe I just got better). While doing all that I got interested with how other programs interact with Xorg and decided to explore how other programs do it and look at programs taht don&amp;rsquo;t have &amp;lsquo;perceptible&amp;rsquo; windows but still maintain connections.</description>
     </item>
     <item>
       <title>Flutter Embedded Certificate Authorities</title>
-      <link>https://hereket.com/posts/flutter-embedded-ca/</link>
-      <pubDate>Wed, 02 Aug 2023 14:01:14 +0500</pubDate>
-      <guid>https://hereket.com/posts/flutter-embedded-ca/</guid>
+      <link>http://localhost:1313/posts/flutter-embedded-ca/</link>
+      <pubDate>Wed, 02 Aug 2023 14:01:14 +0500</pubDate><author>info123@hereket.com (Hereket)</author>
+      <guid>http://localhost:1313/posts/flutter-embedded-ca/</guid>
       <description>IMPORTANT: This note is wrong about flutter always using embedded CA certificates for validation. There is a new corrected note about how it works: How flutter uses certificate authorities&#xA;Flutter apps in contrast to general approch embeds CAs (Certificate Authority) right into the app and do not rely on operating system to verify the validity of an SSL certificate. At first I thought that this was &amp;ldquo;feature&amp;rdquo; of the flutter framework when I first encountered some issues with it but upon investigation I found that this part of dart language implementation.</description>
     </item>
     <item>
       <title>Flutter vs Vanilla javascript</title>
-      <link>https://hereket.com/posts/flutter-vs-vanilla-js/</link>
-      <pubDate>Tue, 01 Aug 2023 02:37:38 +0500</pubDate>
-      <guid>https://hereket.com/posts/flutter-vs-vanilla-js/</guid>
+      <link>http://localhost:1313/posts/flutter-vs-vanilla-js/</link>
+      <pubDate>Tue, 01 Aug 2023 02:37:38 +0500</pubDate><author>info123@hereket.com (Hereket)</author>
+      <guid>http://localhost:1313/posts/flutter-vs-vanilla-js/</guid>
       <description>tldr: Compare flutter with js for web dev.&#xA;You can play with:&#xA;vanilla js or&#xA;flutter web (canvaskit) or&#xA;flutter web (html renderer)&#xA;If you are on mobile and whant to see how they look go to Video section&#xA;Important: When used with flutter html renderer this app became about 2 Mb in size and just over 500 Kb compressed. Go the apps above look around.&#xA;Introduction Flutter is framework to develop apps for android and ios.</description>
     </item>
     <item>
       <title>Vim tiny IDE: edit-compile-edit cycle for fast error browsing</title>
-      <link>https://hereket.com/posts/vim_ide_compile_cycle/</link>
-      <pubDate>Mon, 24 Jul 2023 15:25:51 +0500</pubDate>
-      <guid>https://hereket.com/posts/vim_ide_compile_cycle/</guid>
+      <link>http://localhost:1313/posts/vim_ide_compile_cycle/</link>
+      <pubDate>Mon, 24 Jul 2023 15:25:51 +0500</pubDate><author>info123@hereket.com (Hereket)</author>
+      <guid>http://localhost:1313/posts/vim_ide_compile_cycle/</guid>
       <description>This is continuation of previous post: VIM and Tmux as a tiny quasi IDE&#xA;Intro Here in this post I will show you how I use a bit of scripting together with vim&amp;rsquo;s quickfix window to speed up my workflow of finding compilation errors. There reason to use bash instead of makefiles is because it is easier for me to reason what is happening in bash script than in makefile and it is just easier to debug when compared to makefiles.</description>
     </item>
     <item>
       <title>VIM and Tmux as a tiny quasi IDE</title>
-      <link>https://hereket.com/posts/vim_tmux_ide/</link>
-      <pubDate>Sat, 22 Jul 2023 17:22:46 +0500</pubDate>
-      <guid>https://hereket.com/posts/vim_tmux_ide/</guid>
+      <link>http://localhost:1313/posts/vim_tmux_ide/</link>
+      <pubDate>Sat, 22 Jul 2023 17:22:46 +0500</pubDate><author>info123@hereket.com (Hereket)</author>
+      <guid>http://localhost:1313/posts/vim_tmux_ide/</guid>
       <description>watch video&#xA;There are multiple approaches to development and everyone has a some style of how they like to approach this process. Every task requires could require totally different approach and different IDE. So if I do native Android or Flutter developemnt it is natural for me to Android Stuio, for Java code it is Intellij, for Qt it is more comforatable if Qt Creator is used.&#xA;Here I use pharase &amp;ldquo;quasi IDE&amp;rdquo; to separate from trandional understanding of an IDE.</description>
     </item>
     <item>
       <title>Easy todo and notes management with VIM, dmenu and bash</title>
-      <link>https://hereket.com/posts/todo_note_management/</link>
-      <pubDate>Sat, 22 Jul 2023 02:24:15 +0500</pubDate>
-      <guid>https://hereket.com/posts/todo_note_management/</guid>
+      <link>http://localhost:1313/posts/todo_note_management/</link>
+      <pubDate>Sat, 22 Jul 2023 02:24:15 +0500</pubDate><author>info123@hereket.com (Hereket)</author>
+      <guid>http://localhost:1313/posts/todo_note_management/</guid>
       <description>I have been taking notes and managing my todo lists for quite some time. During this time I have used different tools for both. For note taking I tried evernote, google docs, obsidian, OneNote, regular files and quite a few others. The same goes for todo lists. I probably used everything from top 20 list for apps for todo management (even taskwarrior). But in the end I ended up using just neovim, dmenu and a little bit of shell magic.</description>
     </item>
     <item>
       <title>Instant code reload in Android</title>
-      <link>https://hereket.com/posts/instant_code_reload/</link>
-      <pubDate>Fri, 21 Jul 2023 02:00:19 +0500</pubDate>
-      <guid>https://hereket.com/posts/instant_code_reload/</guid>
+      <link>http://localhost:1313/posts/instant_code_reload/</link>
+      <pubDate>Fri, 21 Jul 2023 02:00:19 +0500</pubDate><author>info123@hereket.com (Hereket)</author>
+      <guid>http://localhost:1313/posts/instant_code_reload/</guid>
       <description>Introduction Here I am presenting one possible way to do &amp;ldquo;on the fly code reloading&amp;rdquo; of JNI code. The whole code is C/C++ compiled in 2 shared libraries and realoded on demand without restaring the application.&#xA;This example uses a game tiny &amp;ldquo;game&amp;rdquo; where you just walk around space. This is just a placeholder idea borrowed from Casey Muratori&amp;rsquo;s Handmade Hero youtube series.&#xA;The build process used in this project is described in: Build android apk from command line without gradle post.</description>
     </item>
     <item>
       <title>Build android apk from command line without gradle</title>
-      <link>https://hereket.com/posts/android_from_command_line/</link>
-      <pubDate>Wed, 19 Jul 2023 00:00:00 +0000</pubDate>
-      <guid>https://hereket.com/posts/android_from_command_line/</guid>
+      <link>http://localhost:1313/posts/android_from_command_line/</link>
+      <pubDate>Wed, 19 Jul 2023 00:00:00 +0000</pubDate><author>info123@hereket.com (Hereket)</author>
+      <guid>http://localhost:1313/posts/android_from_command_line/</guid>
       <description>Introduction This is post is similar to the one about building flutter but a bit different. Actually this one was written a few years prior to writing flutter version but just never got published. Since then some steps has changed and I moved to Java 11. But you if you still build with java 8 old build method is still surprisingly functional.&#xA;So the idea is to build and APK file which then can be installed on an android phone without using gradle and doing each step &amp;ldquo;manually&amp;rdquo;.</description>
     </item>
     <item>
       <title>Building flutter android app without gradle</title>
-      <link>https://hereket.com/posts/flutter_without_gradle/</link>
-      <pubDate>Thu, 13 Jul 2023 12:01:36 +0500</pubDate>
-      <guid>https://hereket.com/posts/flutter_without_gradle/</guid>
+      <link>http://localhost:1313/posts/flutter_without_gradle/</link>
+      <pubDate>Thu, 13 Jul 2023 12:01:36 +0500</pubDate><author>info123@hereket.com (Hereket)</author>
+      <guid>http://localhost:1313/posts/flutter_without_gradle/</guid>
       <description>Initial draft&#xA;Introduction Flutter is a very useful framework which does quite a lot of heavy lifting and hides all the dirty details inside a black box. It is very good when you want get the job done but I really like opening black boxes as I really don&amp;rsquo;t like magic.&#xA;The sole reasoning behind this project is to build a &amp;lsquo;hello world&amp;rsquo; project with as few steps as possible and in the end build an apk file which could be installed on an android phone.</description>
     </item>
     <item>
       <title>Web analalytics effect on a mobile page</title>
-      <link>https://hereket.com/posts/web_analytics_effects/</link>
-      <pubDate>Thu, 06 Jul 2023 20:48:32 +0500</pubDate>
-      <guid>https://hereket.com/posts/web_analytics_effects/</guid>
+      <link>http://localhost:1313/posts/web_analytics_effects/</link>
+      <pubDate>Thu, 06 Jul 2023 20:48:32 +0500</pubDate><author>info123@hereket.com (Hereket)</author>
+      <guid>http://localhost:1313/posts/web_analytics_effects/</guid>
       <description>What happened? So I create this site to test some ideas this time I chose to use a &amp;lsquo;static site&amp;rsquo; approach. There is no specific reason why I chose it to be this way it is just I wanted to try something that I have not tried before. My last test was with django.&#xA;So one of my first experiments I wanted to do is to stack different web analytics tool on the page and see how they behave and report data for later comparison.</description>
     </item>
   </channel>

@@ -181,4 +181,7 @@ video {
     color: #949493;
 }
 
-
+.footer .container{
+    display: flex;
+    justify-content: space-between;
+}
