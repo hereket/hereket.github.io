@@ -56,6 +56,8 @@ code {
     background: #b2b1c3;
     padding: 3px 9px;
     border-radius: 5px;
+    font-family: monospace;
+    font-size: 0.9em;
 }
 
 
@@ -69,7 +71,7 @@ pre {
 }
 pre code {
     background-color: #333;
-    font-size: 1.1em;
+    /* font-size: 1.1em; */
     line-height: 1.3em;
     font-weight: normal;
 }

@@ -4,13 +4,20 @@
     <title>Hereket</title>
     <link>https://hereket.com/</link>
     <description>Recent content on Hereket</description>
-    <generator>Hugo -- gohugo.io</generator>
+    <generator>Hugo</generator>
     <language>en-us</language>
     <managingEditor>info123@hereket.com (Hereket)</managingEditor>
     <webMaster>info123@hereket.com (Hereket)</webMaster>
     <copyright>Hereket All rights reserved</copyright>
-    <lastBuildDate>Wed, 08 May 2024 01:35:54 +0500</lastBuildDate>
+    <lastBuildDate>Thu, 16 May 2024 13:03:59 +0500</lastBuildDate>
     <atom:link href="https://hereket.com/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>BashFu - Open X11 window with netcat, echo, pipes and file system</title>
+      <link>https://hereket.com/posts/opening-x11-window-with-bash-nc-echo/</link>
+      <pubDate>Thu, 16 May 2024 13:03:59 +0500</pubDate><author>info123@hereket.com (Hereket)</author>
+      <guid>https://hereket.com/posts/opening-x11-window-with-bash-nc-echo/</guid>
+      <description>This post is continuation of previous crazy post about creating X11 windows with c and sockets but a little more crazier. There is a thin line between genious and insanity and this time winds blew us to the side of crazines. The problem is that I nerd sniped myself into thinking that since opening X11 windows is just &amp;ldquo;networking&amp;rdquo;, it should be possible in few lines of bash to send correct bytes to X server and open a window.</description>
+    </item>
     <item>
       <title>Opening windows in linux with sockets, bare hands and 200 lines of C</title>
       <link>https://hereket.com/posts/from-scratch-x11-windowing/</link>

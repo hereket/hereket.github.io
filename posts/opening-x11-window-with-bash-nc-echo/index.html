@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    
+
+    <link rel="icon" type="image/x-icon" href="/image/favicon.ico">
+    <link rel="canonical" href="https://hereket.com/posts/opening-x11-window-with-bash-nc-echo/" />
+
+    
+    
+
+    <link rel="stylesheet" type="text/css" href="/css/base.css?0">
+
+    <script type="text/javascript" src="/js/base.js?0" ></script>
+
+    <link rel="alternate" type="application/rss+xml" href="https://hereket.com//index.xml" title="Hereket">
+
+
+    
+    
+    <title>BashFu - Open X11 window with netcat, echo, pipes and file system | Hereket</title>
+</head>
+<body>
+        <div id="nav-border" class="container header">
+    <div class='page-wrap content'>
+        <a href="/"><div class="header-logo"> Hereket </div></a>
+        <nav id="nav" class="nav">
+            
+            <a class="nav-link" href="/">
+            
+            Posts
+            </a>
+            
+            <a class="nav-link" href="/tiny/">
+            
+            Tiny
+            </a>
+            
+        </nav>
+        <div class="contacts">
+            <a class="item" href="mailto:info123@hereket.com"><img src="/image/icon-email.png"></a>
+            <a class="item" href="https://twitter.com/alfred_tweet"><img src="/image/icon-twitter.png"></a>
+    <link rel="icon" type="image/x-icon" href="/image/favicon.ico">
+        </div>
+    </div>
+</div>
+<div id="content">
+<div class="page-wrap article">
+    <div class='main-content article'>
+        <h1>BashFu - Open X11 window with netcat, echo, pipes and file system</h1>
+        
+        <div><time class='post-time' datetime="2024-05-16">2024-05-16</time></div>
+        
+        <br><br>
+        <nav id="TableOfContents">
+  <ul>
+    <li><a href="#setup">Setup</a></li>
+    <li><a href="#connection-setup">Connection setup</a></li>
+    <li><a href="#initialize-x11-connection">Initialize X11 connection</a></li>
+    <li><a href="#create-window">Create window</a></li>
+    <li><a href="#mapping-window">Mapping window</a></li>
+    <li><a href="#event-loop">&ldquo;Event loop&rdquo;</a></li>
+    <li><a href="#final-code">Final code</a></li>
+    <li><a href="#conclusion">Conclusion</a></li>
+  </ul>
+</nav>
+        <p><img src="/posts/opening-x11-window-with-bash-nc-echo/head.png" alt="heading"></p>
+
+    
+<br>
+<iframe style="background: gray;" class="full-width" height="400" src="https://www.youtube.com/embed/kkIGb8hg634" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
+
+
+
+<p>This post is continuation of previous crazy post about <a href="/posts/opening-x11-window-with-bash-nc-echo/">creating X11 windows
+with c and sockets</a> but a little
+more crazier. There is a thin line between genious and insanity and this time
+winds blew us to the side of crazines. The problem is that I nerd sniped myself
+into thinking that since opening X11 windows is just &ldquo;networking&rdquo;, it should be
+possible in few lines of bash to send correct bytes to X server and open a window.</p>
+<p>A little disclaimer. My knowledge of bash is close to zero and what I am about
+to do is probably all bad bash practices collected in one place but it works. I
+am sure there are bash experts there that can tell what could have been done
+better and I will be very glad to hear about that. But for now this is all I
+got.</p>
+<p>Since I used netcat for different learning and debugging purposes I thought that
+I could just somehow do the same thing with X server. The illusion was that I could
+initiate a connection, get a socket/fd and then just send bytes with several
+netcat commands. But after initial research I found that it is not possible to
+do with netcat. My limitation was &ldquo;<strong>I can only use whatever is intalled on my
+computer</strong>&rdquo; and cannot use programmig languages like python or perl by sending
+stringified code to them. First I though &ldquo;well it is not possible&rdquo; and just
+forgot about it for a while but then got an idea of sending netcat to the
+background.</p>
+<p>When launched netcat allows us to send and recieve bytes bu just typing. But
+since X11 is binary it is hard to type and then decode returned information.
+Also it is not fun to work with binary by typing it all the time. If we try to
+send binary data with a script first call to nc will block and we can send just
+one portion of data. For this we just need to send netcat to &ldquo;4th dimension&rdquo; so
+that we can do our dirty work in our 3rd dimension without being blocked. For
+this trick to work we will need to maintain some connection with netcat a named
+(FIFO) pipes.</p>
+<h2 id="setup">Setup</h2>
+<p>Tools for today: <strong>nc, echo, print, rm, mkfifo, head, cat</strong>.</p>
+<p>First of all I will create four files. Two fifo files which will function as two
+pipes to send and recived data from netcat. Two regular files as as temporary
+buffers for collecting recieved data and collecting data before sending. We
+don&rsquo;t actually need this many but I found it to be easier to monitor and debug
+when something goes wrong. We probably could get away without using any
+buffering files but it felt easier to use (for me) and I use them as byte
+arrays.</p>
+<pre tabindex="0"><code>READ_BUFFER=&#34;/tmp/out.buffer.temp&#34;
+SEND_BUFFER=&#34;/tmp/in.buffer.temp&#34;
+SEND_FIFO=&#34;/tmp/send_fifo.pipe&#34;
+RECIEVE=&#34;/tmp/recieve_fifo.pipe&#34;
+
+rm -f $SEND_FIFO;   mkfifo $SEND_FIFO
+rm -f $RECIEVE; mkfifo $RECIEVE
+</code></pre><p><img src="/posts/opening-x11-window-with-bash-nc-echo/basic.png" alt="Basic setup"></p>
+<p>Will be storing all variable in <strong>/tmp</strong> folder but during experimenting phase I
+was storing them in the same folder where the script was for convenience of
+inspecting them with <strong>hexdump -X</strong>. FIFO files are removed on script start to
+clear data and close all leftover connections.</p>
+<p><img src="/posts/opening-x11-window-with-bash-nc-echo/with-buffers.png" alt="x11 bash with buffers"></p>
+<h2 id="connection-setup">Connection setup</h2>
+<p>We start by just asking netcat to connect to <strong>unix domain socket</strong> which is one
+just one more file located at <strong>/tmp/.X11-unix/X0</strong>.</p>
+<pre tabindex="0"><code>nc -U /tmp/.X11-unix/X0 &lt; $SEND_FIFO &gt; $RECIEVE_FIFO &amp;
+NC_PID=$!
+</code></pre><p><strong>nc -U /tmp/.X11-unix/X0</strong> is a regular command that we usually use. Then we
+have &ldquo;&lt;&gt;&amp;&rdquo; special chars.  <strong>&lt;</strong> is telling next coming file to be our input or
+in this case change <strong>stdin</strong> of netcat to be our $SEND_INFO file. <strong>&gt;</strong> is
+similar but sets stdout of netcat. And finally we use <strong>&amp;</strong> to tell bash to send
+netcat to background and not block our actions.  <strong>$!</strong> is asking bash to give
+us pid of the last command so that we can store pid of netcat to close it when
+we are done with it.</p>
+<p>This should have been it but unfortunately there is one little detail that took
+me quite some time to debug. The FIFOs that we created will work fine but
+commands for reading and writing like <strong>echo, cat, head</strong> and others will close
+the stream once they are done. This means that when we use, for example echo, to
+send data it will send the data and close our FIFO stream and later echo
+commands just will not work. For this we will use <strong>exec</strong> command. We are used
+to use it to &ldquo;execute&rdquo; commands but it has one more feature of copying file
+descriptors. So we will copy our FIFOs into files descriptors with ids of 3 and
+4.</p>
+<pre tabindex="0"><code>exec 3&gt;$SEND_FIFO
+exec 4&lt;$RECIEVE_FIFO
+</code></pre><p>With this we do all our writing to fd 3 when we want to send data and read from
+fd 4 to get result from netcat without closing corresponding streams.</p>
+<h2 id="initialize-x11-connection">Initialize X11 connection</h2>
+<p>To initialize connection we will do pretty much the same thing as we did in last
+post. First send data to ask Xorg for inilization and get back data that is
+needed for later communication. The only differerence is we will use big endian
+format for data sending and recieving (in last post we used little endian). It
+does not really matter which one to use but big endian is a little easier to
+write and read for a human.</p>
+<p>This command we will just write as it is as it is pretty simple.</p>
+<pre tabindex="0"><code>INIT_REQUEST=&#34;\x42\x0\x0\xb\x0\x0\x0\x0\x0\x0\x0\x0&#34;
+</code></pre><p>Very first byte tell if we want to use big endian <strong>(0x42)</strong> or little endian <strong>(0x6c)</strong>
+for communication. Then we have unused byte. Then we have 2 bytes describing
+major version of protocol. Since we are using X11, the version is 11 or 0xb. In
+big endian it becomes 0x000b or \x0\b in bash string. Everything else is just 0.
+These bytes are about authorization but for simplicity we will no use them to
+reduce amount of commands that we need to write. But for thise to work we would
+have to temporarily allow programs to start without authorization with
+&ldquo;<strong>xhost +local:</strong>&rdquo;, to turn it of use <strong>&ldquo;xhost -local:&rdquo;</strong>.</p>
+<p>Now we need to send these bytes to netcat which in turn will send it to X server.
+For this will wil just use simple <strong>echo</strong> command. <strong>-n</strong> is used to tell echo
+to not add newline to the data and <strong>-e</strong> tell echo to treach *<em>*</em> chars as
+special char which is needed to input binary data.</p>
+<pre tabindex="0"><code>echo -n -e $INIT_REQUEST &gt;&amp;3
+</code></pre><p>Here we are redirecting output of echo into fd 3 which in turn will redirect it
+to sending fifo. Netcat will see data on the pipe, read it and send over. Then
+it will get response back from X server and send it over &lsquo;sending&rsquo; FIFO which
+will come back at fd 4. But how do we read it? Since it is a stream it will not
+end and we will get blocked again. I tried several approaches and found that
+using <strong>head</strong> command was the easiest.</p>
+<pre tabindex="0"><code>get_int_1() { file=$1; offset=$2; od --endian=big -j $offset -N 1 -An -t d1 $file; }
+get_int_2() { file=$1; offset=$2; od --endian=big -j $offset -N 2 -An -t d2 $file; }
+get_int_4() { file=$1; offset=$2; od --endian=big -j $offset -N 4 -An -t d4 $file; }
+
+head -c 8 &lt;&amp;4 &gt; $READ_BUFFER
+major_version=$(get_int_2 $READ_BUFFER 2)
+minor_version=$(get_int_2 $READ_BUFFER 4)
+extra_data_chunks_len=$(get_int_2 $READ_BUFFER 6)
+extra_data_len=$(( $extra_data_chunks_len * 4))
+</code></pre><p>We read first 8 bytes from the stream. This is the header. These bytes we
+redirect and store into our output stash:  <strong>$READ_BUFFER</strong>. -c options tells
+how many bytes to read. We will be reading from fd 4 and writing to our stash.
+With this we can use <strong>od</strong> commands to read specified bytes from file and put
+them into variables for later use. For simplicity I created 3 utility functions
+<strong>get_int_1, get_int_2, get_int_4</strong> which will read 1, 2, and 4 bytes from a
+file starting at a specified offset.</p>
+<p>For od  <strong>-j</strong> tell rom which byte offset to start reading, <strong>-N</strong> tells how much to
+read, <strong>-t</strong> tell how to format/interpret data: d1 - 1 byte decimal, d2 - 2 byte
+decimal and d4 - 4 byte decimal.</p>
+<p>The most important thing here is <strong>extra_data_len</strong>. This is needed to tell
+<strong>head</strong> how much data is left to read. So with this we just read the rest
+(about 9k bytes).</p>
+<pre tabindex="0"><code>head -c $extra_data_len &lt;&amp;4 &gt;&gt; $READ_BUFFER
+</code></pre><p>Here instead of writing to buffer we append to it. With the rest of the data in
+the buffer we get other required information.</p>
+<pre tabindex="0"><code>pad() { return $(( (4 - ($1 % 4)) % 4 )); }
+
+resource_id_base=$(get_int_4 $READ_BUFFER 12)
+resource_id_mask=$(get_int_4 $READ_BUFFER 16)
+length_of_vendor=$(get_int_2 $READ_BUFFER 24)
+number_of_formats=$(get_int_1 $READ_BUFFER 29)
+
+vendor_pad=$(pad length_of_vendor)
+format_byte_length=$(( 8 * $number_of_formats ))
+screen_start_offset=$(( 40 + $length_of_vendor + $vendor_pad + $format_byte_length ))
+root_visual_id_offset=$(( $screen_start_offset + 32 ))
+
+root_window=$(get_int_4 $READ_BUFFER $screen_start_offset)
+root_visual_id=$(get_int_4 $READ_BUFFER $root_visual_id_offset)
+
+local_id=13
+window_id=$(get_next_id local_id resource_id_mask resource_id_base)
+</code></pre><p>Nothing special here. Just read required bytes according to specification. Find
+offset and read more required bytes. Specifically we need to get <strong>resource
+base, resource mask, root, visual id</strong>. These are needed for later communication
+with X server.</p>
+<p>So with this we finished initialization. We told X server that we want to
+communicate and it responed that it does not mind by giving use some information
+about how to do the communication.</p>
+<h2 id="create-window">Create window</h2>
+<p>Creating window is actually pretty simple. There is not much to setup. Just send data. For this
+we will use an intermiadiary file buffer to first collect all the bytes and then
+just send all bytes at once. It is not needed as we can send them piece by piece
+with echo but is easier to debug. This buffer is then could be inspected with
+hexdump to verify if we are sending correct data.</p>
+<pre tabindex="0"><code>cat /dev/null &gt; $SEND_BUFFER 
+
+append_to_file &#34;\x1&#34;  $SEND_BUFFER               # Create Window command ID
+append_to_file &#34;\x0&#34;  $SEND_BUFFER               # Depth
+append_to_file &#34;\x0\xa&#34; $SEND_BUFFER             # Request Length
+append_to_file_int4 $window_id $SEND_BUFFER      # Window ID
+append_to_file_int4 $root_window $SEND_BUFFER    # Root Window ID
+append_to_file &#34;\x0\xf&#34; $SEND_BUFFER             # X
+append_to_file &#34;\x0\xf&#34; $SEND_BUFFER             # Y
+append_to_file &#34;\x0\xff&#34; $SEND_BUFFER            # Width
+append_to_file &#34;\x0\xff&#34; $SEND_BUFFER            # Height
+append_to_file &#34;\x0\x1&#34; $SEND_BUFFER             # Border Width
+append_to_file &#34;\x0\x1&#34; $SEND_BUFFER             # WINDOWCLASS_INPUTOUTPUT
+append_to_file_int4 $root_visual_id $SEND_BUFFER # Visual ID
+append_to_file &#34;\x0\x0\x8\x2&#34; $SEND_BUFFER       # X11_FLAG_WIN_EVENT | X11_FLAG_BACKGROUND_PIXEL
+append_to_file &#34;\xff\xff\x0\x0&#34; $SEND_BUFFER     # Background Pixel color
+append_to_file &#34;\x0\x0\x80\x1&#34; $SEND_BUFFER      # X11_EVENT_FLAG_EXPOSURE | X11_EVENT_FLAG_KEY_PRESS
+
+cat $SEND_BUFFER &gt;&amp;3
+</code></pre><p>First of all we clear our file buffer by just cat&rsquo;ing /dev/null onto it. Then we
+will the file with correct data and at the end just send it over to netcat with
+&ldquo;cat &amp;SEND_BUFFER &gt;&amp;3&rdquo; command. Here all the data should be pretty self
+explanatory. But let&rsquo;s explain tricky ones.</p>
+<p>First of all lenth is 0xa or 10. It is the length of 4 byte chunks of our input.
+Create window command is 32 bytes in length but we added 2 extra data points to
+the payload. Each data popint 4 bytes and thus we get 40 total bytes or 10
+four-byte chunks.</p>
+<p>X11_FLAG_WIN_EVENT is 0x0800 and X11_FLAG_BACKGROUND_PIXEL is 0x00000002.
+When we <strong>OR</strong> them together we get 0x00000802.</p>
+<p>X11_EVENT_FLAG_EXPOSURE is 0x8000  and X11_EVENT_FLAG_KEY_PRESS is 0x00000001.
+When we <strong>OR</strong> them together we get 0x00008001.</p>
+<p>Background pixel is four byte color value in the format of AARRGGBB. Here we set
+it to red, but you can set it whatever you want.</p>
+<p>To fill the buffer file I used <strong>append_to_file, append_to_file_int4</strong>
+utility functions.</p>
+<pre tabindex="0"><code>append_to_file() {
+    data=$1; file=$2;
+    echo -e -n $data &gt;&gt; $file;
+}
+
+append_to_file_int4() {
+    data=$1; file=$2;
+    printf &#34;$(printf &#34;\\%03o&#34; $((data&gt;&gt;24&amp;255)) $((data&gt;&gt;16&amp;255)) $((data&gt;&gt;8&amp;255)) $((data&amp;255)))&#34; &gt;&gt; $file
+}
+</code></pre><p>They are not needed but echo is too overloaded and it makes
+hard to understand what we are actually doing right now (echo is used to send
+data to pipe, send data to file and dump debug data). Also printing an integer
+is not really possible with raw echo so here I used <strong>print</strong> trick to split
+integer into bytes and send it to file. Inner printf is creating of 4 raw octal
+parts of an integer and outer print interprets them as raw bytes and dumps it to
+file.</p>
+<h2 id="mapping-window">Mapping window</h2>
+<p>With everything else done mapping file is pretty much trivial.</p>
+<pre tabindex="0"><code>cat /dev/null &gt; $SEND_BUFFER 
+
+append_to_file &#34;\x8\x0\x0\x2&#34; $SEND_BUFFER
+append_to_file_int4 $window_id $SEND_BUFFER
+
+cat $SEND_BUFFER &gt;&amp;3
+</code></pre><p>First of all we are clearing our buffer file to zero. Then we just fill in
+required bytes. 1: opcode (map_window), 2: unused, 3: request length 8b/4=2 and
+finaly we set the window id we created earlier.</p>
+<h2 id="event-loop">&ldquo;Event loop&rdquo;</h2>
+<p>Now everything is done and we can just put <strong>&ldquo;sleep 5&rdquo;</strong> and it will popup a
+window for 5 seconds and the close. It is enough for demonstration but I want it
+to stay open untill closed. For this we just need to continue reading on the
+output from X server sent back through netcat.</p>
+<pre tabindex="0"><code>cat $RECIEVE_FIFO
+</code></pre><p>So here instead of reading data through fd 4 as we did before we we will read
+directly through pipe created for reading output. This is our final read and
+will be reading endlessly as long as pipe is open. <strong>cat</strong> will read and dump
+data in terminal and even though it is not usefull directly it will show that
+the data is coming from server. Of course it is not event loop in the way we are
+used to since we are not processing event. But this is pretty close as <strong>cat</strong> will read
+available data and then block until we have something more to read.</p>
+<h2 id="final-code">Final code</h2>
+<p>Here is everything put together. You can run it with <code>bash ./x11window.sh </code></p>
+<p>Don&rsquo;t forget to run <strong>&ldquo;xhost +local:&rdquo;</strong> before running this script or X server
+will not accept connections.</p>
+<pre tabindex="0"><code>set -e
+
+READ_BUFFER=&#34;/tmp/out.buffer.temp&#34;
+SEND_BUFFER=&#34;/tmp/in.buffer.temp&#34;
+SEND_FIFO=&#34;/tmp/send_fifo.pipe&#34;
+RECIEVE_FIFO=&#34;/tmp/recieve_fifo.pipe&#34;
+
+pad() { return $(( (4 - ($1 % 4)) % 4 )); }
+
+get_next_id() {
+    id=$1; mask_id=$2; base=$3; 
+    echo $(( ($mask_id &amp; $id) | $base ))
+}
+
+get_int_1() { file=$1; offset=$2; od --endian=big -j $offset -N 1 -An -t d1 $file; }
+get_int_2() { file=$1; offset=$2; od --endian=big -j $offset -N 2 -An -t d2 $file; }
+get_int_4() { file=$1; offset=$2; od --endian=big -j $offset -N 4 -An -t d4 $file; }
+
+do_write() {
+    data=$1
+    echo -e -n $data &gt;&amp;3 
+}
+
+append_to_file() {
+    data=$1; file=$2;
+    echo -e -n $data &gt;&gt; $file;
+}
+
+append_to_file_int4() {
+    data=$1; file=$2;
+    printf &#34;$(printf &#34;\\%03o&#34; $((data&gt;&gt;24&amp;255)) $((data&gt;&gt;16&amp;255)) $((data&gt;&gt;8&amp;255)) $((data&amp;255)))&#34; &gt;&gt; $file
+}
+
+# --------------------------------------------------------------------------------
+
+rm -f $SEND_FIFO;   mkfifo $SEND_FIFO
+rm -f $RECIEVE_FIFO; mkfifo $RECIEVE_FIFO
+
+
+# --------------------------------------------------------------------------------
+# ------   SETUP CONNECTION ------------------------------------------------------
+# --------------------------------------------------------------------------------
+
+nc -U /tmp/.X11-unix/X0 &lt; $SEND_FIFO &gt; $RECIEVE_FIFO &amp;
+NC_PID=$!
+echo PID of nc: $NC_PID
+
+exec 3&gt;$SEND_FIFO
+exec 4&lt;$RECIEVE_FIFO
+
+
+# --------------------------------------------------------------------------------
+# ------   INITIALIZE CONNECTION -------------------------------------------------
+# --------------------------------------------------------------------------------
+echo &#39;-------- Initialize Connection&#39;
+
+INIT_REQUEST=&#34;\x42\x0\x0\xb\x0\x0\x0\x0\x0\x0\x0\x0&#34;
+# do_write $INIT_REQUEST &gt;&amp;3
+echo -n -e $INIT_REQUEST &gt;&amp;3
+
+head -c 8 &lt;&amp;4 &gt; $READ_BUFFER
+major_version=$(get_int_2 $READ_BUFFER 2)
+minor_version=$(get_int_2 $READ_BUFFER 4)
+extra_data_chunks_len=$(get_int_2 $READ_BUFFER 6)
+extra_data_len=$(( $extra_data_chunks_len * 4))
+
+head -c $extra_data_len &lt;&amp;4 &gt;&gt; $READ_BUFFER
+
+resource_id_base=$(get_int_4 $READ_BUFFER 12)
+resource_id_mask=$(get_int_4 $READ_BUFFER 16)
+length_of_vendor=$(get_int_2 $READ_BUFFER 24)
+number_of_formats=$(get_int_1 $READ_BUFFER 29)
+
+vendor_pad=$(pad length_of_vendor)
+format_byte_length=$(( 8 * $number_of_formats ))
+screen_start_offset=$(( 40 + $length_of_vendor + $vendor_pad + $format_byte_length ))
+root_visual_id_offset=$(( $screen_start_offset + 32 ))
+
+root_window=$(get_int_4 $READ_BUFFER $screen_start_offset)
+root_visual_id=$(get_int_4 $READ_BUFFER $root_visual_id_offset)
+
+local_id=13
+window_id=$(get_next_id local_id resource_id_mask resource_id_base)
+
+echo major: $major_version
+echo minor: $minor_version
+echo base: $resource_id_base
+echo mask: $resource_id_mask
+echo len vendor: $length_of_vendor
+echo number_of_formats: $number_of_formats
+echo root: &#34;$root_window&#34;
+echo visual: &#34;$root_visual_id&#34;
+echo window_id $window_id
+echo root_window $root_window
+echo root_visual_id $root_visual_id
+
+# --------------------------------------------------------------------------------
+# ------   CREATE WINDOW  --------------------------------------------------------
+# --------------------------------------------------------------------------------
+
+echo &#39;-------- Create Window&#39;
+
+cat /dev/null &gt; $SEND_BUFFER 
+
+append_to_file &#34;\x1&#34;  $SEND_BUFFER               # Create Window command
+append_to_file &#34;\x0&#34;  $SEND_BUFFER               # Depth
+append_to_file &#34;\x0\xa&#34; $SEND_BUFFER             # Request Length
+append_to_file_int4 $window_id $SEND_BUFFER      # Window ID
+append_to_file_int4 $root_window $SEND_BUFFER    # Root Window ID
+append_to_file &#34;\x0\xf&#34; $SEND_BUFFER             # X
+append_to_file &#34;\x0\xf&#34; $SEND_BUFFER             # Y
+append_to_file &#34;\x0\xff&#34; $SEND_BUFFER            # Width
+append_to_file &#34;\x0\xff&#34; $SEND_BUFFER            # Height
+append_to_file &#34;\x0\x1&#34; $SEND_BUFFER             # Border Width
+append_to_file &#34;\x0\x1&#34; $SEND_BUFFER             # WINDOWCLASS_INPUTOUTPUT
+append_to_file_int4 $root_visual_id $SEND_BUFFER # Visual ID
+append_to_file &#34;\x0\x0\x8\x2&#34; $SEND_BUFFER       # X11_FLAG_WIN_EVENT | X11_FLAG_BACKGROUND_PIXEL
+append_to_file &#34;\xff\xff\x0\x0&#34; $SEND_BUFFER      # Background Pixel color
+append_to_file &#34;\x0\x0\x80\x1&#34; $SEND_BUFFER      # X11_EVENT_FLAG_EXPOSURE | X11_EVENT_FLAG_KEY_PRESS
+
+cat $SEND_BUFFER &gt;&amp;3
+
+# --------------------------------------------------------------------------------
+# ------   MAP WINDOW  -----------------------------------------------------------
+# --------------------------------------------------------------------------------
+
+echo &#39;-------- Map Window&#39;
+cat /dev/null &gt; $SEND_BUFFER 
+
+append_to_file &#34;\x8\x0\x0\x2&#34; $SEND_BUFFER
+append_to_file_int4 $window_id $SEND_BUFFER
+
+cat $SEND_BUFFER &gt;&amp;3
+
+
+# --------------------------------------------------------------------------------
+# ------   &#34;EVENT LOOP&#34; ----------------------------------------------------------
+# --------------------------------------------------------------------------------
+# sleep 10
+cat $RECIEVE_FIFO
+
+# NOTE: needed for tcp connections
+# kill $NC_PID
+</code></pre><h2 id="conclusion">Conclusion</h2>
+<p>There is nothing much to conclude. My knowledge of bash is just enough to make
+litte automation scripts and it is good for that. For anything more than that it
+is pretty unsual and probably should not be used. Especially it is hard to debug
+communication over pipes and unix sockets. It is good it is easy to switch to
+tcp mode for X server and it helped a bit.</p>
+<p>It was fun for me to explore a bit more of bash and try to work around of its
+limitations and probably it was one of the most useless ideas to work on but I
+had fun doing it. The script is probably filled with bad practices since I am
+not a bash expert but if you find better or more interesting ways to approach
+certain described problems I would be super happy to hear about them.</p>
+
+    </div>
+</div>
+
+<div class="page-wrap coffee">
+</div>
+
+        </div><div class='footer'>
+    <div class='page-wrap container'>
+        <div class='copyright'> &copy; 2024, Hereket </div>
+        <div class='menu'> <a href="/index.xml">RSS feed</a> </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>
