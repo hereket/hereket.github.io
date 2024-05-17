@@ -12,7 +12,7 @@
     <lastBuildDate>Thu, 16 May 2024 13:03:59 +0500</lastBuildDate>
     <atom:link href="https://hereket.com/posts/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>BashFu - Open X11 window with netcat, echo, pipes and file system</title>
+      <title>Networking without programming or using netcat, echo, head and file system to create X11 windows</title>
       <link>https://hereket.com/posts/opening-x11-window-with-bash-nc-echo/</link>
       <pubDate>Thu, 16 May 2024 13:03:59 +0500</pubDate><author>info123@hereket.com (Hereket)</author>
       <guid>https://hereket.com/posts/opening-x11-window-with-bash-nc-echo/</guid>
