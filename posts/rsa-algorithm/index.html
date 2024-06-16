@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html>
+    
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start': new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0], j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src= 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f); })(window,document,'script','dataLayer','GTM-5QJQQZSG');</script>
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    
+
+    <link rel="icon" type="image/x-icon" href="/image/favicon.ico">
+    <link rel="canonical" href="https://hereket.com/posts/rsa-algorithm/" />
+
+    
+    
+
+    <link rel="stylesheet" type="text/css" href="/css/base.css?0">
+
+    <script type="text/javascript" src="/js/base.js?0" ></script>
+
+    <link rel="alternate" type="application/rss+xml" href="https://hereket.com//index.xml" title="Hereket">
+
+
+    
+    
+    <title>Simplified explanation of how RSA message encryption/decryption works | Hereket</title>
+</head>
+<body>
+        
+        <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5QJQQZSG" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+        
+        <div id="nav-border" class="container header">
+    <div class='page-wrap content'>
+        <a href="/"><div class="header-logo"> Hereket </div></a>
+        <nav id="nav" class="nav">
+            
+            <a class="nav-link" href="/">
+            
+            Posts
+            </a>
+            
+            <a class="nav-link" href="/tiny/">
+            
+            Tiny
+            </a>
+            
+        </nav>
+        <div class="contacts">
+            <a class="item" href="mailto:info123@hereket.com"><img src="/image/icon-email.png"></a>
+            <a class="item" href="https://twitter.com/alfred_tweet"><img src="/image/icon-twitter.png"></a>
+    <link rel="icon" type="image/x-icon" href="/image/favicon.ico">
+        </div>
+    </div>
+</div>
+<div id="content">
+<div class="page-wrap article">
+    <div class='main-content article'>
+        <h1>Simplified explanation of how RSA message encryption/decryption works</h1>
+        
+        <div><time class='post-time' datetime="2024-06-16">2024-06-16</time></div>
+        
+        <br><br>
+        <nav id="TableOfContents">
+  <ul>
+    <li><a href="#introduction">Introduction</a></li>
+    <li><a href="#rsa-algorithm">RSA algorithm</a></li>
+    <li><a href="#sending-text">Sending text</a></li>
+    <li><a href="#padding">Padding</a></li>
+    <li><a href="#generating-exponents-and-modulus">Generating exponents and modulus</a></li>
+  </ul>
+</nav>
+        <h2 id="introduction">Introduction</h2>
+<p>After making a small DES illustration I wanted to create similar thing but for
+AES. After some consideration I decided not to do it as it was very similar and
+decided to go with RSA because I really liked it on first encounter with the
+algorithm. From all the algorithms used in SSL it felt like RSA is the simplest
+and most elegant one. I will try to show it&rsquo;s simplicity.</p>
+<p>For total beginners RSA is an alorithm to securely share information from one
+person to another over insecure medium. To do so we need to encrypt information
+so that evesdropping third parties cannot &ldquo;read&rdquo; original message. In this post
+I want to focus only on message encryption and decryption and will fully ignore
+algorithm of key generation.</p>
+<h2 id="rsa-algorithm">RSA algorithm</h2>
+<p>RSA is very simple and elegant. It is just a &ldquo;simple&rdquo; math formula which looks
+like this:
+<img src="/posts/rsa-algorithm/rsa-formula.png" alt="rsa formula"></p>
+<p>Here <strong>m</strong> is our message represented as a single number. <strong>e</strong>, <strong>d</strong>, and <strong>n</strong>
+are three positivite integers specially selected to satisfy the equation above.</p>
+<pre tabindex="0"><code>m = message
+e and n = public key
+d = private key
+n = modulus
+</code></pre><p>The smallest number combination that suits this equation is e=3, d=3 and n=15
+(if we decide not to allow exponents of value 1). Since 15 is our modulus it
+means that we can send number from 1 up to 15 as any number modulus 15 will give
+us numbers in that range.</p>
+<pre tabindex="0"><code>1**9 % 15  = 1     or    (1**3 % 15)**3 % 15 = 1
+2**9 % 15  = 2     or    (2**3 % 15)**3 % 15 = 2
+3**9 % 15  = 3     or    (3**3 % 15)**3 % 15 = 3
+4**9 % 15  = 4     or    (4**3 % 15)**3 % 15 = 4
+5**9 % 15  = 5     or    (5**3 % 15)**3 % 15 = 5
+6**9 % 15  = 6     or    (6**3 % 15)**3 % 15 = 6
+7**9 % 15  = 7     or    (7**3 % 15)**3 % 15 = 7
+8**9 % 15  = 8     or    (8**3 % 15)**3 % 15 = 8
+9**9 % 15  = 9     or    (9**3 % 15)**3 % 15 = 9
+10**9 % 15 = 10    or    (10**3 % 15)**3 % 15 = 10
+11**9 % 15 = 11    or    (11**3 % 15)**3 % 15 = 11
+12**9 % 15 = 12    or    (12**3 % 15)**3 % 15 = 12
+13**9 % 15 = 13    or    (13**3 % 15)**3 % 15 = 13
+14**9 % 15 = 14    or    (14**3 % 15)**3 % 15 = 14
+</code></pre><p>Because of distribute property of modululo operation we can expand our equation
+by splitting our exponenent into two parts each with its own exponent. At the
+beginning we chose both of our exponents to be 3.</p>
+<p><img src="/posts/rsa-algorithm/rsa-formula-split.png" alt="rsa formula"></p>
+<p>So with this we can say that 3 and 15 is our public key and tell it to other
+people who want to communicate with us. Let&rsquo;s say some person want to send us
+number 12. To do that they will have to do 12**3%15 = 3 and send us number
+<strong>3</strong>. In this case 3 is encrypted message and when sent over the network will
+not expose initial number of 12. On our end when we receive number encrypted
+number we just do 3**3%15 = 12.</p>
+<h2 id="sending-text">Sending text</h2>
+<p>What if we want to send some text instead of a number 12? It is easy. First we
+need to convert our text to numeric representation. One way to do it is to
+encode with message with ascii table or unicode. Since unicode and ascii overlap
+for enlish text let&rsquo;s go for ascii for now. Let&rsquo;s say we want to send message
+&lsquo;Hello world!&rsquo; over the wire with RSA. Here are values for each letter in their
+numeric form, both in decimal and hex formats.</p>
+<pre tabindex="0"><code>&#39;H&#39;  72   0x48
+&#39;e&#39;  101  0x65
+&#39;l&#39;  108  0x6c
+&#39;l&#39;  108  0x6c
+&#39;o&#39;  111  0x6f
+&#39; &#39;  32   0x20
+&#39;w&#39;  119  0x77
+&#39;o&#39;  111  0x6f
+&#39;r&#39;  114  0x72
+&#39;l&#39;  108  0x6c
+&#39;d&#39;  100  0x64
+&#39;!&#39;  33   0x21
+</code></pre><p>Then we just concatenate all the number values one after another (big endian?)
+and get just a very big number <strong>0x48656c6c6f20776f726c6421</strong> or in decimal
+<strong>22405534230753963835153736737</strong>. But this time our modulus 15 will not work.
+We need a modulus that is larger than the message that we are trying to send or
+in other words larger than 22405534230753963835153736737. I will be using
+hexadecimal representation of number because they more easily translate to
+bytes. So if we want to send this message we need a modulus that is at least 12
+bytes (number of digits in 0x48656c6c6f20776f726c6421 is 24 and each digit is
+half byte, so 12 bytes) or 96 bits.</p>
+<p>For this to work I will use these selected numbers:</p>
+<pre tabindex="0"><code>d: 19561913760612153243824779553
+e: 65537
+n: 41780320747247905576602646597
+</code></pre><p><strong>e</strong> or public exponent is mostly 65537 or 0x010001 in hex. Selected modulus is 41780320747247905576602646597.
+So to encrypt our message we exponentiate and take modulus:
+<strong>22405534230753963835153736737</strong> ** <strong>65537</strong> % <strong>41780320747247905576602646597</strong> = <strong>9677577356176148501889172774</strong>.
+So this big number 9677577356176148501889172774 is the number you would need to
+send to the another party as encrypted message. Also note at the amount of
+computation you have to do here. You take 22405534230753963835153736737 and
+multiple it 65536 time by itself. Quite a lot of multiplications.</p>
+<p>On receving party will receive a number 9677577356176148501889172774 as
+encrypted message and will have to do similar computation but with different
+exponent or:
+<strong>9677577356176148501889172774</strong> **  <strong>19561913760612153243824779553</strong> % <strong>41780320747247905576602646597</strong> = <strong>22405534230753963835153736737</strong>.
+Here if you had to use exponent of 65537 for encryption, the other person will
+use 19561913760612153243824779553 exponent to decrypt. This computation is a lot
+lot more. For encryption you can use python and just replicate it for decryption
+unfortunately it will take quite a lot of time. I tried on my computer and gave
+up. For that I used some of my own tools with some tricks to speed up
+calculations.</p>
+<p>So as a result we got a number 22405534230753963835153736737 or 0x48656c6c6f20776f726c6421. If you look
+the table with character above you will see that it is exactly the same
+combination: 0x48 = H, 0x65 = e and etc. So we got our &lsquo;Hello world!&rsquo; message.</p>
+<p><img src="/posts/rsa-algorithm/hello-world-encryption.png" alt="hello world encryption"></p>
+<h2 id="padding">Padding</h2>
+<p>Even though the above method work it has some security problems with replaing
+messages, small messages and etc. To tackle this issues messages padded before
+encrypting. There are different ways to pad message but let&rsquo;s look at one of
+them PKCS#1.</p>
+<p>In the example of sending text we used 96 bits to encrypt message. But in real
+world people don&rsquo;t use such small keys. Today default key size is 2048 bits. For
+this example I will use 512 bits as it will take less space to show details.</p>
+<p>So 512 bits is 64 bytes and our message (Hello world!) is 12 bytes. Selected
+padding format is like this: <strong>[0x00][0x02][random bytes][0x00][message]</strong>. The
+first byte is always 0. Second byte is 2 and specified what padding format we
+are using. Then we have a number of random bytes with a terminating 0 byte.
+After all that we end everything with our message that we want to send. So our
+message becomes:
+0x0002rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr0048656c6c6f20776f726c6421,
+where <strong>r</strong> = random byte.</p>
+<p>RFC 2313 advices to have 11 byte header which if we remove top 2 bytes and
+terminating 0 byte gives us at least 8 bytes of random bytes in each message.
+This is good as hackers won&rsquo;t be able to send the same message multiple time in
+their replay attacks.</p>
+<h2 id="generating-exponents-and-modulus">Generating exponents and modulus</h2>
+<p>In this post I will not be diving into topic of how to generate keys ourself as
+I don&rsquo;t think it give much insigth into the discussion. This black box will
+remain closed and maybe we could look into it more in some other post. But I
+want to have a look at least at how to get those keys.</p>
+<p>There are multiple way to generate keys and here I will look into openssl&rsquo;s
+toolbox. Here is a command to generate private and public keys:</p>
+<pre tabindex="0"><code>openssl req -nodes -new -x509 -keyout private.key -out public.cert
+</code></pre><p>After filling some inforamtion it will create two files: private.key and public.cert. If you do any server
+management then you have seen different variations of these files on your server
+when you were setting up nginx or something similar. There are simpler ways to
+generate exponents but I wanted to do it this way to make it closer to our day
+to day usecases.</p>
+<p>public.cert file will contain a bunch of information but somewhere in the middle
+it will have a public exponent and modulus. This is the file your browser
+downloads when you open a web page. You can get it with:</p>
+<pre tabindex="0"><code>openssl x509 -in public.cert -noout -text
+</code></pre><p><img src="/posts/rsa-algorithm/public-certificate.png" alt="public certificate"></p>
+<p><strong>private.key</strong> file also contains a bunch of information including private
+exponent, public exponent and modulus. You can get it with:</p>
+<pre tabindex="0"><code>openssl rsa -text -in private.key -noout
+</code></pre><p><img src="/posts/rsa-algorithm/private-key.png" alt="public certificate"></p>
+<p>So browser (or other software) downloads a public certificate which contains
+public exponent and modulus (when RSA is used). With it encrypts some
+information which could be a key for AES and sends it to the server and server
+gets private exponent and modulus from its key file and decrypts it.</p>
+<p>If you don&rsquo;t want to bother with generating certificates and want to get just
+magic numbers for rsa you can use these commands:</p>
+<pre tabindex="0"><code>openssl genrsa 2048 | openssl rsa -text -noout
+</code></pre><p>.</p>
+<h1 id="conclusion">Conclusion</h1>
+<p>RSA is still widely used algorithm for assymetric encryption and well worth the
+time looking into how it works. On top of that it is a good base and if you want
+to look into Diffie–Hellman next it will be very similar with just small
+changes.</p>
+<p>In this post I wanted to try simplify learning RSA with examples, less math
+magic and some interactive examples to learn from.</p>
+
+    </div>
+</div>
+
+<div class="page-wrap coffee">
+</div>
+
+        </div><div class='footer'>
+    <div class='page-wrap container'>
+        <div class='copyright'> &copy; 2024, Hereket </div>
+        <div class='menu'> <a href="/index.xml">RSS feed</a> </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

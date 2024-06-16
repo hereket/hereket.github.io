@@ -1,0 +1,41 @@
+html, body {
+    height: 100%;
+    background: rgba(0,0,0, 0.7);
+}
+body {
+    margin: 0px;
+    padding: 0px;
+}
+
+.section_tree {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+.canvas_tree {
+    /* height: 100vh; */
+    height: 100%;
+}
+
+.section_tree .click {
+    position: absolute;
+    color: rgba(255,255,255, 0.2);
+    font-size: 3em;
+    left: 50%;
+    bottom: 10px;
+}
+
+.disable-select {
+  -webkit-user-select: none;  
+  -moz-user-select: none;    
+  -ms-user-select: none;      
+  user-select: none;
+}
+
+
+#content {
+    /* background: red; */
+    height: 100%;
+}
