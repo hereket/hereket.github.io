@@ -67,6 +67,8 @@
     <li><a href="#sending-text">Sending text</a></li>
     <li><a href="#padding">Padding</a></li>
     <li><a href="#generating-exponents-and-modulus">Generating exponents and modulus</a></li>
+    <li><a href="#rsa-toy">RSA toy</a></li>
+    <li><a href="#conclusion">Conclusion</a></li>
   </ul>
 </nav>
         <h2 id="introduction">Introduction</h2>
@@ -220,8 +222,14 @@ gets private exponent and modulus from its key file and decrypts it.</p>
 <p>If you don&rsquo;t want to bother with generating certificates and want to get just
 magic numbers for rsa you can use these commands:</p>
 <pre tabindex="0"><code>openssl genrsa 2048 | openssl rsa -text -noout
-</code></pre><p>.</p>
-<h1 id="conclusion">Conclusion</h1>
+</code></pre><h2 id="rsa-toy">RSA toy</h2>
+<p>I create a simple toy to play around with encryption and decryption with RSA.
+You can check it out here: <a href="/tiny/rsa-toy/">RSA toy</a>. It includes ability to
+specify your own private and public keys with an exponent. Encryption is a bit
+slowerbut that is due to me not spending any time trying to optimize it and I
+hope it will not be too inconvenient.</p>
+<p><img src="/posts/rsa-algorithm/rsa-toy.png" alt="rsa toy"></p>
+<h2 id="conclusion">Conclusion</h2>
 <p>RSA is still widely used algorithm for assymetric encryption and well worth the
 time looking into how it works. On top of that it is a good base and if you want
 to look into Diffie–Hellman next it will be very similar with just small
