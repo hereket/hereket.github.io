@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html>
+    
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start': new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0], j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src= 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f); })(window,document,'script','dataLayer','GTM-5QJQQZSG');</script>
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    
+
+    <link rel="icon" type="image/x-icon" href="/image/favicon.ico">
+    <link rel="canonical" href="https://hereket.com/posts/cpp-unity-compile-inkscape/" />
+
+    
+    
+
+    <link rel="stylesheet" type="text/css" href="/css/base.css?0">
+
+    <script type="text/javascript" src="/js/base.js?0" ></script>
+
+    <link rel="alternate" type="application/rss+xml" href="https://hereket.com//index.xml" title="Hereket">
+
+
+    
+    
+    <title>Comparing C/C&#43;&#43; unity build with regular build on a large codebase | Hereket</title>
+</head>
+<body>
+        
+        <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5QJQQZSG" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+        
+        <div id="nav-border" class="container header">
+    <div class='page-wrap content'>
+        <a href="/"><div class="header-logo"> Hereket </div></a>
+        <nav id="nav" class="nav">
+            
+            <a class="nav-link" href="/">
+            
+            Posts
+            </a>
+            
+            <a class="nav-link" href="/tiny/">
+            
+            Tiny
+            </a>
+            
+        </nav>
+        <div class="contacts">
+            <a class="item" href="mailto:info123@hereket.com"><img src="/image/icon-email.png"></a>
+            <a class="item" href="https://twitter.com/alfred_tweet"><img src="/image/icon-twitter.png"></a>
+    <link rel="icon" type="image/x-icon" href="/image/favicon.ico">
+        </div>
+    </div>
+</div>
+<div id="content">
+<div class="page-wrap article">
+    <div class='main-content article'>
+        <h1>Comparing C/C&#43;&#43; unity build with regular build on a large codebase</h1>
+        
+        <div><time class='post-time' datetime="2024-07-03">2024-07-03</time></div>
+        
+        <br><br>
+        <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#intro">Intro</a></li>
+        <li><a href="#what-is-unity-build">What is unity build?</a></li>
+        <li><a href="#setup">Setup</a></li>
+        <li><a href="#building-without-cmake">Building without cmake</a></li>
+        <li><a href="#unity-build">Unity build</a></li>
+        <li><a href="#final-thoughts">Final thoughts</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+        <h3 id="intro">Intro</h3>
+<p>From the beginning, C/C++ code has been compiled into separate small code
+objects and later linked into one executable or library. Initially, it was done
+due to hardware limitations as it couldn&rsquo;t process all code simultaneously. These
+days it is done to increase compilation speed by trying to compile just a small
+portion of changed code after the initial full build.</p>
+<p>For my own smaller C projects I have been using <strong>unity build</strong> and were doing
+full project rebuild. I do it just for convenience and it is easier to
+manage and build for my purposes. There are people &ldquo;on the internet&rdquo; who claim
+that even a larger C++ project could have been built using unity build without
+much increase in compilation times. Even though I am a bit skeptical that this
+could be done on a larger scale I was interested in measuring actual timings.</p>
+<p>Initially, I was planning to generate 500k-1m lines of C/C++ code with a bunch
+of functions calling each other and spread across 1000-2000 files. I was
+hesitating because it would be a synthetic code and it felt a bit fishy. Then I
+decided to take an open-source project and try to build it as a single
+compilation unit. I chose Inkscape as I already use it weekly for my design
+works and had plans to dig into its source code later to make some experiments.
+It felt like an ideal candidate.</p>
+<p>Lately, I have been trying to make estimates before doing measurements and for
+this project my initial expectations were to get 2x-3x speedup in single-core
+compilation of the whole project.</p>
+<h3 id="what-is-unity-build">What is unity build?</h3>
+<p>Unity build (unified build) is a compilation method for C/C++ projects where
+multiple translation units are merged into one and compiled as a single block of
+code. The easiest way to do it is by using the preprocessor <strong>#include</strong> directive to
+include multiple C/C++ files. This gives us one file which is passed to
+the compilator and it will compile it in one go.</p>
+<p>In regular builds, we include header files in unity builds we include C/C++ files
+directly. So for a regular build, we will have multiple intermediary <strong>.o</strong> files
+which later will be linked into an executable while in unity builds preprocessor
+merges all files and the compiler creates an executable directly.</p>
+<p>Regular builds works something like this:
+<img src="/posts/cpp-unity-compile-inkscape/images/regular-build.png" alt="C++ Regular build"></p>
+<p>And unity builds look like this:
+<img src="/posts/cpp-unity-compile-inkscape/images/unity-build.png" alt="C++ unity build"></p>
+<h3 id="setup">Setup</h3>
+<p>Initially, I just cloned inkscape&rsquo;s code from <a href="https://gitlab.com/inkscape/inkscape">https://gitlab.com/inkscape/inkscape</a>,
+created a &lsquo;build&rsquo; directory inside that repo and from within the &lsquo;build&rsquo; directory run
+these commands.</p>
+<p><strong>Regular inkscape build with cmake</strong></p>
+<pre tabindex="0"><code>cmake ..   #  4.724 sec
+make       #  1938.98s user 144.20s system 99% cpu 34:47.83 total
+</code></pre><p>So our baseline is just a little shy of 35 minutes to compile a whole inkscape
+from scratch using regular cmake/make combination. Running &lsquo;cloc src&rsquo; gives us
+1317 C++ files with 453842 loc, 1287 header files with 93914 loc, and 76 C files
+with 51776 loc.</p>
+<p>My initial attempt was to try to figure out compilation steps from reading CMake
+files and later Makefiles. After some reading, I realized that I don&rsquo;t know enough kung fu
+to untangle all the compilation graphs without errors. An easier approach for me
+was to get a compilation log from a regular cmake then make compilation steps
+and just recreate it from in a bash script. I chose to go with a bash script
+because I wanted to explicitly list all the steps and try not to miss anything.</p>
+<h3 id="building-without-cmake">Building without cmake</h3>
+<p>To begin the process of preparing a unity build I decided to make a regular build
+but without cmake or make. For this, I used plain bash script and compiled each
+translation unit separately but taking log output from cmake build and building
+compiling one by one.</p>
+<p>During regular inkscape builds it builds 2 dynamic libraries <strong>lib2geom.so</strong>, <strong>libinkscape_base.so</strong>,
+and 10 statically linked libraries <strong>liblivarot_LIB.a, libutil_LIB.a, libuemf_LIB.a,
+libcroco_LIB.a, libdepixelize_LIB.a, libavoid_LIB.a, libcola_LIB.a, libvpsc_LIB.a,
+libautotrace_LIB.a, libgc_LIB.a</strong>.  libinkscape_base.so is a main library which
+contains most inkscape code. In the end we just compile <strong>inkscape-main.cpp</strong>
+and link it with all previously mentioned libraries and get a single binary.</p>
+<p>Here is the script used to build it: <a href="/posts/cpp-unity-compile-inkscape/files/build-inkscape.sh.txt">build.sh</a>.
+It is a 2300-line script file with a bit of setup and then one by one build
+translation units into libraries and then into single binary. If you want to try
+it you will need to put this script into the root folder of inskcape project and
+just run it with <code>./build.sh</code></p>
+<p>This one is created on linux and won&rsquo;t work on windows, it will require
+small changes to run Mac and you might need to add missing libraries. It will
+create __build folder, create libraries and then an executable named <strong>inkscape</strong>
+inside that __build folder. Also, it will copy some data files required for
+running the executable. In this script, I replicated build libraries used in
+regular cmake build and here also measured how much time it takes to build. Here
+are the results:</p>
+<p><strong>Single build.sh</strong></p>
+<pre tabindex="0"><code>Copy data files: 2.127 seconds
+Compiling lib2geom.so         :   53.187 seconds  | 52  C++ files
+Compiling liblivarot_LIB.a    :   12.551 seconds  | 17  C++ files
+Compiling libutil_LIB.a       :   16.832 seconds  | 18  C++ files
+Compiling libuemf_LIB.a       :    1.370 seconds  | 11  C files
+Compiling libcroco_LIB.a      :    1.615 seconds  | 27  C files
+Compiling libdepixelize_LIB.a :    2.103 seconds  | 1   C++ file
+Compiling libavoid_LIB.a      :   11.147 seconds  | 23  C++ files
+Compiling libcola_LIB.a       :    4.903 seconds  | 10  C++ files
+Compiling libvpsc_LIB.a       :    2.256 seconds  | 7   C++ files
+Compiling libautotrace_LIB.a  :    0.985 seconds  | 19  C files 
+Compiling libgc_LIB.a         :    0.498 seconds  | 1   C++ file
+compiling libinkscape_base.so : 1501.372 seconds  | 877 C++ files
+Compiling inkscape            :    1.912 seconds  | 1   C++ file
+./build.sh  1508.85s user 98.71s system 99% cpu 26:52.91 total
+</code></pre><p>Regular cmake build took 34 minutes and with new build.sh we built it in just 27
+minutes. I am not sure what affected this 7-minute speed-up. It should not be
+a file cache because two different builds were done from separate folders and I
+cleared the file memory cache before building. (I hope that it is related to cmake
+create makefiles that are less efficient and not that I missed some files)</p>
+<p>As a result we created 1043 <strong>.o</strong> files, 10 <strong>.a</strong> statically linked files, 2
+<strong>.so</strong> dynamic libraries and one executable file. During script execution we
+did 1431 calls to <strong>g++</strong>, 61 calls to <strong>gcc</strong>, one explicit call to <strong>ld</strong>, 10
+calls to <strong>ar</strong> for static linking.</p>
+<h3 id="unity-build">Unity build</h3>
+<p>Now that we managed to build inkscape with just inkscape we can assume that it
+is more or less possible to move to unity build as we see all the steps
+involved. Initially, I wanted to take <strong>inkscape-main.cpp</strong> and with assistance
+from compiler errors change the source code to be built in one go. After some time I
+found that it was too cumbersome to go this way so I chose a different
+approach. I created <strong>all.cpp</strong> file which contained only #include directives
+which included all files from the previous script. It looks something like this:</p>
+<pre tabindex="0"><code>#include &#34;../__generated/inkscape-version.cpp&#34;
+#include &#34;async/async.cpp&#34;
+#include &#34;colors/cms/profile.cpp&#34;
+#include &#34;colors/cms/system.cpp&#34;
+#include &#34;colors/cms/transform.cpp&#34;
+#include &#34;colors/color.cpp&#34;
+#include &#34;colors/document-cms.cpp&#34;
+#include &#34;colors/dragndrop.cpp&#34;
+...
+...
+...
+</code></pre><p>Then with the help of the compiler, I did <strong>&ldquo;Monkey patching&rdquo;</strong> by changing the source
+code just enough to make it compile. I didn&rsquo;t study inkscapes architecture as it
+was my first time working with this code base and I didn&rsquo;t want to spend a lot
+of time in this step. I also didn&rsquo;t do a full unity build by joining all files
+into one big unity build. This time I tried to keep each library as it is
+defined by inkscape as a separate compilation unit. This was supposed to help me
+speed up my experiment development. So as a result of this choice, we got 12
+translation units, 11 libraries, and 1 final program unit. Each library has it&rsquo;s
+own all_*.cpp file.</p>
+<p><strong>Unity build timing:</strong></p>
+<pre tabindex="0"><code>Copy data files: 2.340 seconds
+Compile lib2geom.so         :   6.298 seconds | Merged 52  C++ files
+Compile liblivarot_LIB.a    :   3.072 seconds | Merged 17  C++ files
+Compile libutil_LIB.a       :   5.323 seconds | Merged 18  C++ files
+Compile libuemf_LIB.a       :   1.057 seconds | Merged 11  C files
+Compile libcroco_LIB.a      :   0.636 seconds | Merged 27  C files
+Compile libdepixelize_LIB.a :   1.948 seconds | Merged 1   C++ file
+Compile libavoid_LIB.a      :   4.106 seconds | Merged 23  C++ files
+Compile libcola_LIB.a       :   1.693 seconds | Merged 10  C++ files
+Compile libvpsc_LIB.a       :   0.849 seconds | Merged 7   C++ files
+Compile libautotrace_LIB.a  :   0.278 seconds | Merged 19  C files 
+Compile libgc_LIB.a         :   0.467 seconds | Merged 1   C++ file
+Compile inkscape binary     : 137.220 seconds | Merged 877 C++ files
+~/tmp/inkscape_compile/inkscape
+./build.sh  157.19s user 5.36s system 98% cpu 2:45.35 total
+</code></pre><p>Total build time took about 3 minutes. Comparing it with the first cmake build it is
+almost a 12x increase in single-core compilation when compared with our
+custom build.sh build it is 9x speed up in build time. As a result we get 10 .o
+files, 10 .a static libraries, 1 .so dynamic library, and 1 executable. Maybe
+in the future, I should try to make just one compilation unit but for this case,
+it was not a deal breaker.</p>
+<p>Main inkscape code is within 877 C++ files. It is built with simple:
+<strong>c++ $CFLAGS_MAIN $SRC/all.cpp -o inkscape $LDFLAGS</strong>. So we set some
+Compilation and linker flags and just compile <strong>all.cpp</strong> file. How big is it?
+The file itself if not very big 878 lines but if we pass -E flag to the compiler
+to do just preprocessing we will get a file that is a file that is over 1
+million lines with just above 760k actual code lines. This is a compbination of
+all those 877 C++ files plus all project and external library headers.</p>
+<p>You can look at the changed source code for unity build here: <a href="https://github.com/hereket/inkscape-unity-build">https://github.com/hereket/inkscape-unity-build</a></p>
+<h3 id="final-thoughts">Final thoughts</h3>
+<p>Initially, I estimated 2-3x speed up for unity builds but in the end we got 9-12x
+speedup. Of course, this is still not enough and doing regular builds is still
+faster for normal development because we can use ccache and utilize all cores
+for the build by using make. But it was a fun little experiment and it is a good
+base for me to do some other experiments.</p>
+<p>C files were very fast to build and some C++ features increased compilation
+speeds quite a bit. I assumed it is templates that inkscape actively uses in
+its codebase. To see if C files are compiled faster I preprocessed compilation
+units into separate files and did some LOC (lines of code) measurements. This
+LOC is not the number of C++ lines but rather the number of lines after merging all
+header/source files into one (including external library headers).</p>
+<pre tabindex="0"><code>File Name         | Time        | Size | Type | LOC     | Lines per second
+---------------------------------------------------------------------------
+lib2geom.so       | 6.298 sec   | 5.7M | C++  | 148_713 | 23613 l/s
+all_livarot.o.cpp | 3.072 sec   | 5.3M | C++  | 141_768 | 46148 l/s
+all_utils.o.cpp   | 5.323 sec   | 12M  | C++  | 281_101 | 52809 l/s
+all_uemf.o.c      | 1.057 sec   | 1.5M | C    | 35_959  | 34020 l/s
+all_croco.o.c     | 0.636 sec   | 2M   | C    | 40_917  | 64335 l/s
+depixelize.o.cpp  | 1.948 sec   | 5M   | C++  | 132_714 | 68128 l/s
+all_avoid.o.cpp   | 4.106 sec   | 3.1M | C++  | 84_444  | 20566 l/s
+all_cola.o.cpp    | 1.693 sec   | 2.3M | C++  | 58_815  | 34740 l/s
+all_vpsc.o.cpp    | 0.849 sec   | 1.9M | C++  | 52_152  | 61428 l/s
+all_autorace.o.c  | 0.278 sec   | 949K | C    | 21_035  | 75665 l/s
+gc.o.cpp          | 0.467 sec   | 2.8M | C++  | 78_719  | 168563 l/s
+all.o.cpp         | 137.220 sec | 30M  | C++  | 759_613 | 5536 l/s
+</code></pre><p>At first glance, it looks like that C is not compiled faster but that creates a
+lot more stuff to compile. From the table, it looks like the average is compiler
+compiles 59k lines per second. If we remove 168k l/s then the average speed is 48k
+l/s. If we remove 20k versions then the average speed is 54k lines per second for
+unity builds.</p>
+<p>This is the initial rough back on the envelope calculation. I might add more data
+later if I get more free time to play around.</p>
+
+    </div>
+</div>
+
+<div class="page-wrap coffee">
+</div>
+
+        </div><div class='footer'>
+    <div class='page-wrap container'>
+        <div class='copyright'> &copy; 2024, Hereket </div>
+        <div class='menu'> <a href="/index.xml">RSS feed</a> </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

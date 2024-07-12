@@ -9,8 +9,15 @@
     <managingEditor>info123@hereket.com (Hereket)</managingEditor>
     <webMaster>info123@hereket.com (Hereket)</webMaster>
     <copyright>Hereket All rights reserved</copyright>
-    <lastBuildDate>Sun, 16 Jun 2024 03:30:59 +0500</lastBuildDate>
+    <lastBuildDate>Wed, 03 Jul 2024 15:04:08 +0500</lastBuildDate>
     <atom:link href="https://hereket.com/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Comparing C/C&#43;&#43; unity build with regular build on a large codebase</title>
+      <link>https://hereket.com/posts/cpp-unity-compile-inkscape/</link>
+      <pubDate>Wed, 03 Jul 2024 15:04:08 +0500</pubDate><author>info123@hereket.com (Hereket)</author>
+      <guid>https://hereket.com/posts/cpp-unity-compile-inkscape/</guid>
+      <description>Intro From the beginning, C/C++ code has been compiled into separate small code objects and later linked into one executable or library. Initially, it was done due to hardware limitations as it couldn&amp;rsquo;t process all code simultaneously. These days it is done to increase compilation speed by trying to compile just a small portion of changed code after the initial full build.&#xA;For my own smaller C projects I have been using unity build and were doing full project rebuild.</description>
+    </item>
     <item>
       <title>RSA algorithm playground</title>
       <link>https://hereket.com/tiny/rsa-toy/</link>
