@@ -245,7 +245,8 @@ its codebase. To see if C files are compiled faster I preprocessed compilation
 units into separate files and did some LOC (lines of code) measurements. This
 LOC is not the number of C++ lines but rather the number of lines after merging all
 header/source files into one (including external library headers).</p>
-<pre tabindex="0"><code>File Name         | Time        | Size | Type | LOC     | Lines per second
+<pre tabindex="0"><code>---------------------------------------------------------------------------
+File Name         | Time        | Size | Type | LOC     | Lines per second
 ---------------------------------------------------------------------------
 lib2geom.so       | 6.298 sec   | 5.7M | C++  | 148_713 | 23613 l/s
 all_livarot.o.cpp | 3.072 sec   | 5.3M | C++  | 141_768 | 46148 l/s
@@ -264,6 +265,33 @@ lot more stuff to compile. From the table, it looks like the average is compiler
 compiles 59k lines per second. If we remove 168k l/s then the average speed is 48k
 l/s. If we remove 20k versions then the average speed is 54k lines per second for
 unity builds.</p>
+<p>Addtionally I decided to measure speed based not on preprocessed output of
+source files but on actual lines code of the C/C++ files and their headers. For
+this I went to the folders of the correspoing libraries and run &lsquo;cloc&rsquo; inside
+those folders. After I took a sum of real lines of C/C++ code and their headers.
+Then only issue here is that it was too much work to figure out all &ldquo;our&rdquo; header files
+required for inkscape main executable an just calculated lines of code only of
+comiled C/C++ files <strong>without</strong> header files. So with this we get lines
+of code per second relative to actually &ldquo;our&rdquo; written code without counting
+external library headers and generated extra code by the preprocessor (macro
+expansion and etc). Here is the table.</p>
+<pre tabindex="0"><code>File Name     | Time        | Type | SourceLOC | Lines per second
+---------------------------------------------------------------------------
+2geom         | 6.298 sec   | C++  | 19_518    | 3099 l/s
+livarot       | 3.072 sec   | C++  | 14_566    | 4742 l/s
+utils         | 5.323 sec   | C++  | 6_601     | 1240 l/s
+uemf          | 1.057 sec   | C    | 29_418    | 27832 l/s
+libcroco      | 0.636 sec   | C    | 21_768    | 34226 l/s
+libdepixelize | 1.948 sec   | C++  | 3_109     | 1596 l/s
+libavoid      | 4.106 sec   | C++  | 96_202    | 23430 l/s
+libcola       | 1.693 sec   | C++  | 16_503    | 9748 l/s
+libvpsc       | 0.849 sec   | C++  | 4_118     | 4850 l/s
+autotrace     | 0.278 sec   | C    | 5_227     | 18802 l/s
+inkgc         | 0.467 sec   | C++  | 603       | 1291 l/s
+inkscape      | 137.220 sec | C++  | (277_253) | 2020 l/s
+</code></pre><p>With this table we can see that C files are &ldquo;faster&rdquo; to compile mostly because
+there are just less extra stuff included and generated which leads to increased
+percived speed.</p>
 <p>This is the initial rough back on the envelope calculation. I might add more data
 later if I get more free time to play around.</p>
 
