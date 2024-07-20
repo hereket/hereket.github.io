@@ -70,6 +70,7 @@
         <li><a href="#building-without-cmake">Building without cmake</a></li>
         <li><a href="#unity-build">Unity build</a></li>
         <li><a href="#final-thoughts">Final thoughts</a></li>
+        <li><a href="#extra-additional-comparisons">Extra: Additional comparisons</a></li>
       </ul>
     </li>
   </ul>
@@ -294,6 +295,48 @@ there are just less extra stuff included and generated which leads to increased
 percived speed.</p>
 <p>This is the initial rough back on the envelope calculation. I might add more data
 later if I get more free time to play around.</p>
+<h3 id="extra-additional-comparisons">Extra: Additional comparisons</h3>
+<p>Since there were a confusion in initial post and some people thought &ldquo;Unity
+build rocks let&rsquo;s only it&rdquo; and &ldquo;Make is better. Run it with more threads&rdquo; I
+decided to add a bit more measurements. I just want to remind that I was not
+trying to argue that unity builds are better or worse. My goal was to make a
+simple research into the topic on a real project and have some baseline numbers
+to work on later.</p>
+<p>Bellow is measurements of compiling inkscape from scratch using different
+methods. Before each build I cleared file cache from memory.</p>
+<pre tabindex="0"><code>cmake .. &amp;&amp; make | 34 min 52 sec
+cmake .. &amp;&amp; make -j 12 | 5 min 48 sec
+cmake .. -GNinja &amp;&amp; ninja | 5 min 50 sec
+
+build.sh NON unity (-O0) | 26 min 52 sec
+build.sh NON unity (-O2) | 32 min 12 sec
+build.sh NON unity (-O3) | 31 min 08 sec
+
+build.sh unity (-O0) |  2 min 57 sec
+build.sh unity (-O2) |  6 min 08 sec
+build.sh unity (-O3) |  6 min 17 sec
+</code></pre><p>And this is what what incremental build compares to full build. In the table
+below I measured how much time it take to rebuild project when I change 1 lines
+of code in &ldquo;src/io/resource.cpp&rdquo; in homedir_path() to return constant string.
+Also I did a test for a header file where I changed one line by adding one more
+element to Type enum. Here are the results:</p>
+<pre tabindex="0"><code>Change one line in  src/io/resource.cpp
+ninja      | 2.7 sec
+make       | 7.8 sec
+make -j 12 | 5 sec
+
+Change one line in  src/io/resource.h
+ninja      | 43 sec
+make       | 3 minute 30 sec
+make -j 12 | 46 sec
+</code></pre><p>Regular unity build will still be 2+ minutes for full rebuild for inkscape no
+matter what file you change. Building using make/ninja is variable.  As you can
+see from the table above it could be very fast or it could take half the amount
+required for a full unity build. I guess if I changed several c++ files and headers
+it could take close a to time of a full build. There are claims that a project
+of this size written in C style without template and other features should
+compile in under 10 seconds but I don&rsquo;t have project that I can use to verify
+that.</p>
 
     </div>
 </div>
