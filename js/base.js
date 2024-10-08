@@ -1,7 +1,7 @@
 
 function goBack() {
     let BASE_WORD = "hereket";
-    let BASE_SITE_URL = "https://hereket.github.io"; // TODO: get from hugo or from current page
+    let BASE_SITE_URL = "https://hereket.com"; // TODO: get from conf
     var referrer = document.referrer;
 
     if(referrer === "") {
