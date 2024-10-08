@@ -9,8 +9,15 @@
     <managingEditor>info123@hereket.com (Hereket)</managingEditor>
     <webMaster>info123@hereket.com (Hereket)</webMaster>
     <copyright>Hereket All rights reserved</copyright>
-    <lastBuildDate>Wed, 03 Jul 2024 15:04:08 +0500</lastBuildDate>
+    <lastBuildDate>Fri, 06 Sep 2024 16:05:40 +0500</lastBuildDate>
     <atom:link href="https://hereket.com/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Programming turkmen language</title>
+      <link>https://hereket.com/tiny/tm-lang/</link>
+      <pubDate>Fri, 06 Sep 2024 16:05:40 +0500</pubDate><author>info123@hereket.com (Hereket)</author>
+      <guid>https://hereket.com/tiny/tm-lang/</guid>
+      <description> Game Kody işlet Kodyň netijesi </description>
+    </item>
     <item>
       <title>Comparing C/C&#43;&#43; unity build with regular build on a large codebase</title>
       <link>https://hereket.com/posts/cpp-unity-compile-inkscape/</link>

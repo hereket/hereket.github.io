@@ -2,10 +2,16 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>https://hereket.com/posts/cpp-unity-compile-inkscape/</loc>
-    <lastmod>2024-07-03T15:04:08+05:00</lastmod>
-  </url><url>
     <loc>https://hereket.com/</loc>
+    <lastmod>2024-09-06T16:05:40+05:00</lastmod>
+  </url><url>
+    <loc>https://hereket.com/tiny/tm-lang/</loc>
+    <lastmod>2024-09-06T16:05:40+05:00</lastmod>
+  </url><url>
+    <loc>https://hereket.com/tiny/</loc>
+    <lastmod>2024-09-06T16:05:40+05:00</lastmod>
+  </url><url>
+    <loc>https://hereket.com/posts/cpp-unity-compile-inkscape/</loc>
     <lastmod>2024-07-03T15:04:08+05:00</lastmod>
   </url><url>
     <loc>https://hereket.com/posts/</loc>
@@ -15,9 +21,6 @@
     <lastmod>2024-06-16T03:30:59+05:00</lastmod>
   </url><url>
     <loc>https://hereket.com/posts/rsa-algorithm/</loc>
-    <lastmod>2024-06-16T03:30:59+05:00</lastmod>
-  </url><url>
-    <loc>https://hereket.com/tiny/</loc>
     <lastmod>2024-06-16T03:30:59+05:00</lastmod>
   </url><url>
     <loc>https://hereket.com/posts/opening-x11-window-with-bash-nc-echo/</loc>
