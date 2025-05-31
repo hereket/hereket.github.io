@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html>
+    
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start': new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0], j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src= 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f); })(window,document,'script','dataLayer','GTM-5QJQQZSG');</script>
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    
+    
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start': new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0], j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src= 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f); })(window,document,'script','dataLayer','GTM-5QJQQZSG');</script>
+    
+    
+
+    <link rel="icon" type="image/x-icon" href="/image/favicon.ico">
+    <link rel="canonical" href="https://hereket.com/posts/interpreter-debugger-visualizer/" />
+
+    
+    
+    
+    
+
+    <link rel="stylesheet" type="text/css" href="/css/base.css?1748665931">
+
+    <script type="text/javascript" src="/js/base.js?1748665931" ></script>
+
+    <link rel="alternate" type="application/rss+xml" href="https://hereket.com//index.xml" title="Hereket">
+
+
+    
+    
+    <title>Crafting a visualizer for an interpreter of a toy langguage | Hereket</title>
+</head>
+<body>
+        
+        <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5QJQQZSG" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+        
+        
+        
+        <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5QJQQZSG" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+        
+        <div id="nav-border" class="container header">
+    <div class='page-wrap content'>
+        <a href="/"><div class="header-logo"> Hereket </div></a>
+        <nav id="nav" class="nav">
+            
+            <a class="nav-link" href="/">
+            
+            Posts
+            </a>
+            
+            <a class="nav-link" href="/tiny/">
+            
+            Tiny
+            </a>
+            
+        </nav>
+        <div class="contacts">
+            <a class="item" href="mailto:info123@hereket.com"><img src="/image/icon-email.png"></a>
+            <a class="item" href="https://twitter.com/alfred_tweet"><img src="/image/icon-twitter.png"></a>
+    <link rel="icon" type="image/x-icon" href="/image/favicon.ico">
+        </div>
+    </div>
+</div>
+<div id="content">
+<div class="page-wrap article">
+    <div class='main-content article'>
+        <h1>Crafting a visualizer for an interpreter of a toy langguage</h1>
+        
+        <div><time class='post-time' datetime="2025-04-29">2025-04-29</time></div>
+        
+        <br><br>
+        <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#intro">Intro</a></li>
+        <li><a href="#grammar">Grammar</a></li>
+        <li><a href="#statements">Statements</a></li>
+        <li><a href="#expressions">Expressions</a></li>
+      </ul>
+    </li>
+    <li><a href="#sample-code">Sample code</a></li>
+  </ul>
+</nav>
+        <h3 id="intro">Intro</h3>
+<p>Linkg to the demo: <a href="http://localhost:1313/tiny/interpreter-debugger/">Interpereter visualizer</a></p>
+<p>I had some play around with dart desctop and web code and for that I wanted to
+build non trivial application to stress test to see if it will be able to handle
+a bit more complex project. For quite some time I had an idea to build a
+visualizer for a programming language and it seemed like a project with
+appropriate difficulty curve for the task in mind.</p>
+<p>For this project there were a few possible languages. Some were elimated due to
+their complexity and some are too dynamic. Lua were a good candidate but it
+felt a bit off. Here we will be using a toy language named Lox. It&rsquo;s grammar is
+stable and fixed, it covers most important core topics in current popular
+languages and most imporatantly there is a <a href="https://craftinginterpreters.com/">book by Robert Nystrom</a> that describes how
+to build your exact copy if you want.</p>
+<p>I tried to keep language exactly as it is described in the book with code very
+similar to what is Robert did in his version. Here I will share the grammar and
+a little of description of how it all fits together.</p>
+<p><strong>For now I will leave it here. This grammar is just to share with my friends
+infromation about the languag and how to use it. Later I will add more
+information to this article</strong></p>
+<h3 id="grammar">Grammar</h3>
+<pre tabindex="0"><code>program        → declartion* EOF ;
+declaration    → classDecl
+               | funDecl
+               | varDecl
+               | statement ;
+classDecl      → &#34;class&#34; IDENTIFIER ( &#34;&lt;&#34; IDENTIFIER )?
+                 &#34;{&#34; function* &#34;}&#34; ;
+funDecl        → &#34;fun&#34; function ;
+function       → IDENTIFIER &#34;(&#34; parameters? &#34;)&#34; block ;
+parameters     → IDENTIFIER ( &#34;,&#34; IDENTIFIER )* ;
+statement      → exprStmt
+               | forStmt
+               | ifStmt
+               | printStmt
+               | returnStmt
+               | whileStmt
+               | block ;
+returnStmt     → &#34;return&#34; expression? &#34;;&#34; ; 
+forStmt        → &#34;for&#34; &#34;(&#34; ( varDecl | exprStmt | &#34;;&#34; )
+                 expression? &#34;;&#34;
+                 expression? &#34;)&#34; statement ;
+whileStmt      → &#34;while&#34; &#34;(&#34; expression &#34;)&#34; statement ;
+ifStmt         → &#34;if&#34; &#34;(&#34; expression &#34;)&#34; statement
+               ( &#34;else&#34; statement )? ;
+block          → &#34;{&#34; declaration* &#34;}&#34; ;
+exprStmt       → expression &#34;;&#34; ;
+printStmt      → &#34;print&#34; expression &#34;;&#34; ;
+varDecl        → &#34;var&#34; IDENTIFIER ( &#34;=&#34; expression )? &#34;;&#34; ;
+
+
+
+expression     → assignment ;
+assignment     → ( call &#34;.&#34; )? IDENTIFIER &#34;=&#34; assignment
+               | logic_or ;
+logic_or       → logic_and ( &#34;or&#34; logic_and )* ;
+logic_and      → equality ( &#34;and&#34; equality )* ;
+equality       → comparison ( ( &#34;!=&#34; | &#34;==&#34; ) comparison )* ;
+comparison     → term ( ( &#34;&gt;&#34; | &#34;&gt;=&#34; | &#34;&lt;&#34; | &#34;&lt;=&#34; ) term )* ;
+term           → factor ( ( &#34;-&#34; | &#34;+&#34; ) factor )* ;
+factor         → unary ( ( &#34;/&#34; | &#34;*&#34; ) unary )* ;
+unary          → ( &#34;!&#34; | &#34;-&#34; ) unary | call ;
+call           → primary ( &#34;(&#34; arguments? &#34;)&#34; | &#34;.&#34; IDENTIFIER )* ;
+arguments      → expression ( &#34;,&#34; expression )* ;
+primary        → &#34;true&#34; | &#34;false&#34; | &#34;nil&#34; | &#34;this&#34;
+               | NUMBER | STRING | IDENTIFIER | &#34;(&#34; expression &#34;)&#34;
+               | &#34;super&#34; &#34;.&#34; IDENTIFIER ;
+</code></pre><h3 id="statements">Statements</h3>
+<pre tabindex="0"><code>StmtVar
+StmtWhile
+StmtBlock
+StmtClass
+StmtExpression
+StmtFunction
+StmtIf
+StmtPrint
+StmtReturn
+</code></pre><h3 id="expressions">Expressions</h3>
+<pre tabindex="0"><code>ExprLiteral
+ExprBinary
+ExprVariable
+ExprAssign
+ExprCall
+ExprGet
+ExprGrouping
+ExprLogical
+ExprSet
+ExprThis
+ExprSuper
+ExprUnary
+</code></pre><h2 id="sample-code">Sample code</h2>
+<pre tabindex="0"><code>var a = 3.1415;
+var b = -1;
+var c = &#34;abc and xyz&#34;;
+
+for(var i = 0; i &lt; 10; i = i + 1) {
+  print i;
+}
+
+var counter = 0;
+while(counter &lt; 10) {
+    counter &#34;Counting&#34;;
+    counter = counter + 1;
+}
+
+if(a &lt; 10) {
+  print &#34;there is more to go&#34;;
+} else {
+  print &#34;we are over our budget&#34;;
+}
+
+fun generator(n) {
+    int someNumber = 17;
+    fun count() {
+        return ((someNumber * n) - 11) / 7) * n;
+    }
+    return count;
+}
+var someNumber1 = generator(117);
+var someNumber2 = generator(25);
+
+print someNumber1();
+print someNumber2();
+
+
+
+class Animal {
+    act() {
+        print &#34;Acting like an animal&#34;;
+    }
+}
+
+class Dog {
+    init(name) {
+        this.name = name;
+    }
+
+    act() {
+        super.act();
+        print &#34;Just barking&#34;;
+        print &#34;And people call me&#34; + this.name;
+    }
+}
+
+var dog = Dog(&#34;Charlie&#34;);
+dog.act();
+</code></pre>
+    </div>
+</div>
+
+<div class="page-wrap coffee">
+</div>
+
+        </div><div class='footer'>
+    <div class='page-wrap container'>
+        <div class='copyright'> &copy; 2025, Hereket </div>
+        <div class='menu'> <a href="/index.xml">RSS feed</a> </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>
