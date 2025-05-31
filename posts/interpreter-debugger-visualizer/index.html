@@ -20,9 +20,9 @@
     
     
 
-    <link rel="stylesheet" type="text/css" href="/css/base.css?1748666431">
+    <link rel="stylesheet" type="text/css" href="/css/base.css?1748669875">
 
-    <script type="text/javascript" src="/js/base.js?1748666431" ></script>
+    <script type="text/javascript" src="/js/base.js?1748669875" ></script>
 
     <link rel="alternate" type="application/rss+xml" href="https://hereket.com//index.xml" title="Hereket">
 
@@ -85,23 +85,24 @@
 </nav>
         <h3 id="intro">Intro</h3>
 <p>Linkg to the demo: <a href="http://localhost:1313/tiny/interpreter-debugger/">Interpereter visualizer</a></p>
-<p>I had some play around with dart desctop and web code and for that I wanted to
-build non trivial application to stress test to see if it will be able to handle
-a bit more complex project. For quite some time I had an idea to build a
-visualizer for a programming language and it seemed like a project with
-appropriate difficulty curve for the task in mind.</p>
-<p>For this project there were a few possible languages. Some were elimated due to
-their complexity and some are too dynamic. Lua were a good candidate but it
-felt a bit off. Here we will be using a toy language named Lox. It&rsquo;s grammar is
-stable and fixed, it covers most important core topics in current popular
-languages and most imporatantly there is a <a href="https://craftinginterpreters.com/">book by Robert Nystrom</a> that describes how
-to build your exact copy if you want.</p>
-<p>I tried to keep language exactly as it is described in the book with code very
-similar to what is Robert did in his version. Here I will share the grammar and
-a little of description of how it all fits together.</p>
-<p><strong>For now I will leave it here. This grammar is just to share with my friends
-infromation about the languag and how to use it. Later I will add more
-information to this article</strong></p>
+<p>I experimented with Dart for desktop and web development, and I wanted to build
+a non-trivial application to stress-test whether it could handle a more complex
+project. For quite some time, I’d had an idea to build a visualizer for a
+programming language, and it seemed like a project with an appropriate
+difficulty level for this purpose.</p>
+<p>For this project, there were a few possible languages to visualize. Some were
+eliminated due to their complexity, and others were too dynamic. Lua was a good
+candidate, but it didn’t feel quite right. Instead, we’ll use a toy language
+named Lox. Its grammar is stable and well-defined, it covers most of the core
+concepts found in modern popular languages, and—most importantly—there’s a <a href="(https://craftinginterpreters.com/)">book
+by Robert Nystrom</a> that describes how to
+build your own implementation if you’re interested.</p>
+<p>I aimed to keep the language exactly as described in the book, with code very
+similar to Robert’s version. Below, I’ll share the grammar and a brief
+explanation of how everything fits together.</p>
+<p><strong>For now, I’ll leave it here. This grammar is primarily to share information
+about the language with my friends and explain how to use it. Later, I’ll expand
+this article with more details.</strong></p>
 <h3 id="grammar">Grammar</h3>
 <pre tabindex="0"><code>program        → declartion* EOF ;
 declaration    → classDecl
