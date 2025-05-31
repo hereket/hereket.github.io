@@ -3,12 +3,15 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://hereket.com/</loc>
-    <lastmod>2024-09-06T16:05:40+05:00</lastmod>
+    <lastmod>2025-05-30T10:43:11+05:00</lastmod>
   </url><url>
-    <loc>https://hereket.com/tiny/tm-lang/</loc>
-    <lastmod>2024-09-06T16:05:40+05:00</lastmod>
+    <loc>https://hereket.com/tiny/interpreter-debugger/</loc>
+    <lastmod>2025-05-30T10:43:11+05:00</lastmod>
   </url><url>
     <loc>https://hereket.com/tiny/</loc>
+    <lastmod>2025-05-30T10:43:11+05:00</lastmod>
+  </url><url>
+    <loc>https://hereket.com/tiny/tm-lang/</loc>
     <lastmod>2024-09-06T16:05:40+05:00</lastmod>
   </url><url>
     <loc>https://hereket.com/posts/cpp-unity-compile-inkscape/</loc>
