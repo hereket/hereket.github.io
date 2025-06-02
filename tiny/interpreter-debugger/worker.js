@@ -3826,9 +3826,6 @@
       t1 = buffer._contents;
       return t1.charCodeAt(0) == 0 ? t1 : t1;
     },
-    print(object) {
-      A.printString(object);
-    },
     Duration: function Duration(t0) {
       this._duration = t0;
     },
@@ -4197,10 +4194,9 @@
       _.line = t3;
     },
     isolateEntryInterpreter() {
-      var t1, t2, result;
-      A.print("------------- isolateEntryInterpreter");
-      t1 = new A.isolateEntryInterpreter_sendy();
-      t2 = type$.JSObject._as(self.self);
+      var result,
+        t1 = new A.isolateEntryInterpreter_sendy(),
+        t2 = type$.JSObject._as(self.self);
       t1 = new A.isolateEntryInterpreter_closure(new A.isolateEntryInterpreter_executeInContext(t1), t1);
       if (typeof t1 == "function")
         A.throwExpression(A.ArgumentError$("Attempting to rewrap a JS function.", null));
@@ -4213,7 +4209,6 @@
       t2.onmessage = result;
     },
     main() {
-      A.print("Worker script is running. Origin: " + A._asString(type$.JSObject._as(self.self).origin));
       A.isolateEntryInterpreter();
     },
     isolateEntryInterpreter_sendy: function isolateEntryInterpreter_sendy() {
@@ -4261,21 +4256,6 @@
     },
     isolateEntryInterpreter__closure0: function isolateEntryInterpreter__closure0(t0) {
       this.sendy = t0;
-    },
-    printString(string) {
-      if (typeof dartPrint == "function") {
-        dartPrint(string);
-        return;
-      }
-      if (typeof console == "object" && typeof console.log != "undefined") {
-        console.log(string);
-        return;
-      }
-      if (typeof print == "function") {
-        print(string);
-        return;
-      }
-      throw "Unable to print message: " + String(string);
     },
     _callDartFunctionFast1(callback, arg1, $length) {
       type$.Function._as(callback);
@@ -19469,7 +19449,6 @@
   };
   A.isolateEntryInterpreter_sendy.prototype = {
     call$1(message) {
-      A.print(message);
       type$.JSObject._as(self.self).postMessage(message);
     },
     $signature: 21
@@ -19812,15 +19791,13 @@
     call$1($event) {
       var t1 = type$.JSObject,
         message = A._asString(t1._as($event).data);
-      A.print("::: " + message);
       if (B.JSString_methods.startsWith$1(message, "START:")) {
         t1 = this.sendy;
         this.executeInContext.call$1(B.JSString_methods.substring$1(message, 6)).listen$3$onDone$onError(new A.isolateEntryInterpreter__closure(t1), new A.isolateEntryInterpreter__closure0(t1), new A.isolateEntryInterpreter__closure1(t1));
       } else if (message === "STOP") {
         this.sendy.call$1("Shutting down gracefully");
         t1._as(self.self).close();
-      } else
-        A.print(message);
+      }
     },
     $signature: 26
   };
