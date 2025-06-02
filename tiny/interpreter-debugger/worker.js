@@ -593,6 +593,16 @@
       }
       return result;
     },
+    Primitives_parseBool(source, caseSensitive) {
+      var t1;
+      A.checkNotNullable(source, "source", type$.String);
+      A.checkNotNullable(true, "caseSensitive", type$.bool);
+      if (source === "true")
+        t1 = true;
+      else
+        t1 = source === "false" ? false : null;
+      return t1;
+    },
     Primitives_objectTypeName(object) {
       return A.Primitives__objectTypeNameNewRti(object);
     },
@@ -3894,54 +3904,71 @@
     StringBuffer: function StringBuffer(t0) {
       this._contents = t0;
     },
-    LanguageCallableImpl: function LanguageCallableImpl(t0, t1, t2) {
-      this.argCount = t0;
-      this.action = t1;
-      this.stringName = t2;
+    isolateEntryInterpreter() {
+      var t3, result, t1 = {},
+        t2 = new A.isolateEntryInterpreter_sendy();
+      t1.isPrintStmtExpr = false;
+      t3 = type$.JSObject._as(self.self);
+      t2 = new A.isolateEntryInterpreter_closure(t1, new A.isolateEntryInterpreter_executeInContext(t2), t2);
+      if (typeof t2 == "function")
+        A.throwExpression(A.ArgumentError$("Attempting to rewrap a JS function.", null));
+      result = function(_call, f) {
+        return function(arg1) {
+          return _call(f, arg1, arguments.length);
+        };
+      }(A._callDartFunctionFast1, t2);
+      result[$.$get$DART_CLOSURE_PROPERTY_NAME()] = t2;
+      t3.onmessage = result;
     },
-    LanguageFunction: function LanguageFunction(t0, t1, t2) {
-      this.declaration = t0;
-      this.closure = t1;
-      this.isInitializer = t2;
+    main() {
+      A.isolateEntryInterpreter();
     },
-    LanguageFunction_call_closure: function LanguageFunction_call_closure(t0) {
-      this.controller = t0;
+    isolateEntryInterpreter_sendy: function isolateEntryInterpreter_sendy() {
     },
-    LanguageFunction_call_closure1: function LanguageFunction_call_closure1(t0, t1) {
+    isolateEntryInterpreter_executeInContext: function isolateEntryInterpreter_executeInContext(t0) {
+      this.sendy = t0;
+    },
+    isolateEntryInterpreter_executeInContext_closure: function isolateEntryInterpreter_executeInContext_closure(t0) {
+      this.statements = t0;
+    },
+    isolateEntryInterpreter_executeInContext_closure0: function isolateEntryInterpreter_executeInContext_closure0(t0) {
+      this.parseStreamCompleter = t0;
+    },
+    isolateEntryInterpreter_executeInContext_closure1: function isolateEntryInterpreter_executeInContext_closure1(t0, t1) {
       this._box_0 = t0;
-      this.controller = t1;
+      this.parseStreamCompleter = t1;
     },
-    LanguageFunction_call_closure0: function LanguageFunction_call_closure0(t0) {
-      this.controller = t0;
+    isolateEntryInterpreter_executeInContext_closure2: function isolateEntryInterpreter_executeInContext_closure2() {
     },
-    LanguageClass: function LanguageClass(t0, t1, t2) {
-      this.name = t0;
-      this.superClass = t1;
-      this.methods = t2;
+    isolateEntryInterpreter_executeInContext_closure3: function isolateEntryInterpreter_executeInContext_closure3(t0) {
+      this.resolverStreamCompleter = t0;
     },
-    LanguageInstance: function LanguageInstance(t0, t1) {
-      this.klass = t0;
-      this.fields = t1;
+    isolateEntryInterpreter_executeInContext_closure4: function isolateEntryInterpreter_executeInContext_closure4(t0) {
+      this.resolverStreamCompleter = t0;
     },
-    Environment: function Environment(t0, t1) {
-      this.enclosing = t0;
-      this.values = t1;
+    isolateEntryInterpreter_executeInContext_closure5: function isolateEntryInterpreter_executeInContext_closure5(t0, t1) {
+      this._box_0 = t0;
+      this.sendy = t1;
     },
-    ParseError$(cause) {
-      return new A.ParseError(cause);
+    isolateEntryInterpreter_executeInContext_closure7: function isolateEntryInterpreter_executeInContext_closure7(t0) {
+      this.sendy = t0;
     },
-    ParserRuntimeError$(cause, token) {
-      return new A.ParserRuntimeError(cause, token);
+    isolateEntryInterpreter_executeInContext_closure6: function isolateEntryInterpreter_executeInContext_closure6(t0) {
+      this.sendy = t0;
     },
-    ParseError: function ParseError(t0) {
-      this.cause = t0;
+    isolateEntryInterpreter_closure: function isolateEntryInterpreter_closure(t0, t1, t2) {
+      this._box_1 = t0;
+      this.executeInContext = t1;
+      this.sendy = t2;
     },
-    ParserRuntimeError: function ParserRuntimeError(t0, t1) {
-      this.cause = t0;
-      this.token = t1;
+    isolateEntryInterpreter__closure: function isolateEntryInterpreter__closure(t0) {
+      this.sendy = t0;
     },
-    Return: function Return(t0) {
-      this.value = t0;
+    isolateEntryInterpreter__closure1: function isolateEntryInterpreter__closure1(t0) {
+      this.sendy = t0;
+    },
+    isolateEntryInterpreter__closure0: function isolateEntryInterpreter__closure0(t0) {
+      this.sendy = t0;
     },
     ExpressionResultX: function ExpressionResultX() {
     },
@@ -4070,9 +4097,71 @@
       this.body = t1;
       this.state = t2;
     },
-    Interpreter$() {
-      var t1 = new A.Interpreter(new A.Environment(null, A.LinkedHashMap_LinkedHashMap$_empty(type$.String, type$.Object)), A.LinkedHashMap_LinkedHashMap$_empty(type$.Expr, type$.int), new A.ExpressionResultX());
-      t1.Interpreter$0();
+    Token_Token$empty() {
+      return new A.Token(B.TokenType_40, "", null, -1);
+    },
+    TokenType: function TokenType(t0) {
+      this._name = t0;
+    },
+    Token: function Token(t0, t1, t2, t3) {
+      var _ = this;
+      _.type = t0;
+      _.lexeme = t1;
+      _.literal = t2;
+      _.line = t3;
+    },
+    LanguageCallableImpl: function LanguageCallableImpl(t0, t1, t2) {
+      this.argCount = t0;
+      this.action = t1;
+      this.stringName = t2;
+    },
+    LanguageFunction: function LanguageFunction(t0, t1, t2) {
+      this.declaration = t0;
+      this.closure = t1;
+      this.isInitializer = t2;
+    },
+    LanguageFunction_call_closure: function LanguageFunction_call_closure(t0) {
+      this.controller = t0;
+    },
+    LanguageFunction_call_closure1: function LanguageFunction_call_closure1(t0, t1) {
+      this._box_0 = t0;
+      this.controller = t1;
+    },
+    LanguageFunction_call_closure0: function LanguageFunction_call_closure0(t0) {
+      this.controller = t0;
+    },
+    LanguageClass: function LanguageClass(t0, t1, t2) {
+      this.name = t0;
+      this.superClass = t1;
+      this.methods = t2;
+    },
+    LanguageInstance: function LanguageInstance(t0, t1) {
+      this.klass = t0;
+      this.fields = t1;
+    },
+    Environment: function Environment(t0, t1) {
+      this.enclosing = t0;
+      this.values = t1;
+    },
+    ParseError$(cause) {
+      return new A.ParseError(cause);
+    },
+    ParserRuntimeError$(cause, token) {
+      return new A.ParserRuntimeError(cause, token);
+    },
+    ParseError: function ParseError(t0) {
+      this.cause = t0;
+    },
+    ParserRuntimeError: function ParserRuntimeError(t0, t1) {
+      this.cause = t0;
+      this.token = t1;
+    },
+    Return: function Return(t0) {
+      this.value = t0;
+    },
+    Interpreter$(dumpExpressionStatements) {
+      var t1 = new A.Interpreter(new A.Environment(null, A.LinkedHashMap_LinkedHashMap$_empty(type$.String, type$.Object)), A.LinkedHashMap_LinkedHashMap$_empty(type$.Expr, type$.int), dumpExpressionStatements, new A.ExpressionResultX());
+      t1.Interpreter$1(dumpExpressionStatements);
       return t1;
     },
     InterpreterInfoType: function InterpreterInfoType(t0) {
@@ -4085,12 +4174,13 @@
       _.output = t2;
       _.completer = t3;
     },
-    Interpreter: function Interpreter(t0, t1, t2) {
+    Interpreter: function Interpreter(t0, t1, t2, t3) {
       var _ = this;
       _.globals = t0;
       _.__Interpreter_environment_A = $;
       _.locals = t1;
-      _.currentExprResult = t2;
+      _.dumpExpressionStatements = t2;
+      _.currentExprResult = t3;
     },
     Interpreter_closure: function Interpreter_closure() {
     },
@@ -4179,83 +4269,6 @@
       _.startLineOffsetStart = _.currentLineOffsetStart = 0;
       _.startLine = 1;
       _.errors = t2;
-    },
-    Token_Token$empty() {
-      return new A.Token(B.TokenType_40, "", null, -1);
-    },
-    TokenType: function TokenType(t0) {
-      this._name = t0;
-    },
-    Token: function Token(t0, t1, t2, t3) {
-      var _ = this;
-      _.type = t0;
-      _.lexeme = t1;
-      _.literal = t2;
-      _.line = t3;
-    },
-    isolateEntryInterpreter() {
-      var result,
-        t1 = new A.isolateEntryInterpreter_sendy(),
-        t2 = type$.JSObject._as(self.self);
-      t1 = new A.isolateEntryInterpreter_closure(new A.isolateEntryInterpreter_executeInContext(t1), t1);
-      if (typeof t1 == "function")
-        A.throwExpression(A.ArgumentError$("Attempting to rewrap a JS function.", null));
-      result = function(_call, f) {
-        return function(arg1) {
-          return _call(f, arg1, arguments.length);
-        };
-      }(A._callDartFunctionFast1, t1);
-      result[$.$get$DART_CLOSURE_PROPERTY_NAME()] = t1;
-      t2.onmessage = result;
-    },
-    main() {
-      A.isolateEntryInterpreter();
-    },
-    isolateEntryInterpreter_sendy: function isolateEntryInterpreter_sendy() {
-    },
-    isolateEntryInterpreter_executeInContext: function isolateEntryInterpreter_executeInContext(t0) {
-      this.sendy = t0;
-    },
-    isolateEntryInterpreter_executeInContext_closure: function isolateEntryInterpreter_executeInContext_closure(t0) {
-      this.statements = t0;
-    },
-    isolateEntryInterpreter_executeInContext_closure0: function isolateEntryInterpreter_executeInContext_closure0(t0) {
-      this.parseStreamCompleter = t0;
-    },
-    isolateEntryInterpreter_executeInContext_closure1: function isolateEntryInterpreter_executeInContext_closure1(t0, t1) {
-      this._box_0 = t0;
-      this.parseStreamCompleter = t1;
-    },
-    isolateEntryInterpreter_executeInContext_closure2: function isolateEntryInterpreter_executeInContext_closure2() {
-    },
-    isolateEntryInterpreter_executeInContext_closure3: function isolateEntryInterpreter_executeInContext_closure3(t0) {
-      this.resolverStreamCompleter = t0;
-    },
-    isolateEntryInterpreter_executeInContext_closure4: function isolateEntryInterpreter_executeInContext_closure4(t0) {
-      this.resolverStreamCompleter = t0;
-    },
-    isolateEntryInterpreter_executeInContext_closure5: function isolateEntryInterpreter_executeInContext_closure5(t0, t1) {
-      this._box_0 = t0;
-      this.sendy = t1;
-    },
-    isolateEntryInterpreter_executeInContext_closure7: function isolateEntryInterpreter_executeInContext_closure7(t0) {
-      this.sendy = t0;
-    },
-    isolateEntryInterpreter_executeInContext_closure6: function isolateEntryInterpreter_executeInContext_closure6(t0) {
-      this.sendy = t0;
-    },
-    isolateEntryInterpreter_closure: function isolateEntryInterpreter_closure(t0, t1) {
-      this.executeInContext = t0;
-      this.sendy = t1;
-    },
-    isolateEntryInterpreter__closure: function isolateEntryInterpreter__closure(t0) {
-      this.sendy = t0;
-    },
-    isolateEntryInterpreter__closure1: function isolateEntryInterpreter__closure1(t0) {
-      this.sendy = t0;
-    },
-    isolateEntryInterpreter__closure0: function isolateEntryInterpreter__closure0(t0) {
-      this.sendy = t0;
     },
     _callDartFunctionFast1(callback, arg1, $length) {
       type$.Function._as(callback);
@@ -6651,6 +6664,425 @@
       return t1.charCodeAt(0) == 0 ? t1 : t1;
     }
   };
+  A.isolateEntryInterpreter_sendy.prototype = {
+    call$1(message) {
+      type$.JSObject._as(self.self).postMessage(message);
+    },
+    $signature: 19
+  };
+  A.isolateEntryInterpreter_executeInContext.prototype = {
+    $call$body$isolateEntryInterpreter_executeInContext(programText, isPrintStmtExpr) {
+      var $async$call$2 = A._wrapJsFunctionForAsync(function($async$errorCode, $async$result) {
+        switch ($async$errorCode) {
+          case 2:
+            $async$next = $async$nextWhenCanceled;
+            $async$goto = $async$next.pop();
+            break;
+          case 1:
+            $async$currentError = $async$result;
+            $async$goto = $async$handler;
+        }
+        while (true)
+          switch ($async$goto) {
+            case 0:
+              // Function start
+              _box_0 = {};
+              _box_0.outputResult = "-----";
+              data = programText;
+              t1 = type$.JSArray_String;
+              _box_0.errors = A._setArrayType([], t1);
+              interpretStream = A._Cell$named("interpretStream");
+              subscription = A._Cell$named("subscription");
+              interpreter = A._Cell$named("interpreter");
+              $async$handler = 4;
+              t2 = type$.JSArray_Token;
+              scanner = new A.Scanner(data, A._setArrayType([], t2), A._setArrayType([], t1));
+              tokens = A._setArrayType([], t2);
+              scanStream = scanner.scanTokensStreamed$0();
+              t2 = new A._StreamIterator(A.checkNotNullable(scanStream, "stream", type$.Object), type$._StreamIterator_ScanState);
+              $async$handler = 7;
+            case 10:
+              // for condition
+              $async$temp1 = A;
+              $async$goto = 12;
+              return A._asyncStarHelper(t2.moveNext$0(), $async$call$2, $async$controller);
+            case 12:
+              // returning from await.
+              if (!$async$temp1.boolConversionCheck($async$result)) {
+                // goto after for
+                $async$goto = 11;
+                break;
+              }
+              scanState = t2.get$current();
+              if (scanState.type === B.ScanStateType_2) {
+                t3 = scanState.token;
+                t3.toString;
+                token = t3;
+                J.add$1$ax(tokens, token);
+              }
+              t3 = scanState.completer;
+              t4 = t3.future;
+              if ((t4._state & 30) === 0)
+                t4._asyncComplete$1(t3.$ti._eval$1("1/")._as(null));
+              // goto for condition
+              $async$goto = 10;
+              break;
+            case 11:
+              // after for
+              $async$next.push(9);
+              // goto finally
+              $async$goto = 8;
+              break;
+            case 7:
+              // uncaught
+              $async$next = [4];
+            case 8:
+              // finally
+              $async$handler = 4;
+              $async$goto = 13;
+              return A._asyncStarHelper(t2.cancel$0(), $async$call$2, $async$controller);
+            case 13:
+              // returning from await.
+              // goto the next finally handler
+              $async$goto = $async$next.pop();
+              break;
+            case 9:
+              // after finally
+              t2 = $async$self.sendy;
+              t2.call$1("----: scanning done");
+              errors = _box_0.errors = scanner.errors;
+              t3 = errors.length, _i = 0;
+            case 14:
+              // for condition
+              if (!(_i < errors.length)) {
+                // goto after for
+                $async$goto = 16;
+                break;
+              }
+              error = errors[_i];
+              $async$goto = 17;
+              $async$nextWhenCanceled = [1];
+              return A._asyncStarHelper(A._IterationMarker_yieldSingle(error), $async$call$2, $async$controller);
+            case 17:
+              // after yield
+            case 15:
+              // for update
+              errors.length === t3 || (0, A.throwConcurrentModificationError)(errors), ++_i;
+              // goto for condition
+              $async$goto = 14;
+              break;
+            case 16:
+              // after for
+              if (_box_0.errors.length !== 0) {
+                // goto return
+                $async$goto = 1;
+                break;
+              }
+              parser = new A.Parser(tokens, A._setArrayType([], t1));
+              parseStream = parser.parseStreamed$0();
+              statements = A._setArrayType([], type$.JSArray_Stmt);
+              t3 = type$._Future_void;
+              t4 = type$._AsyncCompleter_void;
+              parseStreamCompleter = new A._AsyncCompleter(new A._Future($.Zone__current, t3), t4);
+              parseStream.listen$3$onDone$onError(new A.isolateEntryInterpreter_executeInContext_closure(statements), new A.isolateEntryInterpreter_executeInContext_closure0(parseStreamCompleter), new A.isolateEntryInterpreter_executeInContext_closure1(_box_0, parseStreamCompleter));
+              $async$goto = (parseStreamCompleter.future._state & 30) === 0 ? 18 : 19;
+              break;
+            case 18:
+              // then
+              $async$goto = 20;
+              return A._asyncStarHelper(parseStreamCompleter.future, $async$call$2, $async$controller);
+            case 20:
+              // returning from await.
+            case 19:
+              // join
+              t2.call$1("----: parsing done");
+              errors = _box_0.errors = parser.errors;
+              t5 = errors.length, _i = 0;
+            case 21:
+              // for condition
+              if (!(_i < errors.length)) {
+                // goto after for
+                $async$goto = 23;
+                break;
+              }
+              error0 = errors[_i];
+              $async$goto = 24;
+              $async$nextWhenCanceled = [1];
+              return A._asyncStarHelper(A._IterationMarker_yieldSingle(error0), $async$call$2, $async$controller);
+            case 24:
+              // after yield
+            case 22:
+              // for update
+              errors.length === t5 || (0, A.throwConcurrentModificationError)(errors), ++_i;
+              // goto for condition
+              $async$goto = 21;
+              break;
+            case 23:
+              // after for
+              if (_box_0.errors.length !== 0) {
+                // goto return
+                $async$goto = 1;
+                break;
+              }
+              interpreter._value = A.Interpreter$(isPrintStmtExpr);
+              t5 = interpreter._readLocal$0();
+              t5.toString;
+              resolver = new A.Resolver(t5, A._setArrayType([], type$.JSArray_Map_String_bool), A._setArrayType([], t1), B.FunctionType_0, B.ClassType_0, A._setArrayType([], type$.JSArray_ResolveInfo));
+              resolverStream = resolver.resolveAll$1(statements);
+              resolverStreamCompleter = new A._AsyncCompleter(new A._Future($.Zone__current, t3), t4);
+              t4 = resolverStream;
+              if (t4 != null)
+                t4.listen$3$onDone$onError(new A.isolateEntryInterpreter_executeInContext_closure2(), new A.isolateEntryInterpreter_executeInContext_closure3(resolverStreamCompleter), new A.isolateEntryInterpreter_executeInContext_closure4(resolverStreamCompleter));
+              $async$goto = 25;
+              return A._asyncStarHelper(resolverStreamCompleter.future, $async$call$2, $async$controller);
+            case 25:
+              // returning from await.
+              t2.call$1("----: resolving done");
+              errors = _box_0.errors = resolver.errors;
+              t1 = errors.length, _i = 0;
+            case 26:
+              // for condition
+              if (!(_i < errors.length)) {
+                // goto after for
+                $async$goto = 28;
+                break;
+              }
+              error1 = errors[_i];
+              $async$goto = 29;
+              $async$nextWhenCanceled = [1];
+              return A._asyncStarHelper(A._IterationMarker_yieldSingle(error1), $async$call$2, $async$controller);
+            case 29:
+              // after yield
+            case 27:
+              // for update
+              errors.length === t1 || (0, A.throwConcurrentModificationError)(errors), ++_i;
+              // goto for condition
+              $async$goto = 26;
+              break;
+            case 28:
+              // after for
+              if (_box_0.errors.length !== 0) {
+                // goto return
+                $async$goto = 1;
+                break;
+              }
+              interpretStream._value = interpreter._readLocal$0().interpret$1(statements);
+              subscription._value = interpretStream._readLocal$0().listen$3$onDone$onError(new A.isolateEntryInterpreter_executeInContext_closure5(_box_0, t2), new A.isolateEntryInterpreter_executeInContext_closure6(t2), new A.isolateEntryInterpreter_executeInContext_closure7(t2));
+              $async$handler = 2;
+              // goto after finally
+              $async$goto = 6;
+              break;
+            case 4:
+              // catch
+              $async$handler = 3;
+              $async$exception = $async$currentError;
+              e = A.unwrapException($async$exception);
+              A.getTraceFromException($async$exception);
+              $async$self.sendy.call$1("ERROR: " + A.S(e));
+              // goto after finally
+              $async$goto = 6;
+              break;
+            case 3:
+              // uncaught
+              // goto rethrow
+              $async$goto = 2;
+              break;
+            case 6:
+              // after finally
+            case 1:
+              // return
+              return A._asyncStarHelper(null, 0, $async$controller);
+            case 2:
+              // rethrow
+              return A._asyncStarHelper($async$currentError, 1, $async$controller);
+          }
+      });
+      var $async$goto = 0,
+        $async$controller = A._makeAsyncStarStreamController($async$call$2, type$.String),
+        $async$nextWhenCanceled, $async$handler = 2, $async$currentError, $async$next = [], $async$self = this, data, interpretStream, subscription, interpreter, scanner, tokens, scanStream, scanState, token, error, parser, parseStream, statements, parseStreamCompleter, error0, resolver, resolverStream, resolverStreamCompleter, error1, e, t1, t2, t3, t4, errors, _i, t5, exception, _box_0, $async$exception, $async$temp1;
+      return A._streamOfController($async$controller);
+    },
+    call$2(programText, isPrintStmtExpr) {
+      return this.$call$body$isolateEntryInterpreter_executeInContext(programText, isPrintStmtExpr);
+    },
+    $signature: 20
+  };
+  A.isolateEntryInterpreter_executeInContext_closure.prototype = {
+    call$1(parserState) {
+      var t1;
+      type$.ParserState._as(parserState);
+      if (parserState.type === B.ParserStateType_1) {
+        t1 = parserState.statement;
+        t1.toString;
+        B.JSArray_methods.add$1(this.statements, t1);
+      }
+      parserState.finish$0();
+    },
+    $signature: 21
+  };
+  A.isolateEntryInterpreter_executeInContext_closure0.prototype = {
+    call$0() {
+      var t1 = this.parseStreamCompleter;
+      if ((t1.future._state & 30) === 0)
+        t1.complete$0();
+    },
+    $signature: 0
+  };
+  A.isolateEntryInterpreter_executeInContext_closure1.prototype = {
+    call$1(error) {
+      var t1;
+      B.JSArray_methods.add$1(this._box_0.errors, "Parse error: " + A.S(error));
+      t1 = this.parseStreamCompleter;
+      if ((t1.future._state & 30) === 0)
+        t1.complete$0();
+    },
+    $signature: 1
+  };
+  A.isolateEntryInterpreter_executeInContext_closure2.prototype = {
+    call$1(resolveTypeInfo) {
+      type$.ResolveInfo._as(resolveTypeInfo);
+    },
+    $signature: 22
+  };
+  A.isolateEntryInterpreter_executeInContext_closure3.prototype = {
+    call$0() {
+      this.resolverStreamCompleter.complete$0();
+    },
+    $signature: 0
+  };
+  A.isolateEntryInterpreter_executeInContext_closure4.prototype = {
+    call$1(error) {
+      this.resolverStreamCompleter.complete$0();
+    },
+    $signature: 1
+  };
+  A.isolateEntryInterpreter_executeInContext_closure5.prototype = {
+    call$1(interpreterInfo) {
+      return this.$call$body$isolateEntryInterpreter_executeInContext_closure(type$.InterpreterInfo._as(interpreterInfo));
+    },
+    $call$body$isolateEntryInterpreter_executeInContext_closure(interpreterInfo) {
+      var $async$goto = 0,
+        $async$completer = A._makeAsyncAwaitCompleter(type$.void),
+        $async$self = this, outputResult, t1;
+      var $async$call$1 = A._wrapJsFunctionForAsync(function($async$errorCode, $async$result) {
+        if ($async$errorCode === 1)
+          return A._asyncRethrow($async$result, $async$completer);
+        while (true)
+          switch ($async$goto) {
+            case 0:
+              // Function start
+              t1 = interpreterInfo.completer;
+              if ((t1.future._state & 30) === 0)
+                t1.complete$0();
+              t1 = interpreterInfo.type;
+              if (t1 === B.InterpreterInfoType_4) {
+                outputResult = A.S(interpreterInfo.output) + "\n";
+                $async$self._box_0.outputResult = outputResult;
+                $async$self.sendy.call$1("OUTPUT:" + outputResult);
+              } else if (t1 === B.InterpreterInfoType_5) {
+                t1 = $async$self._box_0;
+                B.JSArray_methods.add$1(t1.errors, A.S(interpreterInfo.output));
+                $async$self.sendy.call$1("ERROR:" + t1.outputResult);
+              }
+              // implicit return
+              return A._asyncReturn(null, $async$completer);
+          }
+      });
+      return A._asyncStartSync($async$call$1, $async$completer);
+    },
+    $signature: 23
+  };
+  A.isolateEntryInterpreter_executeInContext_closure7.prototype = {
+    call$1(error) {
+      this.sendy.call$1("ERROR: error " + A.S(error) + "\n");
+    },
+    $signature: 1
+  };
+  A.isolateEntryInterpreter_executeInContext_closure6.prototype = {
+    call$0() {
+      this.sendy.call$1("FINISHED_EXECUTING");
+    },
+    $signature: 0
+  };
+  A.isolateEntryInterpreter_closure.prototype = {
+    call$1($event) {
+      var value, exception, _this = this,
+        t1 = type$.JSObject,
+        message = A._asString(t1._as($event).data);
+      if (B.JSString_methods.startsWith$1(message, "DEBUG_PRINT:")) {
+        value = B.JSString_methods.substring$1(message, 12);
+        try {
+          t1 = A.Primitives_parseBool(value, true);
+          _this._box_1.isPrintStmtExpr = t1 === true;
+        } catch (exception) {
+        }
+      } else if (B.JSString_methods.startsWith$1(message, "START:")) {
+        t1 = _this.sendy;
+        _this.executeInContext.call$2(B.JSString_methods.substring$1(message, 6), _this._box_1.isPrintStmtExpr).listen$3$onDone$onError(new A.isolateEntryInterpreter__closure(t1), new A.isolateEntryInterpreter__closure0(t1), new A.isolateEntryInterpreter__closure1(t1));
+      } else if (message === "STOP") {
+        _this.sendy.call$1("Shutting down gracefully");
+        t1._as(self.self).close();
+      }
+    },
+    $signature: 24
+  };
+  A.isolateEntryInterpreter__closure.prototype = {
+    call$1(item) {
+      this.sendy.call$1("ERROR:" + A._asString(item));
+    },
+    $signature: 25
+  };
+  A.isolateEntryInterpreter__closure1.prototype = {
+    call$1(error) {
+      var t1 = this.sendy;
+      t1.call$1("Aye, got an error: " + A.S(error));
+      t1.call$1("ERROR:" + A.S(error));
+    },
+    $signature: 1
+  };
+  A.isolateEntryInterpreter__closure0.prototype = {
+    call$0() {
+      this.sendy.call$1("Aye, done");
+    },
+    $signature: 0
+  };
+  A.ExpressionResultX.prototype = {};
+  A.StmtState.prototype = {};
+  A.Expr.prototype = {};
+  A.ExprNull.prototype = {};
+  A.ExprAssign.prototype = {};
+  A.ExprBinary.prototype = {};
+  A.ExprCall.prototype = {};
+  A.ExprGet.prototype = {};
+  A.ExprGrouping.prototype = {};
+  A.ExprLiteral.prototype = {};
+  A.ExprLogical.prototype = {};
+  A.ExprSet.prototype = {};
+  A.ExprSuper.prototype = {};
+  A.ExprThis.prototype = {};
+  A.ExprUnary.prototype = {};
+  A.ExprVariable.prototype = {};
+  A.Stmt.prototype = {};
+  A.StmtNull.prototype = {};
+  A.StmtBlock.prototype = {};
+  A.StmtClass.prototype = {};
+  A.StmtExpression.prototype = {};
+  A.StmtFunction.prototype = {};
+  A.StmtIf.prototype = {};
+  A.StmtPrint.prototype = {};
+  A.StmtReturn.prototype = {};
+  A.StmtVar.prototype = {};
+  A.StmtWhile.prototype = {};
+  A.TokenType.prototype = {
+    _enumToString$0() {
+      return "TokenType." + this._name;
+    }
+  };
+  A.Token.prototype = {
+    toString$0(_) {
+      return this.type.toString$0(0) + " " + this.lexeme + " " + A.S(this.literal);
+    }
+  };
   A.LanguageCallableImpl.prototype = {
     arity$0() {
       return this.argCount;
@@ -6933,33 +7365,6 @@
       return A.S(this.value);
     }
   };
-  A.ExpressionResultX.prototype = {};
-  A.StmtState.prototype = {};
-  A.Expr.prototype = {};
-  A.ExprNull.prototype = {};
-  A.ExprAssign.prototype = {};
-  A.ExprBinary.prototype = {};
-  A.ExprCall.prototype = {};
-  A.ExprGet.prototype = {};
-  A.ExprGrouping.prototype = {};
-  A.ExprLiteral.prototype = {};
-  A.ExprLogical.prototype = {};
-  A.ExprSet.prototype = {};
-  A.ExprSuper.prototype = {};
-  A.ExprThis.prototype = {};
-  A.ExprUnary.prototype = {};
-  A.ExprVariable.prototype = {};
-  A.Stmt.prototype = {};
-  A.StmtNull.prototype = {};
-  A.StmtBlock.prototype = {};
-  A.StmtClass.prototype = {};
-  A.StmtExpression.prototype = {};
-  A.StmtFunction.prototype = {};
-  A.StmtIf.prototype = {};
-  A.StmtPrint.prototype = {};
-  A.StmtReturn.prototype = {};
-  A.StmtVar.prototype = {};
-  A.StmtWhile.prototype = {};
   A.InterpreterInfoType.prototype = {
     _enumToString$0() {
       return "InterpreterInfoType." + this._name;
@@ -6967,7 +7372,7 @@
   };
   A.InterpreterInfo.prototype = {};
   A.Interpreter.prototype = {
-    Interpreter$0() {
+    Interpreter$1(dumpExpressionStatements) {
       var t1 = this.globals;
       this.__Interpreter_environment_A = t1;
       t1.values.$indexSet(0, "clock", new A.LanguageCallableImpl(0, new A.Interpreter_closure(), "<native fn>"));
@@ -7369,21 +7774,101 @@
           switch ($async$goto) {
             case 0:
               // Function start
-              t1 = new A._Future($.Zone__current, type$._Future_dynamic);
+              t1 = type$._Future_dynamic;
+              t2 = new A._Future($.Zone__current, t1);
+              t3 = type$._AsyncCompleter_dynamic;
               $async$goto = 3;
               $async$nextWhenCanceled = [1];
-              return A._asyncStarHelper(A._IterationMarker_yieldSingle(new A.InterpreterInfo(B.InterpreterInfoType_1, null, null, new A._AsyncCompleter(t1, type$._AsyncCompleter_dynamic))), $async$visitExpressionStmt$1, $async$controller);
+              return A._asyncStarHelper(A._IterationMarker_yieldSingle(new A.InterpreterInfo(B.InterpreterInfoType_1, null, null, new A._AsyncCompleter(t2, t3))), $async$visitExpressionStmt$1, $async$controller);
             case 3:
               // after yield
               $async$goto = 4;
-              return A._asyncStarHelper(t1, $async$visitExpressionStmt$1, $async$controller);
+              return A._asyncStarHelper(t2, $async$visitExpressionStmt$1, $async$controller);
             case 4:
               // returning from await.
-              $async$goto = 5;
-              $async$nextWhenCanceled = [1];
-              return A._asyncStarHelper(A._IterationMarker_yieldStar($async$self.evaluate$1(stmt.expression)), $async$visitExpressionStmt$1, $async$controller);
+              t2 = stmt.expression;
+              $async$goto = $async$self.dumpExpressionStatements ? 5 : 7;
+              break;
             case 5:
+              // then
+              value = $.$get$Language_NULL_OBJECT();
+              t2 = new A._StreamIterator(A.checkNotNullable($async$self.evaluate$1(t2), "stream", type$.Object), type$._StreamIterator_InterpreterInfo);
+              $async$handler = 8;
+            case 11:
+              // for condition
+              $async$temp1 = A;
+              $async$goto = 13;
+              return A._asyncStarHelper(t2.moveNext$0(), $async$visitExpressionStmt$1, $async$controller);
+            case 13:
+              // returning from await.
+              if (!$async$temp1.boolConversionCheck($async$result)) {
+                // goto after for
+                $async$goto = 12;
+                break;
+              }
+              item = t2.get$current();
+              if (item.type === B.InterpreterInfoType_3) {
+                t4 = item.object;
+                t4.toString;
+                value = t4;
+              }
+              yyy = item;
+              $async$goto = 14;
+              $async$nextWhenCanceled = [1, 9];
+              return A._asyncStarHelper(A._IterationMarker_yieldSingle(yyy), $async$visitExpressionStmt$1, $async$controller);
+            case 14:
               // after yield
+              $async$goto = 15;
+              return A._asyncStarHelper(yyy.completer.future, $async$visitExpressionStmt$1, $async$controller);
+            case 15:
+              // returning from await.
+              // goto for condition
+              $async$goto = 11;
+              break;
+            case 12:
+              // after for
+              $async$next.push(10);
+              // goto finally
+              $async$goto = 9;
+              break;
+            case 8:
+              // uncaught
+              $async$next = [2];
+            case 9:
+              // finally
+              $async$handler = 2;
+              $async$goto = 16;
+              return A._asyncStarHelper(t2.cancel$0(), $async$visitExpressionStmt$1, $async$controller);
+            case 16:
+              // returning from await.
+              // goto the next finally handler
+              $async$goto = $async$next.pop();
+              break;
+            case 10:
+              // after finally
+              t2 = $async$self.stringify$1(value);
+              t1 = new A._Future($.Zone__current, t1);
+              $async$goto = 17;
+              $async$nextWhenCanceled = [1];
+              return A._asyncStarHelper(A._IterationMarker_yieldSingle(new A.InterpreterInfo(B.InterpreterInfoType_4, null, t2, new A._AsyncCompleter(t1, t3))), $async$visitExpressionStmt$1, $async$controller);
+            case 17:
+              // after yield
+              $async$goto = 18;
+              return A._asyncStarHelper(t1, $async$visitExpressionStmt$1, $async$controller);
+            case 18:
+              // returning from await.
+              // goto join
+              $async$goto = 6;
+              break;
+            case 7:
+              // else
+              $async$goto = 19;
+              $async$nextWhenCanceled = [1];
+              return A._asyncStarHelper(A._IterationMarker_yieldStar($async$self.evaluate$1(t2)), $async$visitExpressionStmt$1, $async$controller);
+            case 19:
+              // after yield
+            case 6:
+              // join
             case 1:
               // return
               return A._asyncStarHelper(null, 0, $async$controller);
@@ -7394,7 +7879,7 @@
       });
       var $async$goto = 0,
         $async$controller = A._makeAsyncStarStreamController($async$visitExpressionStmt$1, type$.InterpreterInfo),
-        $async$nextWhenCanceled, $async$handler = 2, $async$currentError, $async$next = [], $async$self = this, t1;
+        $async$nextWhenCanceled, $async$handler = 2, $async$currentError, $async$next = [], $async$self = this, value, item, yyy, t4, t1, t2, t3, $async$temp1;
       return A._streamOfController($async$controller);
     },
     visitNullStmt$1(stmt) {
@@ -10237,7 +10722,7 @@
         $async$nextWhenCanceled, $async$handler = 2, $async$currentError, $async$next = [], t1, t2;
       return A._streamOfController($async$controller);
     },
-    $signature: 19
+    $signature: 26
   };
   A.Interpreter_executeBlock_closure.prototype = {
     call$1(item) {
@@ -10258,7 +10743,7 @@
       t1.addError$2(t2, type$.nullable_StackTrace._as(stack));
       t1.close$0();
     },
-    $signature: 20
+    $signature: 27
   };
   A.Interpreter_executeBlock_closure0.prototype = {
     call$0() {
@@ -19437,390 +19922,6 @@
       return A._streamOfController($async$controller);
     }
   };
-  A.TokenType.prototype = {
-    _enumToString$0() {
-      return "TokenType." + this._name;
-    }
-  };
-  A.Token.prototype = {
-    toString$0(_) {
-      return this.type.toString$0(0) + " " + this.lexeme + " " + A.S(this.literal);
-    }
-  };
-  A.isolateEntryInterpreter_sendy.prototype = {
-    call$1(message) {
-      type$.JSObject._as(self.self).postMessage(message);
-    },
-    $signature: 21
-  };
-  A.isolateEntryInterpreter_executeInContext.prototype = {
-    $call$body$isolateEntryInterpreter_executeInContext(programText) {
-      var $async$call$1 = A._wrapJsFunctionForAsync(function($async$errorCode, $async$result) {
-        switch ($async$errorCode) {
-          case 2:
-            $async$next = $async$nextWhenCanceled;
-            $async$goto = $async$next.pop();
-            break;
-          case 1:
-            $async$currentError = $async$result;
-            $async$goto = $async$handler;
-        }
-        while (true)
-          switch ($async$goto) {
-            case 0:
-              // Function start
-              _box_0 = {};
-              _box_0.outputResult = "-----";
-              data = programText;
-              t1 = type$.JSArray_String;
-              _box_0.errors = A._setArrayType([], t1);
-              interpretStream = A._Cell$named("interpretStream");
-              subscription = A._Cell$named("subscription");
-              interpreter = A._Cell$named("interpreter");
-              $async$handler = 4;
-              t2 = type$.JSArray_Token;
-              scanner = new A.Scanner(data, A._setArrayType([], t2), A._setArrayType([], t1));
-              tokens = A._setArrayType([], t2);
-              scanStream = scanner.scanTokensStreamed$0();
-              t2 = new A._StreamIterator(A.checkNotNullable(scanStream, "stream", type$.Object), type$._StreamIterator_ScanState);
-              $async$handler = 7;
-            case 10:
-              // for condition
-              $async$temp1 = A;
-              $async$goto = 12;
-              return A._asyncStarHelper(t2.moveNext$0(), $async$call$1, $async$controller);
-            case 12:
-              // returning from await.
-              if (!$async$temp1.boolConversionCheck($async$result)) {
-                // goto after for
-                $async$goto = 11;
-                break;
-              }
-              scanState = t2.get$current();
-              if (scanState.type === B.ScanStateType_2) {
-                t3 = scanState.token;
-                t3.toString;
-                token = t3;
-                J.add$1$ax(tokens, token);
-              }
-              t3 = scanState.completer;
-              t4 = t3.future;
-              if ((t4._state & 30) === 0)
-                t4._asyncComplete$1(t3.$ti._eval$1("1/")._as(null));
-              // goto for condition
-              $async$goto = 10;
-              break;
-            case 11:
-              // after for
-              $async$next.push(9);
-              // goto finally
-              $async$goto = 8;
-              break;
-            case 7:
-              // uncaught
-              $async$next = [4];
-            case 8:
-              // finally
-              $async$handler = 4;
-              $async$goto = 13;
-              return A._asyncStarHelper(t2.cancel$0(), $async$call$1, $async$controller);
-            case 13:
-              // returning from await.
-              // goto the next finally handler
-              $async$goto = $async$next.pop();
-              break;
-            case 9:
-              // after finally
-              t2 = $async$self.sendy;
-              t2.call$1("----: scanning done");
-              errors = _box_0.errors = scanner.errors;
-              t3 = errors.length, _i = 0;
-            case 14:
-              // for condition
-              if (!(_i < errors.length)) {
-                // goto after for
-                $async$goto = 16;
-                break;
-              }
-              error = errors[_i];
-              $async$goto = 17;
-              $async$nextWhenCanceled = [1];
-              return A._asyncStarHelper(A._IterationMarker_yieldSingle(error), $async$call$1, $async$controller);
-            case 17:
-              // after yield
-            case 15:
-              // for update
-              errors.length === t3 || (0, A.throwConcurrentModificationError)(errors), ++_i;
-              // goto for condition
-              $async$goto = 14;
-              break;
-            case 16:
-              // after for
-              if (_box_0.errors.length !== 0) {
-                // goto return
-                $async$goto = 1;
-                break;
-              }
-              parser = new A.Parser(tokens, A._setArrayType([], t1));
-              parseStream = parser.parseStreamed$0();
-              statements = A._setArrayType([], type$.JSArray_Stmt);
-              t3 = type$._Future_void;
-              t4 = type$._AsyncCompleter_void;
-              parseStreamCompleter = new A._AsyncCompleter(new A._Future($.Zone__current, t3), t4);
-              parseStream.listen$3$onDone$onError(new A.isolateEntryInterpreter_executeInContext_closure(statements), new A.isolateEntryInterpreter_executeInContext_closure0(parseStreamCompleter), new A.isolateEntryInterpreter_executeInContext_closure1(_box_0, parseStreamCompleter));
-              $async$goto = (parseStreamCompleter.future._state & 30) === 0 ? 18 : 19;
-              break;
-            case 18:
-              // then
-              $async$goto = 20;
-              return A._asyncStarHelper(parseStreamCompleter.future, $async$call$1, $async$controller);
-            case 20:
-              // returning from await.
-            case 19:
-              // join
-              t2.call$1("----: parsing done");
-              errors = _box_0.errors = parser.errors;
-              t5 = errors.length, _i = 0;
-            case 21:
-              // for condition
-              if (!(_i < errors.length)) {
-                // goto after for
-                $async$goto = 23;
-                break;
-              }
-              error0 = errors[_i];
-              $async$goto = 24;
-              $async$nextWhenCanceled = [1];
-              return A._asyncStarHelper(A._IterationMarker_yieldSingle(error0), $async$call$1, $async$controller);
-            case 24:
-              // after yield
-            case 22:
-              // for update
-              errors.length === t5 || (0, A.throwConcurrentModificationError)(errors), ++_i;
-              // goto for condition
-              $async$goto = 21;
-              break;
-            case 23:
-              // after for
-              if (_box_0.errors.length !== 0) {
-                // goto return
-                $async$goto = 1;
-                break;
-              }
-              interpreter._value = A.Interpreter$();
-              t5 = interpreter._readLocal$0();
-              t5.toString;
-              resolver = new A.Resolver(t5, A._setArrayType([], type$.JSArray_Map_String_bool), A._setArrayType([], t1), B.FunctionType_0, B.ClassType_0, A._setArrayType([], type$.JSArray_ResolveInfo));
-              resolverStream = resolver.resolveAll$1(statements);
-              resolverStreamCompleter = new A._AsyncCompleter(new A._Future($.Zone__current, t3), t4);
-              t4 = resolverStream;
-              if (t4 != null)
-                t4.listen$3$onDone$onError(new A.isolateEntryInterpreter_executeInContext_closure2(), new A.isolateEntryInterpreter_executeInContext_closure3(resolverStreamCompleter), new A.isolateEntryInterpreter_executeInContext_closure4(resolverStreamCompleter));
-              $async$goto = 25;
-              return A._asyncStarHelper(resolverStreamCompleter.future, $async$call$1, $async$controller);
-            case 25:
-              // returning from await.
-              t2.call$1("----: resolving done");
-              errors = _box_0.errors = resolver.errors;
-              t1 = errors.length, _i = 0;
-            case 26:
-              // for condition
-              if (!(_i < errors.length)) {
-                // goto after for
-                $async$goto = 28;
-                break;
-              }
-              error1 = errors[_i];
-              $async$goto = 29;
-              $async$nextWhenCanceled = [1];
-              return A._asyncStarHelper(A._IterationMarker_yieldSingle(error1), $async$call$1, $async$controller);
-            case 29:
-              // after yield
-            case 27:
-              // for update
-              errors.length === t1 || (0, A.throwConcurrentModificationError)(errors), ++_i;
-              // goto for condition
-              $async$goto = 26;
-              break;
-            case 28:
-              // after for
-              if (_box_0.errors.length !== 0) {
-                // goto return
-                $async$goto = 1;
-                break;
-              }
-              interpretStream._value = interpreter._readLocal$0().interpret$1(statements);
-              subscription._value = interpretStream._readLocal$0().listen$3$onDone$onError(new A.isolateEntryInterpreter_executeInContext_closure5(_box_0, t2), new A.isolateEntryInterpreter_executeInContext_closure6(t2), new A.isolateEntryInterpreter_executeInContext_closure7(t2));
-              $async$handler = 2;
-              // goto after finally
-              $async$goto = 6;
-              break;
-            case 4:
-              // catch
-              $async$handler = 3;
-              $async$exception = $async$currentError;
-              e = A.unwrapException($async$exception);
-              A.getTraceFromException($async$exception);
-              $async$self.sendy.call$1("ERROR: " + A.S(e));
-              // goto after finally
-              $async$goto = 6;
-              break;
-            case 3:
-              // uncaught
-              // goto rethrow
-              $async$goto = 2;
-              break;
-            case 6:
-              // after finally
-            case 1:
-              // return
-              return A._asyncStarHelper(null, 0, $async$controller);
-            case 2:
-              // rethrow
-              return A._asyncStarHelper($async$currentError, 1, $async$controller);
-          }
-      });
-      var $async$goto = 0,
-        $async$controller = A._makeAsyncStarStreamController($async$call$1, type$.String),
-        $async$nextWhenCanceled, $async$handler = 2, $async$currentError, $async$next = [], $async$self = this, data, interpretStream, subscription, interpreter, scanner, tokens, scanStream, scanState, token, error, parser, parseStream, statements, parseStreamCompleter, error0, resolver, resolverStream, resolverStreamCompleter, error1, e, t1, t2, t3, t4, errors, _i, t5, exception, _box_0, $async$exception, $async$temp1;
-      return A._streamOfController($async$controller);
-    },
-    call$1(programText) {
-      return this.$call$body$isolateEntryInterpreter_executeInContext(programText);
-    },
-    $signature: 22
-  };
-  A.isolateEntryInterpreter_executeInContext_closure.prototype = {
-    call$1(parserState) {
-      var t1;
-      type$.ParserState._as(parserState);
-      if (parserState.type === B.ParserStateType_1) {
-        t1 = parserState.statement;
-        t1.toString;
-        B.JSArray_methods.add$1(this.statements, t1);
-      }
-      parserState.finish$0();
-    },
-    $signature: 23
-  };
-  A.isolateEntryInterpreter_executeInContext_closure0.prototype = {
-    call$0() {
-      var t1 = this.parseStreamCompleter;
-      if ((t1.future._state & 30) === 0)
-        t1.complete$0();
-    },
-    $signature: 0
-  };
-  A.isolateEntryInterpreter_executeInContext_closure1.prototype = {
-    call$1(error) {
-      var t1;
-      B.JSArray_methods.add$1(this._box_0.errors, "Parse error: " + A.S(error));
-      t1 = this.parseStreamCompleter;
-      if ((t1.future._state & 30) === 0)
-        t1.complete$0();
-    },
-    $signature: 1
-  };
-  A.isolateEntryInterpreter_executeInContext_closure2.prototype = {
-    call$1(resolveTypeInfo) {
-      type$.ResolveInfo._as(resolveTypeInfo);
-    },
-    $signature: 24
-  };
-  A.isolateEntryInterpreter_executeInContext_closure3.prototype = {
-    call$0() {
-      this.resolverStreamCompleter.complete$0();
-    },
-    $signature: 0
-  };
-  A.isolateEntryInterpreter_executeInContext_closure4.prototype = {
-    call$1(error) {
-      this.resolverStreamCompleter.complete$0();
-    },
-    $signature: 1
-  };
-  A.isolateEntryInterpreter_executeInContext_closure5.prototype = {
-    call$1(interpreterInfo) {
-      return this.$call$body$isolateEntryInterpreter_executeInContext_closure(type$.InterpreterInfo._as(interpreterInfo));
-    },
-    $call$body$isolateEntryInterpreter_executeInContext_closure(interpreterInfo) {
-      var $async$goto = 0,
-        $async$completer = A._makeAsyncAwaitCompleter(type$.void),
-        $async$self = this, outputResult, t1;
-      var $async$call$1 = A._wrapJsFunctionForAsync(function($async$errorCode, $async$result) {
-        if ($async$errorCode === 1)
-          return A._asyncRethrow($async$result, $async$completer);
-        while (true)
-          switch ($async$goto) {
-            case 0:
-              // Function start
-              t1 = interpreterInfo.completer;
-              if ((t1.future._state & 30) === 0)
-                t1.complete$0();
-              t1 = interpreterInfo.type;
-              if (t1 === B.InterpreterInfoType_4) {
-                outputResult = A.S(interpreterInfo.output) + "\n";
-                $async$self._box_0.outputResult = outputResult;
-                $async$self.sendy.call$1("OUTPUT:" + outputResult);
-              } else if (t1 === B.InterpreterInfoType_5) {
-                t1 = $async$self._box_0;
-                B.JSArray_methods.add$1(t1.errors, A.S(interpreterInfo.output));
-                $async$self.sendy.call$1("ERROR:" + t1.outputResult);
-              }
-              // implicit return
-              return A._asyncReturn(null, $async$completer);
-          }
-      });
-      return A._asyncStartSync($async$call$1, $async$completer);
-    },
-    $signature: 25
-  };
-  A.isolateEntryInterpreter_executeInContext_closure7.prototype = {
-    call$1(error) {
-      this.sendy.call$1("ERROR: error " + A.S(error) + "\n");
-    },
-    $signature: 1
-  };
-  A.isolateEntryInterpreter_executeInContext_closure6.prototype = {
-    call$0() {
-      this.sendy.call$1("FINISHED_EXECUTING");
-    },
-    $signature: 0
-  };
-  A.isolateEntryInterpreter_closure.prototype = {
-    call$1($event) {
-      var t1 = type$.JSObject,
-        message = A._asString(t1._as($event).data);
-      if (B.JSString_methods.startsWith$1(message, "START:")) {
-        t1 = this.sendy;
-        this.executeInContext.call$1(B.JSString_methods.substring$1(message, 6)).listen$3$onDone$onError(new A.isolateEntryInterpreter__closure(t1), new A.isolateEntryInterpreter__closure0(t1), new A.isolateEntryInterpreter__closure1(t1));
-      } else if (message === "STOP") {
-        this.sendy.call$1("Shutting down gracefully");
-        t1._as(self.self).close();
-      }
-    },
-    $signature: 26
-  };
-  A.isolateEntryInterpreter__closure.prototype = {
-    call$1(item) {
-      this.sendy.call$1("ERROR:" + A._asString(item));
-    },
-    $signature: 27
-  };
-  A.isolateEntryInterpreter__closure1.prototype = {
-    call$1(error) {
-      var t1 = this.sendy;
-      t1.call$1("Aye, got an error: " + A.S(error));
-      t1.call$1("ERROR:" + A.S(error));
-    },
-    $signature: 1
-  };
-  A.isolateEntryInterpreter__closure0.prototype = {
-    call$0() {
-      this.sendy.call$1("Aye, done");
-    },
-    $signature: 0
-  };
   (function aliases() {
     var _ = J.LegacyJavaScriptObject.prototype;
     _.super$LegacyJavaScriptObject$toString = _.toString$0;
@@ -19855,20 +19956,20 @@
       _inherit = hunkHelpers.inherit,
       _inheritMany = hunkHelpers.inheritMany;
     _inherit(A.Object, null);
-    _inheritMany(A.Object, [A.JS_CONST, J.Interceptor, J.ArrayIterator, A.Error, A.Closure, A.ListIterator, A.FixedLengthListMixin, A.TypeErrorDecoder, A.NullThrownFromJavaScriptException, A.ExceptionAndStackTrace, A._StackTrace, A.MapBase, A.LinkedHashMapCell, A._Cell, A.Rti, A._FunctionParameters, A._Type, A._TimerImpl, A._AsyncAwaitCompleter, A._AsyncStarStreamController, A._IterationMarker, A.AsyncError, A._Completer, A._FutureListener, A._Future, A._AsyncCallbackEntry, A.Stream, A._StreamController, A._AsyncStreamControllerDispatch, A._BufferingStreamSubscription, A._AddStreamState, A._DelayedEvent, A._DelayedDone, A._PendingEvents, A._StreamIterator, A._Zone, A.ListBase, A.Duration, A._Enum, A.OutOfMemoryError, A.StackOverflowError, A._Exception, A.FormatException, A.Null, A._StringStackTrace, A.StringBuffer, A.LanguageCallableImpl, A.LanguageFunction, A.LanguageClass, A.LanguageInstance, A.Environment, A.ParseError, A.ParserRuntimeError, A.Return, A.ExpressionResultX, A.StmtState, A.Expr, A.Stmt, A.InterpreterInfo, A.Interpreter, A.ParserState, A.Parser, A.ResolveInfo, A.Resolver, A.ScanState, A.Scanner, A.Token]);
+    _inheritMany(A.Object, [A.JS_CONST, J.Interceptor, J.ArrayIterator, A.Error, A.Closure, A.ListIterator, A.FixedLengthListMixin, A.TypeErrorDecoder, A.NullThrownFromJavaScriptException, A.ExceptionAndStackTrace, A._StackTrace, A.MapBase, A.LinkedHashMapCell, A._Cell, A.Rti, A._FunctionParameters, A._Type, A._TimerImpl, A._AsyncAwaitCompleter, A._AsyncStarStreamController, A._IterationMarker, A.AsyncError, A._Completer, A._FutureListener, A._Future, A._AsyncCallbackEntry, A.Stream, A._StreamController, A._AsyncStreamControllerDispatch, A._BufferingStreamSubscription, A._AddStreamState, A._DelayedEvent, A._DelayedDone, A._PendingEvents, A._StreamIterator, A._Zone, A.ListBase, A.Duration, A._Enum, A.OutOfMemoryError, A.StackOverflowError, A._Exception, A.FormatException, A.Null, A._StringStackTrace, A.StringBuffer, A.ExpressionResultX, A.StmtState, A.Expr, A.Stmt, A.Token, A.LanguageCallableImpl, A.LanguageFunction, A.LanguageClass, A.LanguageInstance, A.Environment, A.ParseError, A.ParserRuntimeError, A.Return, A.InterpreterInfo, A.Interpreter, A.ParserState, A.Parser, A.ResolveInfo, A.Resolver, A.ScanState, A.Scanner]);
     _inheritMany(J.Interceptor, [J.JSBool, J.JSNull, J.JavaScriptObject, J.JavaScriptBigInt, J.JavaScriptSymbol, J.JSNumber, J.JSString]);
     _inheritMany(J.JavaScriptObject, [J.LegacyJavaScriptObject, J.JSArray, A.NativeByteBuffer, A.NativeTypedData]);
     _inheritMany(J.LegacyJavaScriptObject, [J.PlainJavaScriptObject, J.UnknownJavaScriptObject, J.JavaScriptFunction]);
     _inherit(J.JSUnmodifiableArray, J.JSArray);
     _inheritMany(J.JSNumber, [J.JSInt, J.JSNumNotInt]);
     _inheritMany(A.Error, [A.LateError, A.TypeError, A.JsNoSuchMethodError, A.UnknownJsTypeError, A._CyclicInitializationError, A.RuntimeError, A.AssertionError, A._Error, A.ArgumentError, A.UnsupportedError, A.UnimplementedError, A.StateError, A.ConcurrentModificationError]);
-    _inheritMany(A.Closure, [A.Closure0Args, A.Closure2Args, A.TearOffClosure, A.initHooks_closure, A.initHooks_closure1, A._AsyncRun__initializeScheduleImmediate_internalCallback, A._AsyncRun__initializeScheduleImmediate_closure, A._awaitOnObject_closure, A._asyncStarHelper_closure0, A._Future__chainForeignFuture_closure, A._Future__propagateToListeners_handleWhenCompleteCallback_closure, A.Stream_length_closure, A.LanguageFunction_call_closure, A.LanguageFunction_call_closure1, A.Interpreter_executeBlock_closure, A.isolateEntryInterpreter_sendy, A.isolateEntryInterpreter_executeInContext, A.isolateEntryInterpreter_executeInContext_closure, A.isolateEntryInterpreter_executeInContext_closure1, A.isolateEntryInterpreter_executeInContext_closure2, A.isolateEntryInterpreter_executeInContext_closure4, A.isolateEntryInterpreter_executeInContext_closure5, A.isolateEntryInterpreter_executeInContext_closure7, A.isolateEntryInterpreter_closure, A.isolateEntryInterpreter__closure, A.isolateEntryInterpreter__closure1]);
-    _inheritMany(A.Closure0Args, [A.nullFuture_closure, A._AsyncRun__scheduleImmediateJsOverride_internalCallback, A._AsyncRun__scheduleImmediateWithSetImmediate_internalCallback, A._TimerImpl_internalCallback, A._asyncStarHelper_closure, A._AsyncStarStreamController__resumeBody, A._AsyncStarStreamController__resumeBody_closure, A._AsyncStarStreamController_closure0, A._AsyncStarStreamController_closure1, A._AsyncStarStreamController_closure, A._AsyncStarStreamController__closure, A.Future_Future$delayed_closure, A._Future__addListener_closure, A._Future__prependListeners_closure, A._Future__chainForeignFuture_closure1, A._Future__chainCoreFutureAsync_closure, A._Future__asyncCompleteWithValue_closure, A._Future__asyncCompleteError_closure, A._Future__propagateToListeners_handleWhenCompleteCallback, A._Future__propagateToListeners_handleValueCallback, A._Future__propagateToListeners_handleError, A.Stream_length_closure0, A._StreamController__subscribe_closure, A._StreamController__recordCancel_complete, A._AddStreamState_cancel_closure, A._BufferingStreamSubscription__sendError_sendError, A._BufferingStreamSubscription__sendDone_sendDone, A._PendingEvents_schedule_closure, A._rootHandleError_closure, A._RootZone_bindCallbackGuarded_closure, A.LanguageFunction_call_closure0, A.Interpreter_executeBlock__closure, A.Interpreter_executeBlock_closure0, A.isolateEntryInterpreter_executeInContext_closure0, A.isolateEntryInterpreter_executeInContext_closure3, A.isolateEntryInterpreter_executeInContext_closure6, A.isolateEntryInterpreter__closure0]);
+    _inheritMany(A.Closure, [A.Closure0Args, A.Closure2Args, A.TearOffClosure, A.initHooks_closure, A.initHooks_closure1, A._AsyncRun__initializeScheduleImmediate_internalCallback, A._AsyncRun__initializeScheduleImmediate_closure, A._awaitOnObject_closure, A._asyncStarHelper_closure0, A._Future__chainForeignFuture_closure, A._Future__propagateToListeners_handleWhenCompleteCallback_closure, A.Stream_length_closure, A.isolateEntryInterpreter_sendy, A.isolateEntryInterpreter_executeInContext_closure, A.isolateEntryInterpreter_executeInContext_closure1, A.isolateEntryInterpreter_executeInContext_closure2, A.isolateEntryInterpreter_executeInContext_closure4, A.isolateEntryInterpreter_executeInContext_closure5, A.isolateEntryInterpreter_executeInContext_closure7, A.isolateEntryInterpreter_closure, A.isolateEntryInterpreter__closure, A.isolateEntryInterpreter__closure1, A.LanguageFunction_call_closure, A.LanguageFunction_call_closure1, A.Interpreter_executeBlock_closure]);
+    _inheritMany(A.Closure0Args, [A.nullFuture_closure, A._AsyncRun__scheduleImmediateJsOverride_internalCallback, A._AsyncRun__scheduleImmediateWithSetImmediate_internalCallback, A._TimerImpl_internalCallback, A._asyncStarHelper_closure, A._AsyncStarStreamController__resumeBody, A._AsyncStarStreamController__resumeBody_closure, A._AsyncStarStreamController_closure0, A._AsyncStarStreamController_closure1, A._AsyncStarStreamController_closure, A._AsyncStarStreamController__closure, A.Future_Future$delayed_closure, A._Future__addListener_closure, A._Future__prependListeners_closure, A._Future__chainForeignFuture_closure1, A._Future__chainCoreFutureAsync_closure, A._Future__asyncCompleteWithValue_closure, A._Future__asyncCompleteError_closure, A._Future__propagateToListeners_handleWhenCompleteCallback, A._Future__propagateToListeners_handleValueCallback, A._Future__propagateToListeners_handleError, A.Stream_length_closure0, A._StreamController__subscribe_closure, A._StreamController__recordCancel_complete, A._AddStreamState_cancel_closure, A._BufferingStreamSubscription__sendError_sendError, A._BufferingStreamSubscription__sendDone_sendDone, A._PendingEvents_schedule_closure, A._rootHandleError_closure, A._RootZone_bindCallbackGuarded_closure, A.isolateEntryInterpreter_executeInContext_closure0, A.isolateEntryInterpreter_executeInContext_closure3, A.isolateEntryInterpreter_executeInContext_closure6, A.isolateEntryInterpreter__closure0, A.LanguageFunction_call_closure0, A.Interpreter_executeBlock__closure, A.Interpreter_executeBlock_closure0]);
     _inherit(A.NullError, A.TypeError);
     _inheritMany(A.TearOffClosure, [A.StaticClosure, A.BoundClosure]);
     _inherit(A._AssertionError, A.AssertionError);
     _inherit(A.JsLinkedHashMap, A.MapBase);
-    _inheritMany(A.Closure2Args, [A.initHooks_closure0, A._awaitOnObject_closure0, A._wrapJsFunctionForAsync_closure, A._Future__chainForeignFuture_closure0, A._AddStreamState_makeErrorHandler_closure, A.MapBase_mapToString_closure, A.Interpreter_closure, A.Interpreter_executeBlock_closure1]);
+    _inheritMany(A.Closure2Args, [A.initHooks_closure0, A._awaitOnObject_closure0, A._wrapJsFunctionForAsync_closure, A._Future__chainForeignFuture_closure0, A._AddStreamState_makeErrorHandler_closure, A.MapBase_mapToString_closure, A.isolateEntryInterpreter_executeInContext, A.Interpreter_closure, A.Interpreter_executeBlock_closure1]);
     _inheritMany(A.NativeTypedData, [A.NativeByteData, A.NativeTypedArray]);
     _inheritMany(A.NativeTypedArray, [A._NativeTypedArrayOfDouble_NativeTypedArray_ListMixin, A._NativeTypedArrayOfInt_NativeTypedArray_ListMixin]);
     _inherit(A._NativeTypedArrayOfDouble_NativeTypedArray_ListMixin_FixedLengthListMixin, A._NativeTypedArrayOfDouble_NativeTypedArray_ListMixin);
@@ -19889,7 +19990,7 @@
     _inheritMany(A.ArgumentError, [A.RangeError, A.IndexError]);
     _inheritMany(A.Expr, [A.ExprNull, A.ExprAssign, A.ExprBinary, A.ExprCall, A.ExprGet, A.ExprGrouping, A.ExprLiteral, A.ExprLogical, A.ExprSet, A.ExprSuper, A.ExprThis, A.ExprUnary, A.ExprVariable]);
     _inheritMany(A.Stmt, [A.StmtNull, A.StmtBlock, A.StmtClass, A.StmtExpression, A.StmtFunction, A.StmtIf, A.StmtPrint, A.StmtReturn, A.StmtVar, A.StmtWhile]);
-    _inheritMany(A._Enum, [A.InterpreterInfoType, A.ParserStateType, A.FunctionType, A.ClassType, A.ResolveInfoType, A.ScanStateType, A.TokenType]);
+    _inheritMany(A._Enum, [A.TokenType, A.InterpreterInfoType, A.ParserStateType, A.FunctionType, A.ClassType, A.ResolveInfoType, A.ScanStateType]);
     _mixin(A._NativeTypedArrayOfDouble_NativeTypedArray_ListMixin, A.ListBase);
     _mixin(A._NativeTypedArrayOfDouble_NativeTypedArray_ListMixin_FixedLengthListMixin, A.FixedLengthListMixin);
     _mixin(A._NativeTypedArrayOfInt_NativeTypedArray_ListMixin, A.ListBase);
@@ -19900,12 +20001,12 @@
     typeUniverse: {eC: new Map(), tR: {}, eT: {}, tPV: {}, sEA: []},
     mangledGlobalNames: {int: "int", double: "double", num: "num", String: "String", bool: "bool", Null: "Null", List: "List", Object: "Object", Map: "Map"},
     mangledNames: {},
-    types: ["~()", "Null(@)", "Null()", "~(Object,StackTrace)", "~(~())", "Null(Object,StackTrace)", "~(Object?)", "~(InterpreterInfo)", "Future<Null>()", "@(@)", "@(@,String)", "@(String)", "Null(~())", "~(@)", "Null(@,StackTrace)", "~(int,@)", "_Future<@>?()", "_Future<@>(@)", "~(Object?,Object?)", "Stream<InterpreterInfo>(Interpreter,List<Object>)", "Null(@,@)", "Null(String)", "Stream<String>(String)", "~(ParserState)", "~(ResolveInfo)", "Future<~>(InterpreterInfo)", "Null(JSObject)", "~(String)"],
+    types: ["~()", "Null(@)", "Null()", "~(Object,StackTrace)", "~(~())", "Null(Object,StackTrace)", "~(Object?)", "~(InterpreterInfo)", "Future<Null>()", "@(@)", "@(@,String)", "@(String)", "Null(~())", "~(@)", "Null(@,StackTrace)", "~(int,@)", "_Future<@>?()", "_Future<@>(@)", "~(Object?,Object?)", "Null(String)", "Stream<String>(String,bool)", "~(ParserState)", "~(ResolveInfo)", "Future<~>(InterpreterInfo)", "Null(JSObject)", "~(String)", "Stream<InterpreterInfo>(Interpreter,List<Object>)", "Null(@,@)"],
     interceptorsByTag: null,
     leafTags: null,
     arrayRti: Symbol("$ti")
   };
-  A._Universe_addRules(init.typeUniverse, JSON.parse('{"JavaScriptFunction":"LegacyJavaScriptObject","PlainJavaScriptObject":"LegacyJavaScriptObject","UnknownJavaScriptObject":"LegacyJavaScriptObject","JSBool":{"bool":[],"TrustedGetRuntimeType":[]},"JSNull":{"Null":[],"TrustedGetRuntimeType":[]},"JavaScriptObject":{"JSObject":[]},"LegacyJavaScriptObject":{"JSObject":[]},"JSArray":{"List":["1"],"JSObject":[],"Iterable":["1"]},"JSUnmodifiableArray":{"JSArray":["1"],"List":["1"],"JSObject":[],"Iterable":["1"]},"JSNumber":{"double":[],"num":[]},"JSInt":{"double":[],"int":[],"num":[],"TrustedGetRuntimeType":[]},"JSNumNotInt":{"double":[],"num":[],"TrustedGetRuntimeType":[]},"JSString":{"String":[],"Pattern":[],"TrustedGetRuntimeType":[]},"LateError":{"Error":[]},"NullError":{"TypeError":[],"Error":[]},"JsNoSuchMethodError":{"Error":[]},"UnknownJsTypeError":{"Error":[]},"_StackTrace":{"StackTrace":[]},"Closure":{"Function":[]},"Closure0Args":{"Function":[]},"Closure2Args":{"Function":[]},"TearOffClosure":{"Function":[]},"StaticClosure":{"Function":[]},"BoundClosure":{"Function":[]},"_CyclicInitializationError":{"Error":[]},"RuntimeError":{"Error":[]},"_AssertionError":{"Error":[]},"JsLinkedHashMap":{"MapBase":["1","2"],"LinkedHashMap":["1","2"],"Map":["1","2"]},"NativeByteBuffer":{"JSObject":[],"TrustedGetRuntimeType":[]},"NativeTypedData":{"JSObject":[]},"NativeByteData":{"JSObject":[],"TrustedGetRuntimeType":[]},"NativeTypedArray":{"JavaScriptIndexingBehavior":["1"],"JSObject":[]},"NativeTypedArrayOfDouble":{"ListBase":["double"],"List":["double"],"JavaScriptIndexingBehavior":["double"],"JSObject":[],"Iterable":["double"],"FixedLengthListMixin":["double"]},"NativeTypedArrayOfInt":{"ListBase":["int"],"List":["int"],"JavaScriptIndexingBehavior":["int"],"JSObject":[],"Iterable":["int"],"FixedLengthListMixin":["int"]},"NativeFloat32List":{"ListBase":["double"],"List":["double"],"JavaScriptIndexingBehavior":["double"],"JSObject":[],"Iterable":["double"],"FixedLengthListMixin":["double"],"TrustedGetRuntimeType":[],"ListBase.E":"double"},"NativeFloat64List":{"ListBase":["double"],"List":["double"],"JavaScriptIndexingBehavior":["double"],"JSObject":[],"Iterable":["double"],"FixedLengthListMixin":["double"],"TrustedGetRuntimeType":[],"ListBase.E":"double"},"NativeInt16List":{"ListBase":["int"],"List":["int"],"JavaScriptIndexingBehavior":["int"],"JSObject":[],"Iterable":["int"],"FixedLengthListMixin":["int"],"TrustedGetRuntimeType":[],"ListBase.E":"int"},"NativeInt32List":{"ListBase":["int"],"List":["int"],"JavaScriptIndexingBehavior":["int"],"JSObject":[],"Iterable":["int"],"FixedLengthListMixin":["int"],"TrustedGetRuntimeType":[],"ListBase.E":"int"},"NativeInt8List":{"ListBase":["int"],"List":["int"],"JavaScriptIndexingBehavior":["int"],"JSObject":[],"Iterable":["int"],"FixedLengthListMixin":["int"],"TrustedGetRuntimeType":[],"ListBase.E":"int"},"NativeUint16List":{"ListBase":["int"],"List":["int"],"JavaScriptIndexingBehavior":["int"],"JSObject":[],"Iterable":["int"],"FixedLengthListMixin":["int"],"TrustedGetRuntimeType":[],"ListBase.E":"int"},"NativeUint32List":{"ListBase":["int"],"List":["int"],"JavaScriptIndexingBehavior":["int"],"JSObject":[],"Iterable":["int"],"FixedLengthListMixin":["int"],"TrustedGetRuntimeType":[],"ListBase.E":"int"},"NativeUint8ClampedList":{"ListBase":["int"],"List":["int"],"JavaScriptIndexingBehavior":["int"],"JSObject":[],"Iterable":["int"],"FixedLengthListMixin":["int"],"TrustedGetRuntimeType":[],"ListBase.E":"int"},"NativeUint8List":{"ListBase":["int"],"List":["int"],"JavaScriptIndexingBehavior":["int"],"JSObject":[],"Iterable":["int"],"FixedLengthListMixin":["int"],"TrustedGetRuntimeType":[],"ListBase.E":"int"},"_Error":{"Error":[]},"_TypeError":{"TypeError":[],"Error":[]},"_Future":{"Future":["1"]},"_AsyncAwaitCompleter":{"Completer":["1"]},"AsyncError":{"Error":[]},"_Completer":{"Completer":["1"]},"_AsyncCompleter":{"_Completer":["1"],"Completer":["1"]},"_StreamController":{"StreamController":["1"],"_StreamControllerLifecycle":["1"],"_EventDispatch":["1"]},"_AsyncStreamController":{"_AsyncStreamControllerDispatch":["1"],"_StreamController":["1"],"StreamController":["1"],"_StreamControllerLifecycle":["1"],"_EventDispatch":["1"]},"_ControllerStream":{"_StreamImpl":["1"],"Stream":["1"]},"_ControllerSubscription":{"_BufferingStreamSubscription":["1"],"StreamSubscription":["1"],"_EventDispatch":["1"]},"_StreamControllerAddStreamState":{"_AddStreamState":["1"]},"_BufferingStreamSubscription":{"StreamSubscription":["1"],"_EventDispatch":["1"]},"_StreamImpl":{"Stream":["1"]},"_DelayedData":{"_DelayedEvent":["1"]},"_DelayedError":{"_DelayedEvent":["@"]},"_DelayedDone":{"_DelayedEvent":["@"]},"_Zone":{"Zone":[]},"_RootZone":{"_Zone":[],"Zone":[]},"MapBase":{"Map":["1","2"]},"double":{"num":[]},"int":{"num":[]},"List":{"Iterable":["1"]},"String":{"Pattern":[]},"AssertionError":{"Error":[]},"TypeError":{"Error":[]},"ArgumentError":{"Error":[]},"RangeError":{"Error":[]},"IndexError":{"Error":[]},"UnsupportedError":{"Error":[]},"UnimplementedError":{"Error":[]},"StateError":{"Error":[]},"ConcurrentModificationError":{"Error":[]},"OutOfMemoryError":{"Error":[]},"StackOverflowError":{"Error":[]},"_StringStackTrace":{"StackTrace":[]},"LanguageFunction":{"LanguageCallable":[]},"LanguageCallableImpl":{"LanguageCallable":[]},"LanguageClass":{"LanguageCallable":[]},"StmtFunction":{"Stmt":[]},"ExprNull":{"Expr":[]},"ExprAssign":{"Expr":[]},"ExprBinary":{"Expr":[]},"ExprCall":{"Expr":[]},"ExprGet":{"Expr":[]},"ExprGrouping":{"Expr":[]},"ExprLiteral":{"Expr":[]},"ExprLogical":{"Expr":[]},"ExprSet":{"Expr":[]},"ExprSuper":{"Expr":[]},"ExprThis":{"Expr":[]},"ExprUnary":{"Expr":[]},"ExprVariable":{"Expr":[]},"StmtNull":{"Stmt":[]},"StmtBlock":{"Stmt":[]},"StmtClass":{"Stmt":[]},"StmtExpression":{"Stmt":[]},"StmtIf":{"Stmt":[]},"StmtPrint":{"Stmt":[]},"StmtReturn":{"Stmt":[]},"StmtVar":{"Stmt":[]},"StmtWhile":{"Stmt":[]},"Int8List":{"List":["int"],"Iterable":["int"]},"Uint8List":{"List":["int"],"Iterable":["int"]},"Uint8ClampedList":{"List":["int"],"Iterable":["int"]},"Int16List":{"List":["int"],"Iterable":["int"]},"Uint16List":{"List":["int"],"Iterable":["int"]},"Int32List":{"List":["int"],"Iterable":["int"]},"Uint32List":{"List":["int"],"Iterable":["int"]},"Float32List":{"List":["double"],"Iterable":["double"]},"Float64List":{"List":["double"],"Iterable":["double"]}}'));
+  A._Universe_addRules(init.typeUniverse, JSON.parse('{"JavaScriptFunction":"LegacyJavaScriptObject","PlainJavaScriptObject":"LegacyJavaScriptObject","UnknownJavaScriptObject":"LegacyJavaScriptObject","JSBool":{"bool":[],"TrustedGetRuntimeType":[]},"JSNull":{"Null":[],"TrustedGetRuntimeType":[]},"JavaScriptObject":{"JSObject":[]},"LegacyJavaScriptObject":{"JSObject":[]},"JSArray":{"List":["1"],"JSObject":[],"Iterable":["1"]},"JSUnmodifiableArray":{"JSArray":["1"],"List":["1"],"JSObject":[],"Iterable":["1"]},"JSNumber":{"double":[],"num":[]},"JSInt":{"double":[],"int":[],"num":[],"TrustedGetRuntimeType":[]},"JSNumNotInt":{"double":[],"num":[],"TrustedGetRuntimeType":[]},"JSString":{"String":[],"Pattern":[],"TrustedGetRuntimeType":[]},"LateError":{"Error":[]},"NullError":{"TypeError":[],"Error":[]},"JsNoSuchMethodError":{"Error":[]},"UnknownJsTypeError":{"Error":[]},"_StackTrace":{"StackTrace":[]},"Closure":{"Function":[]},"Closure0Args":{"Function":[]},"Closure2Args":{"Function":[]},"TearOffClosure":{"Function":[]},"StaticClosure":{"Function":[]},"BoundClosure":{"Function":[]},"_CyclicInitializationError":{"Error":[]},"RuntimeError":{"Error":[]},"_AssertionError":{"Error":[]},"JsLinkedHashMap":{"MapBase":["1","2"],"LinkedHashMap":["1","2"],"Map":["1","2"]},"NativeByteBuffer":{"JSObject":[],"TrustedGetRuntimeType":[]},"NativeTypedData":{"JSObject":[]},"NativeByteData":{"JSObject":[],"TrustedGetRuntimeType":[]},"NativeTypedArray":{"JavaScriptIndexingBehavior":["1"],"JSObject":[]},"NativeTypedArrayOfDouble":{"ListBase":["double"],"List":["double"],"JavaScriptIndexingBehavior":["double"],"JSObject":[],"Iterable":["double"],"FixedLengthListMixin":["double"]},"NativeTypedArrayOfInt":{"ListBase":["int"],"List":["int"],"JavaScriptIndexingBehavior":["int"],"JSObject":[],"Iterable":["int"],"FixedLengthListMixin":["int"]},"NativeFloat32List":{"ListBase":["double"],"List":["double"],"JavaScriptIndexingBehavior":["double"],"JSObject":[],"Iterable":["double"],"FixedLengthListMixin":["double"],"TrustedGetRuntimeType":[],"ListBase.E":"double"},"NativeFloat64List":{"ListBase":["double"],"List":["double"],"JavaScriptIndexingBehavior":["double"],"JSObject":[],"Iterable":["double"],"FixedLengthListMixin":["double"],"TrustedGetRuntimeType":[],"ListBase.E":"double"},"NativeInt16List":{"ListBase":["int"],"List":["int"],"JavaScriptIndexingBehavior":["int"],"JSObject":[],"Iterable":["int"],"FixedLengthListMixin":["int"],"TrustedGetRuntimeType":[],"ListBase.E":"int"},"NativeInt32List":{"ListBase":["int"],"List":["int"],"JavaScriptIndexingBehavior":["int"],"JSObject":[],"Iterable":["int"],"FixedLengthListMixin":["int"],"TrustedGetRuntimeType":[],"ListBase.E":"int"},"NativeInt8List":{"ListBase":["int"],"List":["int"],"JavaScriptIndexingBehavior":["int"],"JSObject":[],"Iterable":["int"],"FixedLengthListMixin":["int"],"TrustedGetRuntimeType":[],"ListBase.E":"int"},"NativeUint16List":{"ListBase":["int"],"List":["int"],"JavaScriptIndexingBehavior":["int"],"JSObject":[],"Iterable":["int"],"FixedLengthListMixin":["int"],"TrustedGetRuntimeType":[],"ListBase.E":"int"},"NativeUint32List":{"ListBase":["int"],"List":["int"],"JavaScriptIndexingBehavior":["int"],"JSObject":[],"Iterable":["int"],"FixedLengthListMixin":["int"],"TrustedGetRuntimeType":[],"ListBase.E":"int"},"NativeUint8ClampedList":{"ListBase":["int"],"List":["int"],"JavaScriptIndexingBehavior":["int"],"JSObject":[],"Iterable":["int"],"FixedLengthListMixin":["int"],"TrustedGetRuntimeType":[],"ListBase.E":"int"},"NativeUint8List":{"ListBase":["int"],"List":["int"],"JavaScriptIndexingBehavior":["int"],"JSObject":[],"Iterable":["int"],"FixedLengthListMixin":["int"],"TrustedGetRuntimeType":[],"ListBase.E":"int"},"_Error":{"Error":[]},"_TypeError":{"TypeError":[],"Error":[]},"_Future":{"Future":["1"]},"_AsyncAwaitCompleter":{"Completer":["1"]},"AsyncError":{"Error":[]},"_Completer":{"Completer":["1"]},"_AsyncCompleter":{"_Completer":["1"],"Completer":["1"]},"_StreamController":{"StreamController":["1"],"_StreamControllerLifecycle":["1"],"_EventDispatch":["1"]},"_AsyncStreamController":{"_AsyncStreamControllerDispatch":["1"],"_StreamController":["1"],"StreamController":["1"],"_StreamControllerLifecycle":["1"],"_EventDispatch":["1"]},"_ControllerStream":{"_StreamImpl":["1"],"Stream":["1"]},"_ControllerSubscription":{"_BufferingStreamSubscription":["1"],"StreamSubscription":["1"],"_EventDispatch":["1"]},"_StreamControllerAddStreamState":{"_AddStreamState":["1"]},"_BufferingStreamSubscription":{"StreamSubscription":["1"],"_EventDispatch":["1"]},"_StreamImpl":{"Stream":["1"]},"_DelayedData":{"_DelayedEvent":["1"]},"_DelayedError":{"_DelayedEvent":["@"]},"_DelayedDone":{"_DelayedEvent":["@"]},"_Zone":{"Zone":[]},"_RootZone":{"_Zone":[],"Zone":[]},"MapBase":{"Map":["1","2"]},"double":{"num":[]},"int":{"num":[]},"List":{"Iterable":["1"]},"String":{"Pattern":[]},"AssertionError":{"Error":[]},"TypeError":{"Error":[]},"ArgumentError":{"Error":[]},"RangeError":{"Error":[]},"IndexError":{"Error":[]},"UnsupportedError":{"Error":[]},"UnimplementedError":{"Error":[]},"StateError":{"Error":[]},"ConcurrentModificationError":{"Error":[]},"OutOfMemoryError":{"Error":[]},"StackOverflowError":{"Error":[]},"_StringStackTrace":{"StackTrace":[]},"StmtFunction":{"Stmt":[]},"ExprNull":{"Expr":[]},"ExprAssign":{"Expr":[]},"ExprBinary":{"Expr":[]},"ExprCall":{"Expr":[]},"ExprGet":{"Expr":[]},"ExprGrouping":{"Expr":[]},"ExprLiteral":{"Expr":[]},"ExprLogical":{"Expr":[]},"ExprSet":{"Expr":[]},"ExprSuper":{"Expr":[]},"ExprThis":{"Expr":[]},"ExprUnary":{"Expr":[]},"ExprVariable":{"Expr":[]},"StmtNull":{"Stmt":[]},"StmtBlock":{"Stmt":[]},"StmtClass":{"Stmt":[]},"StmtExpression":{"Stmt":[]},"StmtIf":{"Stmt":[]},"StmtPrint":{"Stmt":[]},"StmtReturn":{"Stmt":[]},"StmtVar":{"Stmt":[]},"StmtWhile":{"Stmt":[]},"LanguageFunction":{"LanguageCallable":[]},"LanguageCallableImpl":{"LanguageCallable":[]},"LanguageClass":{"LanguageCallable":[]},"Int8List":{"List":["int"],"Iterable":["int"]},"Uint8List":{"List":["int"],"Iterable":["int"]},"Uint8ClampedList":{"List":["int"],"Iterable":["int"]},"Int16List":{"List":["int"],"Iterable":["int"]},"Uint16List":{"List":["int"],"Iterable":["int"]},"Int32List":{"List":["int"],"Iterable":["int"]},"Uint32List":{"List":["int"],"Iterable":["int"]},"Float32List":{"List":["double"],"Iterable":["double"]},"Float64List":{"List":["double"],"Iterable":["double"]}}'));
   A._Universe_addErasedTypes(init.typeUniverse, JSON.parse('{"NativeTypedArray":1,"_DelayedEvent":1}'));
   var string$ = {
     Error_: "Error handler must accept one Object or one Object and a StackTrace as arguments, and return a value of the returned future's type"
