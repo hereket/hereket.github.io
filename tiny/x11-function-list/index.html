@@ -21,9 +21,9 @@
     
     
 
-    <link rel="stylesheet" type="text/css" href="/css/base.css?1748791170">
+    <link rel="stylesheet" type="text/css" href="/css/base.css?1748828142">
 
-    <script type="text/javascript" src="/js/base.js?1748791170" ></script>
+    <script type="text/javascript" src="/js/base.js?1748828142" ></script>
 
     <link rel="alternate" type="application/rss+xml" href="https://hereket.com//index.xml" title="Hereket">
 
@@ -44,10 +44,71 @@
         </div>
 
         <div id="content">
-<div class='page-wrap main-content'>
-<h1>Xlib Function List</h1>
+            
 
+
+
+
+
+    
+<link rel="stylesheet" type="text/css" href="css/main.css">
+<script src="js/main.js"></script>
+
+
+<div class="all-container">
+    <h4> XLib function searcher </h4>
+    <div class="search-box">
+        <input id="function-search-input" placeholder="Search by return type, function name or paramameter list"></input>
+        <div id="toggle-filter-button" class='show-button selected' data-selected='true'>Filter</div>
+        <div id="toggle-show-button" class='show-button selected' data-selected='true'>Show</div>
+    </div>
+    
+    <div id="filter-holder" class="f-row">
+        <div class="subheading">
+            <b>Filter</b>
+        </div>
+
+        <div>
+            <input id="filter-all" type='radio' value="all" name="filter"  checked="checked"></input>
+            <label for="filter-all">All</label>
+
+            <input id="filter-return-type" type='radio' value="return" name="filter"></input>
+            <label for="filter-return-type">Return type</label>
+
+            <input id="filter-function-name" type='radio' value="name" name="filter"></input>
+            <label for="filter-function-name">Function Name</label>
+
+            <input id="filter-function-params" type='radio' value="params" name="filter"></input>
+            <label for="filter-function-params">Params</label>
+        </div>
+    </div>
+
+    <div id="show-holder" class="f-row">
+        <div class="subheading">
+            <b>Show</b>
+        </div>
+
+        <div>
+            <input id="show-all" type='radio' value="all" name="show"  checked="checked"></input>
+            <label for="show-all">All</label>
+
+            <input id="show-return-type" type='radio' value="return" name="show"></input>
+            <label for="show-return-type">Return type</label>
+
+            <input id="show-function-name" type='radio' value="name" name="show"></input>
+            <label for="show-function-name">Function Name</label>
+
+            <input id="show-function-params" type='radio' value="params" name="show"></input>
+            <label for="show-function-params">Params</label>
+        </div>
+    </div>
+
+    <div id="data-items-list">
+    </div>
 </div>
+
+
+
 
         </div>
 

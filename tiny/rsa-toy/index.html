@@ -21,9 +21,9 @@
     
     
 
-    <link rel="stylesheet" type="text/css" href="/css/base.css?1748791170">
+    <link rel="stylesheet" type="text/css" href="/css/base.css?1748828142">
 
-    <script type="text/javascript" src="/js/base.js?1748791170" ></script>
+    <script type="text/javascript" src="/js/base.js?1748828142" ></script>
 
     <link rel="alternate" type="application/rss+xml" href="https://hereket.com//index.xml" title="Hereket">
 
@@ -44,10 +44,137 @@
         </div>
 
         <div id="content">
-<div class='page-wrap main-content'>
-<h1>RSA algorithm playground</h1>
+            
 
-</div>
+
+
+
+
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <link href="main.css" rel="stylesheet">
+        <script src="main.js"></script>
+    </head>
+
+    <body>
+        <div class='page-wrap'>
+            <div class='section'>
+                <h1 class='page-title'>RSA algorithm illustration </h1>
+                <!-- <a href="/posts/rsa-algorithm/#generating-exponents-and-modulus" style="display: block; margin-bottom: 20px;">How to generate magic numbers?</a> -->
+                <a href="/posts/rsa-algorithm/#generating-exponents-and-modulus" style="display: block; margin-bottom: 20px;">What is RSA and where to get magic number?</a>
+                <div class='row'>
+                    <div class="col4-12">
+                        <label>Public exponent</label>
+                        <textarea class='m-input' id="public-expoenent" placeholder='public exponent'>0x010001</textarea>
+                    </div>
+                    <div class="col4-12">
+                        <label>Modulus</label>
+                        <textarea class='m-input' id="modulus" placeholder='modulus'>0xC4F8E9E15DCADF2B96C763D981006A644FFB4415030A16ED1283883340F2AA0E2BE2BE8FA60150B9046965837C3E7D151B7DE237EBB957C20663898250703B3F</textarea>
+                    </div>
+                    <div class="col4-12">
+                        <label>Private exponent</label>
+                        <textarea class='m-input' id="private-exponent" placeholder='private exponent'>0x8a7e79f3fbfea8ebfd18351cb9979136f705b4d9114a06d4aa2fd1943816677a5374661846a30c45b30a024b4d22b15ab323622b2de47ba29115f06ee42c41</textarea>
+                    </div>
+                </div>
+                <div>
+                    <label>Text to encrypt</label>
+                    <textarea id="user-input-to-encrypt" class="input-border" placeholder='input'>Hello world!</textarea>
+                    <div id="user-input-to-encrypt-hex" class='input-show-hex'></div>
+                </div>
+            </div>
+            <div class='section'>
+                <h2 class='section-subtitle'>Encryption</h2>
+                <div class="row">
+                    <div class="col3-12">
+                        <div id="input-prepared" class='info-block'></div>
+                    </div>
+                    <div class="col1-12" >
+                        <div class='math-symbol'>^</div>
+                    </div>
+                    <div class="col3-12" >
+                        <div id="input-exponent" class='info-block'></div>
+                    </div>
+                    <div class="col1-12" >
+                        <div class='math-symbol'>%</div>
+                    </div>
+                    <div class="col3-12" >
+                        <div id="input-modulus" class='info-block'></div>
+                    </div>
+                    <div class="col1-12">
+                        <div class='math-symbol'>=</div>
+                    </div>
+                </div>
+                <div class='row'>
+                    <div class='col12-12' >
+                        <div class='result-block'>
+                            <label>Encrypted result - just a very big number</label>
+                            <div id="encryption-result" class=''></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class='section'>
+                <h2 class='section-subtitle'>Decryption</h2>
+                <div id="decryption-content">
+                    <div class="row">
+                        <div class="col3-12" id="decryption-input">
+                        </div>
+                        <div class="col1-12" >
+                            <div class='math-symbol'>^</div>
+                        </div>
+                        <div class="col3-12" id="decryption-exponent">
+                        </div>
+                        <div class="col1-12" >
+                            <div class='math-symbol'>%</div>
+                        </div>
+                        <div class="col3-12" id="decryption-modulus">
+                        </div>
+                        <div class="col1-12" >
+                            <div class='math-symbol'>=</div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class='result-block'>
+                            <label>Decrypted raw result</label>
+                            <div id="decryption-result-full-hex"></div>
+                        </div>
+                        <div class="row">
+                            <div class='col6-12'>
+                                <div class="result-block">
+                                    <label>Raw data from number</label>
+                                    <div id="decryption-result-hex"></div>
+                                </div>
+                            </div>
+                            <div class='col6-12'>
+                                <div class="result-block">
+                                    <label>Result as a string</label>
+                                    <div id="decryption-result-str"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="decryption-loader">
+                    <div class='loader-anim'></div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
+
+
+<!-- <div> -->
+    <!-- <h3>Result</h3> -->
+    <!-- <div id="encryption-result"></div> -->
+    <!-- <div>0x2b71ecc96c727f16213073d7d224d4daba373c49c075d9317d552c142d112d86b3b94c561bdcb7e6777b84817b3cfca8344a2c41d96a1fa8a849a867d72a3</div> -->
+<!-- </div> -->
+
+
+
 
         </div>
 
