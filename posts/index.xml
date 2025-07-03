@@ -10,7 +10,7 @@
     <lastBuildDate>Sat, 03 May 2025 13:19:23 +0500</lastBuildDate>
     <atom:link href="https://hereket.com/posts/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>Instagram&#39;s TLS one certificate per day policy</title>
+      <title>Instagram uses expiring certificates as single day TLS certificates</title>
       <link>https://hereket.com/posts/instagram-single-day-certificates/</link>
       <pubDate>Sat, 03 May 2025 13:19:23 +0500</pubDate>
       <guid>https://hereket.com/posts/instagram-single-day-certificates/</guid>
