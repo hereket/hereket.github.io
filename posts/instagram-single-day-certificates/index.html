@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html>
+    
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start': new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0], j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src= 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f); })(window,document,'script','dataLayer','GTM-5QJQQZSG');</script>
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    
+    
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start': new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0], j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src= 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f); })(window,document,'script','dataLayer','GTM-5QJQQZSG');</script>
+    
+    
+
+    <link rel="icon" type="image/x-icon" href="/image/favicon.ico">
+    <link rel="canonical" href="https://hereket.com/posts/instagram-single-day-certificates/" />
+
+    
+    
+    
+    
+
+    <link rel="stylesheet" type="text/css" href="/css/base.css?1751562823">
+
+    <script type="text/javascript" src="/js/base.js?1751562823" ></script>
+
+    <link rel="alternate" type="application/rss+xml" href="https://hereket.com//index.xml" title="Hereket">
+
+
+    
+    
+    <title>Instagram&#39;s TLS one certificate per day policy | Hereket</title>
+</head>
+<body>
+        
+        <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5QJQQZSG" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+        
+        
+        
+        <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5QJQQZSG" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+        
+        <div id="nav-border" class="container header">
+    <div class='page-wrap content'>
+        <a href="/"><div class="header-logo"> Hereket </div></a>
+        <nav id="nav" class="nav">
+            
+            <a class="nav-link" href="/">
+            
+            Posts
+            </a>
+            
+            <a class="nav-link" href="/tiny/">
+            
+            Tiny
+            </a>
+            
+        </nav>
+        <div class="contacts">
+            <a class="item" href="mailto:info123@hereket.com"><img src="/image/icon-email.png"></a>
+            <a class="item" href="https://twitter.com/alfred_tweet"><img src="/image/icon-twitter.png"></a>
+    <link rel="icon" type="image/x-icon" href="/image/favicon.ico">
+        </div>
+    </div>
+</div>
+<div id="content">
+<div class="page-wrap article">
+    <div class='main-content article'>
+        <h1>Instagram&#39;s TLS one certificate per day policy</h1>
+        
+        <div><time class='post-time' datetime="2025-05-03">2025-05-03</time></div>
+        
+        <br><br>
+        <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#intro">Intro</a></li>
+        <li><a href="#setup">Setup</a></li>
+        <li><a href="#results">Results</a></li>
+        <li><a href="#conclusion">Conclusion</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+        <p><strong>TLDR</strong>: Instagram changes their TSL certificates daily and they use
+certificates that are just about to expire in a week.</p>
+<h3 id="intro">Intro</h3>
+<p>Since I occasionally help debug issues with office networks, I have
+built a simple cross-platform app for myself. One part of the app is a tool that gets the site
+certificate and displays various needed information. To test edge cases and
+verify that it works as needed I was testing it with different sites and
+different certificates. While that testing I stumbled upon a strange anomaly
+that I have never seen before. A certificate for Instagram was issued for 53 days.
+Usually, I expect a certificate to be issued for 90, 180, 365, or close to those
+values and this seemed very odd.</p>
+<p><img src="/posts/instagram-single-day-certificates/network-tools-example.png" alt="Network tool example screen"></p>
+<p>Apart from that certificate has about a week left to expire and I thought I
+would come in a few days to see how many days of buffer Instagram uses to trigger
+certificate update. But a few days later when I came back it still showed a
+certificate that had 8 days to expire. After a week it still had 8 days to
+expire.</p>
+<p>So this led me to a hypothesis that Instagram changes its certificate once a
+week and they use certificates that are about to expire to reduce certificate
+lifetime. At the time I was a bit busy and couldn&rsquo;t exactly verify that apart
+from checking certificate lifetime once in a while. I returned to it after
+server weeks.</p>
+<h3 id="setup">Setup</h3>
+<p>After I got a little more time to test my hypothesis I allocated a separate
+machine for testing and wrote a little script to download a certificate from
+Instagram, extract the needed information from it, and store it on the disk for later
+analysis if needed. The certificate was saved in a custom format with extracted
+information and the certificate itself was stored in it. The name of the file was just a
+<strong>sha1 hash</strong> of the certificate and this name was later used to check if
+the certificate has changed.</p>
+<p>Script downloaded certificate, got its sha1, and checked if there is already a
+file with that hash in the data directory. If the file is missing then it will
+do certificate processing to extract some information and store it in a file with
+a new hash, extract information, and the certificate itself. Then the script slept for
+<strong>5 minutes</strong> and repeated the process. 5 minutes is an arbitrary delta that
+gives a 10-minute window for when the certificate changed. The task was not
+to know the exact minute and second timing of certificate change and a single
+request once in 5 minutes is polite enough to not cause any trouble.</p>
+<p>The final stored result of the certificate and extracted data looks something like this:</p>
+<pre tabindex="0"><code>Current Time: 2025-06-08 22:15:16
+Serial: 13214245945560377533494110836988353923
+sha-1: 0f4040bb4d2387253c1ccb1a9ba61ba5abce03ee
+Valid from: 2025-03-20 00:00:00+00:00
+Valid until: 2025-06-16 23:59:59+00:00
+Issuer: &lt;Name(C=US,O=DigiCert Inc,OU=www.digicert.com,CN=DigiCert SHA2 High Assurance Server CA)&gt;
+Subject: &lt;Name(C=US,ST=California,L=Menlo Park,O=Meta Platforms\, Inc.,CN=*.instagram.com)&gt;
+Signature algorithm: sha256
+Time left: 8 days or 697482.528974 seconds
+
+
+-----BEGIN CERTIFICATE-----
+MIIGTTCCBTWgAwIBAgIQCfD4oEt6/tfhI0OgazCdgzANBgkqhkiG9w0BAQsFADBw
+MQswCQYDVQQGEwJVUzEVMBMGA1UEChMMRGlnaUNlcnQgSW5jMRkwFwYDVQQLExB3
+d3cuZGlnaWNlcnQuY29tMS8wLQYDVQQDEyZEaWdpQ2VydCBTSEEyIEhpZ2ggQXNz
+dXJhbmNlIFNlcnZlciBDQTAeFw0yNTAzMjAwMDAwMDBaFw0yNTA2MTYyMzU5NTla
+MHAxCzAJBgNVBAYTAlVTMRMwEQYDVQQIEwpDYWxpZm9ybmlhMRMwEQYDVQQHEwpN
+ZW5sbyBQYXJrMR0wGwYDVQQKExRNZXRhIFBsYXRmb3JtcywgSW5jLjEYMBYGA1UE
+AwwPKi5pbnN0YWdyYW0uY29tMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEXbxh
+IBzk2olkv203rQVjCuqcsLPZ0ofOw8FiaAvobpoIQX+p4vTMRh/CkjteqQcahuRu
++Yn0g8vyYy86htJsv6OCA6wwggOoMB8GA1UdIwQYMBaAFFFo/5CvAgd1PMzZZWRi
+ohK4WXI7MB0GA1UdDgQWBBRLbUwi6ZcvMsVyVW/yis+L4gRP7TBrBgNVHREEZDBi
+gg8qLmluc3RhZ3JhbS5jb22CEiouY2RuaW5zdGFncmFtLmNvbYINKi5pZ3NvbmFy
+LmNvbYIQY2RuaW5zdGFncmFtLmNvbYILaWdzb25hci5jb22CDWluc3RhZ3JhbS5j
+b20wPgYDVR0gBDcwNTAzBgZngQwBAgIwKTAnBggrBgEFBQcCARYbaHR0cDovL3d3
+dy5kaWdpY2VydC5jb20vQ1BTMA4GA1UdDwEB/wQEAwIDiDAdBgNVHSUEFjAUBggr
+BgEFBQcDAQYIKwYBBQUHAwIwdQYDVR0fBG4wbDA0oDKgMIYuaHR0cDovL2NybDMu
+ZGlnaWNlcnQuY29tL3NoYTItaGEtc2VydmVyLWc2LmNybDA0oDKgMIYuaHR0cDov
+L2NybDQuZGlnaWNlcnQuY29tL3NoYTItaGEtc2VydmVyLWc2LmNybDCBgwYIKwYB
+BQUHAQEEdzB1MCQGCCsGAQUFBzABhhhodHRwOi8vb2NzcC5kaWdpY2VydC5jb20w
+TQYIKwYBBQUHMAKGQWh0dHA6Ly9jYWNlcnRzLmRpZ2ljZXJ0LmNvbS9EaWdpQ2Vy
+dFNIQTJIaWdoQXNzdXJhbmNlU2VydmVyQ0EuY3J0MAwGA1UdEwEB/wQCMAAwggF9
+BgorBgEEAdZ5AgQCBIIBbQSCAWkBZwB3AE51oydcmhDDOFts1N8/Uusd8OCOG41p
+wLH6ZLFimjnfAAABlbRY9tEAAAQDAEgwRgIhAN2NlSTliTLCBSeN4GNkP1MADhkY
+SNBxdwed2gGApH+0AiEAvfhhx+Nlhu5BAID5oqQVRhSvkNq16Cw/0P/1hEDUwvwA
+dQDm0jFjQHeMwRBBBtdxuc7B0kD2loSG+7qHMh39HjeOUAAAAZW0WPclAAAEAwBG
+MEQCIA9UCPDvIIJk2mj88k/14PUu6UC9cYQTJOzzOZSDKKWMAiBw3W2pQ4k0TTij
+lL1MkIYEYR3fNIAaH2UNvu+YVrBhIQB1AMz7D2qFcQll/pWbU87psnwi6YVcDZeN
+tql+VMD+TA2wAAABlbRY9+MAAAQDAEYwRAIgD48iepuH0eqwD3ZkTD7r4jsCZ+UD
+ajd6IGgLV4ACtbwCIENjqzSDK2fpZuxMdRHJSedoJBGmhvNbUB4Y6G9INXa1MA0G
+CSqGSIb3DQEBCwUAA4IBAQBaBGH/NFCtznAsJLIG4Fcx87YLOUNWt5sca32j/WWm
+lQzYvS8v3P+dPPC2GlzjOsQdOx1a10B40b+1ET158asrMAR3CyI2SVl8hcAwmu4C
+4IpOxEk5zLDDJ5ADZEhbwMEgIYU8yPIns6KAn4HHWgoQ0VAHOTBNQG107WLhb9q3
+9+pxSfvGYq35FserjOUzmFlgJFTW8PifeySJ9yrlYACIJZxdvxPxzfhFm1ECt9jJ
+yaaips6LDQgLW3hAi12QvdG72E+3S2lkPW1HqBQ/8ZuPVYmAyK4hE2O1dWHrvLBA
+KIdVX2oPg5LRPNJNo4LoNsAgfBRVI4tlOxFeARVGakUi
+-----END CERTIFICATE-----
+</code></pre><h3 id="results">Results</h3>
+<p>Apart from the allocated machine rebooting once or twice the test went surprisingly very well
+compared to the little time I spent on writing and setting things up. In total, it collected 20 certificates per domain. There were 1 or 2 days that I
+missed due to a machine reboot. But if we don&rsquo;t consider those days then it is
+clear that Instagram changes certificates <strong>daily</strong> and rarely <strong>twice a
+day</strong>.</p>
+<p>In general, Instagram starts using a certificate that has a lifetime of slightly
+more than 8 days and replaces it one day later when it has left a little more than 7
+days before expiration. We can assume that they use &ldquo;1 certificate per day&rdquo;.
+Apart from that <strong>&lsquo;instagram.com&rsquo;</strong> and <strong>&lsquo;<a href="https://www.instagram.com">www.instagram.com</a>&rsquo;</strong> use different
+certificates even though the certificate for instagram.com could sign www
+subdomain because it uses a wildcard certificate.</p>
+<p>Let&rsquo;s have a look a collected certificates in general.</p>
+<p><img src="/posts/instagram-single-day-certificates/valid_from.png" alt="Valid from for instagram">
+<img src="/posts/instagram-single-day-certificates/valid_until.png" alt="Valid until for instagram">
+<img src="/posts/instagram-single-day-certificates/current_time_date.png" alt="Approximate time when cert change ocurred"></p>
+<p>Above we have 3 graphs for each certificate valid_from, valid_until, and the
+<strong>approximate time</strong> for when the certificate was swapped. Apart from a couple of anomalies
+(due to machine reboots), we can see that certificates are changed daily.
+Certificate validity start and end times are increasing by a single day. The
+only unusual thing here is that for &ldquo;instagram.com&rdquo; the first 3 certificates had the
+same &ldquo;valid_from&rdquo; field. Which might indicate that I accidentally stumbled upon
+Instagram is changing its certificate time allocation range. Remember initially I
+came across when the total time for the certificate was 53 days. It could be that they
+used to get certificates with the same starting day but different ending days
+which could have resulted in odd date ranges for the certificate.</p>
+<p><img src="/posts/instagram-single-day-certificates/current_time_hours.png" alt="Certificate change time hour">
+<img src="/posts/instagram-single-day-certificates/current_time_minutes.png" alt="Certificate change time minute"></p>
+<p>From the above graphs, we can see that certs are changed somewhere between 16:00
+and 17:00 in UTC. When we look into the minutes graph it happens somewhere
+around 25-30 minutes. Since checking for certificates happens once every 5
+minutes we have a &ldquo;radius&rdquo; of 5 minutes around each minute datapoint. But also
+since it was a machine with a weak wifi connection it could be that the internet
+might not have always been available and that could have added a bit more jitter
+to the data.</p>
+<p><img src="/posts/instagram-single-day-certificates/days_left_current.png" alt="Days left of current certificate">
+<img src="/posts/instagram-single-day-certificates/days_left_prev.png" alt="Days left of previous certificate"></p>
+<p>For these two graphs we have a measurement of how much time left for the
+certificate to expire at the time when we queried it. First graph show how much
+time left for current active certificate and second graph shows how much time
+left for the previous one. As we can clearly see (if we remove outliers) that
+when a certificate is introduced it has about 8 days left for it to expire and
+removed certificate still had 7 days.</p>
+<h3 id="conclusion">Conclusion</h3>
+<p>In this short period of about a month it was clear that instagram changes it&rsquo;s
+certificates on daily basis. It&rsquo;s main domain &lsquo;instagram.com&rsquo; and subdomain
+&lsquo;<a href="https://www.instagram.com">www.instagram.com</a>&rsquo; each get separate certificates even though main domain has
+wildcard certificate and could could secure it&rsquo;s subdomains. Changing
+certificates daily could be an attempt from instagram reduce &ldquo;certificate life&rdquo;
+to just one day instead of currently used mininum of about 90 days. It is hard
+for me to agree that it actually improves performance as the main attack vector
+of stealing private keys is still there if they are stored in close proximity
+and when somebody gets access to one they probably would have gotten access to
+all of them. But maybe they have some clever mechanism on the backend which
+stores them separately or somehow rotates access to them for the group of
+different people.</p>
+
+    </div>
+</div>
+
+<div class="page-wrap coffee">
+</div>
+
+        </div><div class='footer'>
+    <div class='page-wrap container'>
+        <div class='copyright'> &copy; 2025, Hereket </div>
+        <div class='menu'> <a href="/index.xml">RSS feed</a> </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

@@ -7,8 +7,15 @@
     <generator>Hugo</generator>
     <language>en-us</language>
     <copyright>Hereket All rights reserved</copyright>
-    <lastBuildDate>Tue, 29 Apr 2025 17:12:31 +0500</lastBuildDate>
+    <lastBuildDate>Sat, 03 May 2025 13:19:23 +0500</lastBuildDate>
     <atom:link href="https://hereket.com/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Instagram&#39;s TLS one certificate per day policy</title>
+      <link>https://hereket.com/posts/instagram-single-day-certificates/</link>
+      <pubDate>Sat, 03 May 2025 13:19:23 +0500</pubDate>
+      <guid>https://hereket.com/posts/instagram-single-day-certificates/</guid>
+      <description>&lt;p&gt;&lt;strong&gt;TLDR&lt;/strong&gt;: Instagram changes their TSL certificates daily and they use&#xA;certificates that are just about to expire in a week.&lt;/p&gt;&#xA;&lt;h3 id=&#34;intro&#34;&gt;Intro&lt;/h3&gt;&#xA;&lt;p&gt;Since I occasionally help debug issues with office networks, I have&#xA;built a simple cross-platform app for myself. One part of the app is a tool that gets the site&#xA;certificate and displays various needed information. To test edge cases and&#xA;verify that it works as needed I was testing it with different sites and&#xA;different certificates. While that testing I stumbled upon a strange anomaly&#xA;that I have never seen before. A certificate for Instagram was issued for 53 days.&#xA;Usually, I expect a certificate to be issued for 90, 180, 365, or close to those&#xA;values and this seemed very odd.&lt;/p&gt;</description>
+    </item>
     <item>
       <title>Crafting a visualizer for an interpreter of a toy langguage</title>
       <link>https://hereket.com/posts/interpreter-debugger-visualizer/</link>
