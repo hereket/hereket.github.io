@@ -3,7 +3,13 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://hereket.com/</loc>
-    <lastmod>2025-08-19T12:05:40+05:00</lastmod>
+    <lastmod>2025-09-06T11:31:19+05:00</lastmod>
+  </url><url>
+    <loc>https://hereket.com/posts/</loc>
+    <lastmod>2025-09-06T11:31:19+05:00</lastmod>
+  </url><url>
+    <loc>https://hereket.com/posts/webpage-load-transport-record-layer/</loc>
+    <lastmod>2025-09-06T11:31:19+05:00</lastmod>
   </url><url>
     <loc>https://hereket.com/tiny/wasm-platformer/</loc>
     <lastmod>2025-08-19T12:05:40+05:00</lastmod>
@@ -15,9 +21,6 @@
     <lastmod>2025-05-30T10:43:11+05:00</lastmod>
   </url><url>
     <loc>https://hereket.com/posts/instagram-single-day-certificates/</loc>
-    <lastmod>2025-05-03T13:19:23+05:00</lastmod>
-  </url><url>
-    <loc>https://hereket.com/posts/</loc>
     <lastmod>2025-05-03T13:19:23+05:00</lastmod>
   </url><url>
     <loc>https://hereket.com/posts/interpreter-debugger-visualizer/</loc>

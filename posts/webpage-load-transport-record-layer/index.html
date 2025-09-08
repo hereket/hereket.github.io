@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html>
+    
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start': new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0], j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src= 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f); })(window,document,'script','dataLayer','GTM-5QJQQZSG');</script>
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    
+    
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start': new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0], j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src= 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f); })(window,document,'script','dataLayer','GTM-5QJQQZSG');</script>
+    
+    
+
+    <link rel="icon" type="image/x-icon" href="/image/favicon.ico">
+    <link rel="canonical" href="https://hereket.com/posts/webpage-load-transport-record-layer/" />
+
+    
+    
+    
+    
+
+    <link rel="stylesheet" type="text/css" href="/css/base.css?1757374092">
+
+    <script type="text/javascript" src="/js/base.js?1757374092" ></script>
+
+    <link rel="alternate" type="application/rss+xml" href="https://hereket.com//index.xml" title="Hereket">
+
+
+    
+    
+    <title>Transport record layer | Hereket</title>
+</head>
+<body>
+        
+        <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5QJQQZSG" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+        
+        
+        
+        <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5QJQQZSG" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+        
+        <div id="nav-border" class="container header">
+    <div class='page-wrap content'>
+        <a href="/"><div class="header-logo"> Hereket </div></a>
+        <nav id="nav" class="nav">
+            
+            <a class="nav-link" href="/">
+            
+            Posts
+            </a>
+            
+            <a class="nav-link" href="/tiny/">
+            
+            Tiny
+            </a>
+            
+        </nav>
+        <div class="contacts">
+            <a class="item" href="mailto:info123@hereket.com"><img src="/image/icon-email.png"></a>
+            <a class="item" href="https://twitter.com/alfred_tweet"><img src="/image/icon-twitter.png"></a>
+    <link rel="icon" type="image/x-icon" href="/image/favicon.ico">
+        </div>
+    </div>
+</div>
+<div id="content">
+<div class="page-wrap article">
+    <div class='main-content article'>
+        <h1>Transport record layer</h1>
+        
+        <div><time class='post-time' datetime="2025-09-06">2025-09-06</time></div>
+        
+        <br><br>
+        <nav id="TableOfContents">
+  <ul>
+    <li><a href="#what-is-tls-record-layer">What is TLS record layer</a></li>
+    <li><a href="#interpretation">Interpretation</a></li>
+    <li><a href="#examples">Examples</a></li>
+    <li><a href="#conclusions">Conclusions</a></li>
+  </ul>
+</nav>
+        <p><strong>TLDR: Reducing TTFB (Time to first byte) by reducing TLS record size.</strong></p>
+<p>While working on our websites we use several ways to speed it up. Some people to
+to extremes and use just tiny HTML page, some try to keep page always under 14
+kilobytes to fit into TCP&rsquo;s congestion window, convert everything into webp,
+compress with gzip etc. Here I wanted to explore one more way: decreasing
+TLS record size to let browsers read header and start loading other resources
+before the whole of html is loaded.</p>
+<p>This will not magically speed your site to be 10x faster but it is an
+interesting way that some top websites use to load a bit more faster (especially
+on slow and unreliable networks).</p>
+<h2 id="what-is-tls-record-layer">What is TLS record layer</h2>
+<p>When a client sends request to a URL (requests a document) server will prepare a
+response and send it back to the client. There are many different document types that
+server will be sending back (css, js, images, etc) but for our case we are
+interested in HTML. So server will prepare and HTML, pack it into an HTTP,
+encrypt it  and pass it down to other systems to do other processing and deliver
+it to the client.</p>
+<p>Most of the time this HTML will be larger that the maximum allowed blocks for
+transporting for the lower system and will be cut into blocks. The data will be
+split into MSS sized blocks to escape IP fragmentation and more efficient
+transport (There is also layer 1-2 but we don&rsquo;t need it here).</p>
+<p>One aspect that we usually glance over it that there is another level of data
+splitting between HTTP and TCP and it is TLS records. It is another envelope
+that we use to split information and it has a maximum size of 16 KB (16384
+bytes). 16 KB is the default split size and so all sites that use default
+settings split their content using this size.</p>
+<p><img src="/posts/web-pageload-tls-record/client-server-base.png" alt="Client and server communication. Data split"></p>
+<p>What does it give us? The thing is that the client can read incoming data at
+the granularity of this TLS record size. Even though that data will come in
+about 1.5 KB chunks and tls library will be able to decode it in smaller chunks
+it cannot return to the client decrypted data until it reads and verifies all the
+of the record. Why? It is because of how records are structured and processed.
+Each record starts with a small header and ends with auth tag (MAC) that
+verifies record. And even though the library itself decrypts it in smaller
+blocks it cannot give the decrypted data back to the client until it verified
+that data is correct and not corrupted.</p>
+<p><img src="/posts/web-pageload-tls-record/record-split-into-segments.png" alt="TLS record split into segments"></p>
+<p>So this is what TLS record layer does (more or less).</p>
+<ul>
+<li>Takes chunks of application data (from HTTP, SMTP, etc.).</li>
+<li>Splits them into records (max plaintext size = 16 KB = 16,384 bytes).</li>
+<li>Adds a MAC or AEAD authentication tag.</li>
+<li>Encrypts the record (using AES, ChaCha20, etc.).</li>
+<li>Prepends a record header (5 bytes).</li>
+</ul>
+<p>Later bottom network layers could split it even into smaller chunks for
+transportation. It could be done like this for a maximum record size.
+Typical MTU is 1500 bytes which gives us a 1460 bytes payload (after subtracting
+IP/TCP headers). The TLS record is about 16410 bytes. If we divide 16410/1460 we get
+about 12 TCP segments that need to be transported. This is already larger than
+congestion windows and it means that there will be even more delay for initial
+read.</p>
+<h2 id="interpretation">Interpretation</h2>
+<p>You might say so what? I can wait not only for first records but for the whole
+document to be downloaded and start working with it as soon as the whole is
+ready. And this is probably the case for regular apps. But the trick is modern
+browsers and how they work with content loading for a webpage.</p>
+<p>The first issue is that a modern webpage is rarely a single document. After
+downloading initial HTML page it will have to load CSS and JS files and if those
+extra files are blocking (which most sites have at least a few) then page will
+not start rendering until it gets all the files that are required to render
+that page.</p>
+<p>Modern browsers try to be smart and start loading those blocking extra resources
+as fast as possible and to do that they don&rsquo;t wait for the whole HTML document
+to load to proceed parsing it. They start parsing it right away and as soon as
+they read HTML header and find required files they add them to the queue
+immediately. By this pipelining requests overall webpage initial render speeds up
+quite a bit on slower connections.</p>
+<p><img src="/posts/web-pageload-tls-record/wikipedia-record.png" alt="Wikipedia resources load in chrome"></p>
+<p>Let&rsquo;s look at how chrome renders wikipedia&rsquo;s main page. It first starts loading
+it HTML document and about half way through start loading other pages. Even
+Though the whole document is 116 KB it is gzipped to be 27.3 KB at the end. And
+since TLS record is 16 KB it is safe to assume that somewhere in the middle of
+downloading it got its first record, decrypted it and started parsing. During
+parsing of HTML it found some other resources that it needs and started
+downloading them immediately without waiting for the whole page to download.</p>
+<p><img src="/posts/web-pageload-tls-record/google-record.png" alt="Wikipedia resources load in chrome"></p>
+<p>Now the same test with google shows similar results as it also starts
+downloading other content before the whole HTML page loaded. Even though the
+downloaded google page is 52 KB gzipped which slightly bigger than that of
+wikipedia the time for other resources download is significantly closer to the
+start of HTML load. The reason for that is that google uses smaller TLS record
+sizes and this helps it to start parsing and checking for other resources
+faster.</p>
+<h2 id="examples">Examples</h2>
+<p>I initially stumbled upon this while I was playing with my small <a href="https://play.google.com/store/apps/details?id=com.hereket.netops">network
+debugging/exploring tool</a>.
+(the tools is working on all platforms but I have only android version due to
+request from my android friends).
+It has a tool where I usually explore at what stage the request stalls or to quickly explore
+if it is a server who is taking a lot of time to compute the result. What took me by surprise is
+sites return different different chunks on <strong>read</strong> requests. Initially I thought I made a mistake
+but on inspection I found decryption library just holds data until it fully
+decrypts it.</p>
+<p>Here are some examples sites. I were testing some VPN related stuff and thus
+overal speed might seem slow but we are looking at contet sizes only here.</p>
+<p><img src="/posts/web-pageload-tls-record/example-small.png" alt="Sites with smalle TLS record size example"></p>
+<p>Let&rsquo;s first look into regular sites. The tool does not clearly shows that
+requests are 16 KB. This is because of how Dart lang does networking. They have a
+two 8 KB buffers to communicate decrypted data from C++ to Dart and thus we see
+these random looking 8191+82191+2 bytes. It is implementation details and does
+does not really matter in this case as we are not trying to get exact results. Rough
+approximations are good enough. We see that samsung.com, wikipedia.org and even
+tiktok uses 16 KB records. There is also hackernews but considering it
+asceticism it looks like these type of optimizations won&rsquo;t be of much help in
+their case.</p>
+<p><img src="/posts/web-pageload-tls-record/example-small.png" alt="Sites with smalle TLS record size example"></p>
+<p>Here is some output from that tool for sites with smaller TLS record sizes.
+Of course there is google, instagram and facebook as they probably care about
+these types of optimizations and try to squeeze every bit of optimization. But
+there is also my site but I didn&rsquo;t do this optimization. It happens that my
+blog is hosted on github pages and github does this for all hosted pages.</p>
+<p>Google seems to size their TLS record to fit exactly the full HTTP header into it. I
+cannot prove it but all requests to google and youtube in my tests were exactly
+fitting HTTP header no more and no less. Facebook seems like going with 1500
+limit but I have not done enough tests to search for any kind of patterns.</p>
+<h2 id="conclusions">Conclusions</h2>
+<p>First of all, why is everybody using 16 KB record sizes? It is probably because
+everybody is using default settings for popular web servers. Most people don&rsquo;t bother
+and leave the default setting for record size. If you want to test you put this
+into your nginx conf (size of 2 KB is arbitrary here):</p>
+<pre tabindex="0"><code>ssl_buffer_size 2k;
+</code></pre><p>Another question might be what is the overhead of decreasing record size? It depends
+on encryption method but generally there will be 5 bytes for the header and
+21-70 bytes for MAC. So overhead for 16 KB is around 0.1%-0.4%. For 2 KB is
+around 1%-3% of bytes.</p>
+<p>Does it worth it? Probably does if increasing TTFB is valuable for your business
+and your customers. It won&rsquo;t magically speed your site 10x but will load a page
+with multiple resources faster and will have significant impact for users with
+slower and unreliable connections.</p>
+
+    </div>
+</div>
+
+<div class="page-wrap coffee">
+</div>
+
+        </div><div class='footer'>
+    <div class='page-wrap container'>
+        <div class='copyright'> &copy; 2025, Hereket </div>
+        <div class='menu'> <a href="/index.xml">RSS feed</a> </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>
