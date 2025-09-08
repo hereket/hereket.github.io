@@ -20,16 +20,16 @@
     
     
 
-    <link rel="stylesheet" type="text/css" href="/css/base.css?1757374354">
+    <link rel="stylesheet" type="text/css" href="/css/base.css?1757374871">
 
-    <script type="text/javascript" src="/js/base.js?1757374354" ></script>
+    <script type="text/javascript" src="/js/base.js?1757374871" ></script>
 
     <link rel="alternate" type="application/rss+xml" href="https://hereket.com//index.xml" title="Hereket">
 
 
     
     
-    <title>Exploring why decreasing TLS record size can improve TTFB | Hereket</title>
+    <title>Exploring why decreasing TLS record size can improve webpage load | Hereket</title>
 </head>
 <body>
         
@@ -65,7 +65,7 @@
 <div id="content">
 <div class="page-wrap article">
     <div class='main-content article'>
-        <h1>Exploring why decreasing TLS record size can improve TTFB</h1>
+        <h1>Exploring why decreasing TLS record size can improve webpage load</h1>
         
         <div><time class='post-time' datetime="2025-09-06">2025-09-06</time></div>
         
@@ -78,7 +78,9 @@
     <li><a href="#conclusions">Conclusions</a></li>
   </ul>
 </nav>
-        <p><strong>TLDR: Reducing TTFB (Time to first byte) by reducing TLS record size.</strong></p>
+        <p><strong>TLDR: Reducing TLS record size will need less data to decrypt initial
+block and allow loading other assets before loading full document. This will
+also improve TTFB because decryption library will pass decrypted data quicker</strong></p>
 <p>While working on our websites we use several ways to speed it up. Some people to
 to extremes and use just tiny HTML page, some try to keep page always under 14
 kilobytes to fit into TCP&rsquo;s congestion window, convert everything into webp,
