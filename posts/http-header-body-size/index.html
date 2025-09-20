@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html>
+
+    
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start': new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0], j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src= 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f); })(window,document,'script','dataLayer','GTM-5QJQQZSG');</script>
+    
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    
+    
+    
+    
+    
+    
+
+    <link rel="icon" type="image/x-icon" href="/image/favicon.ico">
+    <link rel="canonical" href="https://hereket.com/posts/http-header-body-size/" />
+
+    
+    
+    
+    
+
+    <link rel="stylesheet" type="text/css" href="/css/base.css?1758364855">
+
+    <script type="text/javascript" src="/js/base.js?1758364855" ></script>
+
+    <link rel="alternate" type="application/rss+xml" href="https://hereket.com//index.xml" title="Hereket">
+
+
+    
+    
+    <title>How much overhead do http headers add on average? | Hereket</title>
+</head>
+<body>
+        
+        
+        
+        <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5QJQQZSG" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+        
+        <div id="nav-border" class="container header">
+    <div class='page-wrap content'>
+        <a href="/"><div class="header-logo"> Hereket </div></a>
+        <nav id="nav" class="nav">
+            
+            <a class="nav-link" href="/">
+            
+            Posts
+            </a>
+            
+            <a class="nav-link" href="/tiny/">
+            
+            Tiny
+            </a>
+            
+        </nav>
+        <div class="contacts">
+            <a class="item" href="mailto:info123@hereket.com"><img src="/image/icon-email.png"></a>
+            <a class="item" href="https://twitter.com/alfred_tweet"><img src="/image/icon-twitter.png"></a>
+    <link rel="icon" type="image/x-icon" href="/image/favicon.ico">
+        </div>
+    </div>
+</div>
+<div id="content">
+<div class="page-wrap article">
+    <div class='main-content article'>
+        <h1>How much overhead do http headers add on average?</h1>
+        
+        <div><time class='post-time' datetime="2025-03-18">2025-03-18</time></div>
+        
+        <br><br>
+        <nav id="TableOfContents">
+  <ul>
+    <li><a href="#introduction">Introduction</a></li>
+    <li><a href="#setup">Setup</a></li>
+    <li><a href="#first-attempt">First attempt</a></li>
+    <li><a href="#second-attempt">Second attempt</a></li>
+    <li><a href="#third-final-attempt">Third (final) attempt</a></li>
+    <li><a href="#results">Results</a></li>
+    <li><a href="#interpretation-and-side-notes">Interpretation and side notes</a></li>
+    <li><a href="#compression">Compression</a></li>
+    <li><a href="#conclusion">Conclusion</a></li>
+  </ul>
+</nav>
+        <p><strong>tldr:</strong> Testing 1000 popular domains for HTTP header sizes. On average it will
+take 1-2KB. There are small header with 300 byte and huge one with 28KB.</p>
+<h2 id="introduction">Introduction</h2>
+<p>Several month ago I made a talk in the local developer community for flutter
+developers about cartoonish representation of how low level networking works.
+The talk discussed networking mostly from frontend perspective and covered
+essential basics like DNS, TCP/IP, HTTP, TLS and etc. During the talk we
+calculated &ldquo;optimal&rdquo; page size limit based on MTU size, TCP/IP header sizes and
+congestion. So (MTU minus TPC/IP headers) * 10 packets is about 14 KB. But
+between TCP/IP headers and actual documents that we want to send (HTML, JSON,
+PNG, etc) there is another layer that is not accounting here. It is HTTP or
+more more specifically HTTP headers. Since it was just a sidenote of the talk
+and not part of the main discussion I just quickly mentioned that there is HTTP
+header that should be accounted for and just skipped it.</p>
+<p>It also tickled my own curiosity. I know that HTTP header is dynamic (and
+let&rsquo;s be honest in the current age of multi-megabyte pages is not really
+relevant) we can&rsquo;t just say how big it is. But I wanted to explore how are big
+or small they are on average on popular sites. So here is my small experiments
+and explorations with popular pages.</p>
+<h2 id="setup">Setup</h2>
+<p>The setup is pretty simple. We take some amount of popular web pages. Download
+them, split to HTTP header and content part and do some simple statistics/graphs
+to get some understanding of the topic. Since there are billion pages we need
+some limitations. I chose to take about 1000 most popular pages. This should be
+enough to get basic statistics on what is used on most popular pages.</p>
+<p>For this I took the most popular 500 pages from <a href="https://moz.com/top500">Moz top 500</a>.
+These are popular based on domain authority or how many backlinks they got from other websites.
+Also I took another 1000 most popular pages from <a href="https://www.domcop.com/top-10-million-websites">DomCom: Top 10 million Websites</a>
+These are popular based on Open page rank. I combined these into one list and
+filtered out duplicates which resulted in 1226 different domains. I will used
+use these to download their index pages and calculate header/body sizes based on
+them. Here are data files if you want to explore yourself:</p>
+<ul>
+<li><a href="/posts/http-header-body-size/500urls.txt">500 urls</a></li>
+<li><a href="/posts/http-header-body-size/1000urls.txt">1000 urls</a></li>
+<li><a href="/posts/http-header-body-size/1000urls.txt">Combined urls: 1226</a></li>
+</ul>
+<h2 id="first-attempt">First attempt</h2>
+<p>I was already was playing around with dart and exploring some dart socket and
+how to use it over proxies. So I wrote a simple dart program that we connecting
+through a list of proxies to a web page and downloading it over HTTP 1.1. A of
+pages from the list were redirecting and I was saving both initial page and all
+intermediary redirects all the way up to the last resolving page.</p>
+<p>It was working fine but I noticed that facebook was returning only &ldquo;Unsupported
+browser&rdquo; page. After trying different header types to mimic regular browsers I
+found out that facebook does not work over HTTP versions higher than 1.1. It is
+not a big deal but I thought if there will be a lot of pages like that they
+might not redirect to &lsquo;unsupported browser&rsquo; but rather silently fail and to
+verify that I would need to go over outputs of all pages and that will take a
+bit than allocated time for this task. So instead of implementing custom
+HTTP/1.2+ or rewriting with darts &lsquo;http&rsquo; package I decided to just go with
+&lsquo;curl&rsquo;. (I usually use python for scraping tasks but wanted to explore something
+different this time).</p>
+<h2 id="second-attempt">Second attempt</h2>
+<p>First I started a simple bash script that load a file, iterates over all urls,
+downloads each page and saves needed information.</p>
+<pre tabindex="0"><code>curl -s -L -o /dev/null &#34;$effective_url&#34; \
+    --connect-timeout 10 \
+    --max-time 30 \
+    -w &#34;%{size_header}, %{size_download}, %{http_code}, %{url_effective}, ${url}\n&#34; \
+    -H &#34;User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:142.0) Gecko/20100101 Firefox/142.0&#34; \
+    -H &#34;Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8&#34; \
+    -H &#34;Accept-Language: en-US,en;q=0.5&#34; \
+    -H &#34;Connection: keep-alive&#34; \
+    -H &#34;Upgrade-Insecure-Requests: 1&#34; \
+    -H &#34;Sec-Fetch-Dest: document&#34; \
+    -H &#34;Sec-Fetch-Mode: navigate&#34; \
+    -H &#34;Sec-Fetch-Site: none&#34; \
+    -H &#34;Sec-Fetch-User: ?1&#34; \
+    -H &#34;Priority: u=0, i&#34; \
+    -H &#34;Pragma: no-cache&#34; \
+    -H &#34;Cache-Control: no-cache&#34; \
+    # -H &#34;Accept-Encoding: gzip, deflate, br, zstd&#34; \
+</code></pre><p>The main trick here is <code>-w &quot;%{size_header}, %{size_download}, %{http_code}, %{url_effective}, ${url}\n&quot;</code>
+Curl gives us the ability to output some meta information about document download.
+Here I save header size, body size, status code, resulted url and initial url.
+Initially I wanted save specifically final page after all redirects (thus -L
+option). But after getting data for all urls and inspecting output I found that
+for some pages HTTP header sizes were unusually big. Comparing those headers with
+regular browser output I found that curl give total size for all headers for all
+redirected pages. This is not what we wanted.</p>
+<h2 id="third-final-attempt">Third (final) attempt</h2>
+<p>After different experiments and failures I came up with a solution suitable for me.
+First of all I used the same above curl request but for output used this:
+<code>-w &quot;%{url_effective}&quot;</code>
+And capture it into a variable <strong>effective_url</strong>. This will do all redirects and
+give back the final resolved url. Then this url is used for second request but
+use this effective_url. In second request I capture just **%{http_code}. Header
+and body are saved in separate files in specific folder with these additional
+curl parameters:
+<code>-D $HEADER -o $BODY</code>
+Where $HEADER and $BODY are just unique (per url) file paths where actual HTTP
+headers and body is saved. And then just output data with:</p>
+<pre tabindex="0"><code>header_size=$(wc -c &lt; $HEADER)
+body_size=$(wc -c &lt; $BODY)
+message=&#34;$header_size, $body_size, $http_code, $effective_url, $url&#34;
+</code></pre><p>Sample output for running this script looked like this:</p>
+<pre tabindex="0"><code>...
+1756, 87692, 200, https://www.bigcommerce.com/, https://bigcommerce.com
+1649, 131923, 200, https://www.bild.de/, https://bild.de
+558, 2027, 202, https://www.binance.com/, https://binance.com
+3225, 41678, 200, https://www.bing.com:443/?toWww=1&amp;redig=0A92B04D92B84006AEA2F88595AEFAB5, https://bing.com
+220, 269, 200, https://bingol.edu.tr/, https://bingol.edu.tr
+...
+</code></pre><p>Some of the pages returned statuses other than 200. It is probably because of
+initially proxies and later because script was running on a webserver and it
+look like they flagged requests as inappropriate based on IP. It is fine
+because first of all they are not many of them and second it will give some data
+to explore how header/body sizes change on non 200 responses.</p>
+<h2 id="results">Results</h2>
+<p>There have been different attempts with incorrect or misleading results. Here
+are final raw data after checks and cleaning.</p>
+<ul>
+<li><a href="/posts/http-header-body-size/curl1compressed.txt">Curl 500url compressed</a></li>
+<li><a href="/posts/http-header-body-size/curl1uncompressed.txt">Curl 500url not compressed</a></li>
+<li><a href="/posts/http-header-body-size/curl2compressed.txt">Curl 1000url compressed</a></li>
+<li><a href="/posts/http-header-body-size/curl2uncompressed.txt">Curl 1000url not compressed</a></li>
+<li><a href="/posts/http-header-body-size/curlAllCompressed.txt">Curl all urls compressed</a></li>
+<li><a href="/posts/http-header-body-size/curlAllUncompressed.txt">Curl all urls not compressed</a></li>
+<li><a href="/posts/http-header-body-size/sock1uncompressed.txt">raw socket 500 not compressed</a></li>
+<li><a href="/posts/http-header-body-size/sock2uncompressed.txt">raw socket 1000 not compressed</a></li>
+<li><a href="/posts/http-header-body-size/sockAllUncompressed.txt">raw socket all not compressed</a></li>
+</ul>
+<p>First of all if we look at header sizes for all data gotten with curl we get
+this graph.</p>
+<p><img src="/posts/http-header-body-size/images/curlAllCompressed_header_plot.png" alt="Header sizes for all urls. No compression"></p>
+<p>This graph in its raw format is a bit misleading. First of all there are
+outliers like zero sized header and a few 10KB+ headers. It also contains
+non 200 responses that contribute to tiny and zero header sizes. Here are bottom
+and top 10 results:</p>
+<pre tabindex="0"><code>0 0  https://acidholic.com/  https://acidholic.com
+0 0  https://akamaihd.net/  https://akamaihd.net
+0 0  https://alicdn.com/  https://alicdn.com
+0 0  https://amazonaws.com/  https://amazonaws.com
+0 0  https://azurefd.net/  https://azurefd.net
+0 0  https://bcg.com/  https://bcg.com
+0 0  https://bls.gov/  https://bls.gov
+0 0  https://bp.blogspot.com/  https://bp.blogspot.com
+0 0  https://citeseerx.ist.psu.edu/  https://citeseerx.ist.psu.edu
+0 0  https://citotoetsgroep4.nl/  https://citotoetsgroep4.nl
+...
+...
+8175 200  https://www.engadget.com/  https://www.engadget.com
+8501 200  https://outlook.live.com/mail/0/  https://outlook.live.com/mail/0
+9491 200  https://www.tiktok.com/explore  https://www.tiktok.com/explore
+9504 307  https://rumble.com/  https://rumble.com
+9592 200  https://www.who.int/  https://www.who.int
+9931 200  https://www.fifa.com/  https://www.fifa.com
+11461 200  https://www.fao.org/home/en  https://www.fao.org/home/en
+11994 200  https://x.com/  https://x.com
+14680 200  https://www.logitech.com/en-us  https://www.logitech.com/en-us
+18301 200  https://www.americanexpress.com/  https://www.americanexpress.com
+</code></pre><p>Also from the above plot it is hard to see how sizes are distributed. Even though
+we can probably estimate that most results fit into 2500 byte upper limit let&rsquo;s
+see into histogram.</p>
+<p><img src="/posts/http-header-body-size/images/curlAllCompressed_header_hist.png" alt="Histogram for header sizes for all urls"></p>
+<p>From this histogram we can see that first 1000 datapoints fit into somewhere
+between 0 and 3500+ bytes. From now on I will be filtering out all 0 sized
+results (both for headers and for bodies).</p>
+<p>Now let&rsquo;s look at different slices of this information to get better view and
+intuition.</p>
+<p>Here is a similar graph but showing only responses with status code of 200. It
+is similar to previous but for histogram it has count of items in the bin and<br>
+upper bound value for that bin.</p>
+<p><img src="/posts/http-header-body-size/images/200_curlAllCompressed_header_200.png" alt="Combined graph for Header sizes for all urls with status 200"></p>
+<pre tabindex="0"><code>188 200  https://cargo.site/ 
+198 200  https://reg.ru/
+204 200  https://www.enable-javascript.com/
+206 200  https://gutenberg.org/
+206 200  https://planeta.ru/
+216 200  https://sedoparking.com/infopage/en/index.html
+220 200  https://bingol.edu.tr/
+236 200  https://meyerweb.com/
+238 200  https://home.pl/
+242 200  https://phpscriptsmall.com/
+...
+...
+8089 200  https://vimeo.com/
+8175 200  https://www.engadget.com/
+8501 200  https://outlook.live.com/mail/0/
+9491 200  https://www.tiktok.com/explore
+9592 200  https://www.who.int/
+9931 200  https://www.fifa.com/
+11461 200  https://www.fao.org/home/en
+11994 200  https://x.com/
+14680 200  https://www.logitech.com/en-us
+18301 200  https://www.americanexpress.com/
+</code></pre><p>Initially I though that small headers (200bytes) is for sites are basically
+placeholders pages for something. But it looks like they are regular web pages
+with content.</p>
+<p>Now if we look at all headers with status code not equal to 200 we get this
+graph:
+<img src="/posts/http-header-body-size/images/curlAllCompressed_header_not200.png" alt="Combined graph for Header sizes for all urls with status not equal to 200"></p>
+<p>We still get outliers but we can already that these types of pages have some
+clusters. Quite a few of them are around 2KB, another block is closer to
+100-200 byte range. Here are top and bottom results:</p>
+<pre tabindex="0"><code>163 404  https://googletagmanager.com/
+182 404  https://static.googleusercontent.com/
+215 400  https://i0.wp.com/
+215 400  https://i1.wp.com/
+215 400  https://i2.wp.com/
+226 404  https://fonts.gstatic.com/
+226 404  https://googleadservices.com/
+226 404  https://www.gstatic.com/
+226 404  https://pagead2.googlesyndication.com/
+...
+...
+2238 403  https://help.openai.com/
+2244 403  https://platform.openai.com/
+2248 403  https://www.canva.com/
+2425 403  https://sourceforge.net/
+2649 403  https://www.getyourguide.com/
+3300 403  https://www.oracle.com/
+3466 403  https://www.godaddy.com/
+3469 403  https://www2.hm.com/en_us/index.html
+5235 403  https://chatgpt.com/
+9504 307  https://rumble.com/
+</code></pre><p>Here we see some &ldquo;fake&rdquo; pages which don&rsquo;t contain normal page for it&rsquo;s root
+document and just return 404 and there are some pages that didn&rsquo;t like our IP
+and just gave us 403.</p>
+<p>Now let&rsquo;s remove outliers. I decided to remove 5% from each side which leaves
+with 90% of original data. It will remove smallest and largest values and give
+give us a clearer picture of how the majority looks like.</p>
+<p><img src="/posts/http-header-body-size/images/curlAllCompressed_header_p90_200.png" alt="Combined graph for header sizes (status 200) with 5% outliers removed from each side."></p>
+<p>If we look at results with status other than 200 we can clearly see clusters at
+around 250 byte and 1800 byte marks. But there are few data points so this
+should be looked at carefully.
+<img src="/posts/http-header-body-size/images/curlAllCompressed_header_p90_not_200.png" alt="Combined graph for header sizes (status != 200) with 5% outliers removed from each side."></p>
+<h2 id="interpretation-and-side-notes">Interpretation and side notes</h2>
+<p>Initially we had <strong>1226</strong> domains/subdomains. We tried downloading their index
+document (index.html) and split them into separate HTTP headers and bodies.
+Since we were downloading just the final page after redirect we have left only
+<strong>1128</strong> urls. This is due some domains redirected to the same new domain.</p>
+<p>These could be split into <strong>936 links</strong> that returned status 200 and <strong>149
+links</strong> that returned status other than 200. If we filter out bottom and top 5%
+to remove extremums then we get <strong>844 links</strong> (status 200) and <strong>135 links</strong>
+(status != 200).</p>
+<p>Let&rsquo;s look at regular pages (bottom 5% and top 5% removed):</p>
+<pre tabindex="0"><code>Mean: 1566
+Median: 1149
+Mode: 803
+Std Dev: 1134
+Variance: 1285151
+Min: 390
+Max: 5292
+</code></pre><p>So in average HTTP header is <strong>1.5KB</strong> and 50% percent of headers fit into <strong>1KB</strong>.
+Standard deviation is big compared to mean and data is very spread out.</p>
+<p>If we look at &ldquo;error&rdquo; pages with status codes other than 200 we get similar
+results but they are a bit smaller.</p>
+<pre tabindex="0"><code>Mean: 1172
+Median: 1147
+Mode: 252
+Standart Deviation: 723
+Variance: 522230
+Min: 226
+Max: 2248
+</code></pre><p>Since these are &ldquo;error&rdquo; pages it is normal that big portion of them have smaller
+headers.</p>
+<p>These were averages but what about pages on the edges? Well bottom part is easy
+they are either zero or very small because server sent close to minimum
+required. On the top part we have pages that are 10KB+. In this dataset the
+biggest header in this test was <a href="https://www.americanexpress.com/">https://www.americanexpress.com/</a> and it is 18301
+bytes. Here are top 10:</p>
+<pre tabindex="0"><code>8175   https://www.engadget.com
+8501   https://outlook.live.com/mail/0
+9491   https://www.tiktok.com/explore
+9504   https://rumble.com
+9592   https://www.who.int
+9931   https://www.fifa.com
+11461  https://www.fao.org/home/en
+11994  https://x.com
+14680  https://www.logitech.com/en-us
+18301  https://www.americanexpress.com
+</code></pre><p><strong>Why do these pages have big HTTP headers?</strong></p>
+<p>Well quick look at all the pages with larger than average headers gives two main
+headers that give most impact on header size: <strong>content-security-policy</strong> and
+<strong>link</strong></p>
+<p><strong>content-security-policy</strong> - CSP is an HTTP response header that tells the
+browser what kinds of resources (scripts, images, styles, etc.) are allowed to
+load on a web page. It’s one of the main defenses against Cross-Site Scripting
+(XSS) and data injection attacks.</p>
+<p>So bigger companies setup more fine grained configuration on how browser should
+allow different types of content to be downloaded. So a regular website might have
+this strict setting for CSP: <code>Content-Security-Policy: default-src 'self'; script-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'</code>
+But for example a x.com has CSP settings set to (I slightly changed how it look
+by adding newlines for easy reading but it is in single line):</p>
+<pre tabindex="0"><code>content-security-policy: 
+    connect-src &#39;self&#39;
+        blob: https://fonts.googleapis.com/css 
+        https://mapsresources-pa.googleapis.com 
+        https://maps.googleapis.com 
+        https://translate.googleapis.com 
+        https://www.gstatic.com/maps/ 
+        https://*.pscp.tv 
+        https://*.twimg.com 
+        https://*.video.pscp.tv 
+        https://aa.twitter.com 
+        https://aa.x.com 
+        https://accounts.google.com/gsi/ 
+        https://ads-api.twitter.com 
+        https://ads-api.x.com 
+        https://api-stream.twitter.com 
+        https://api-stream.x.com 
+        https://api.twitter.com 
+        https://api.x.ai 
+        https://api.x.com 
+        https://api.x.com 
+        https://caps.twitter.com 
+        https://caps.x.com 
+        https://grok.x.com 
+        https://jf.twitter.com 
+        https://jf.x.com 
+        https://jf-t.x.com 
+        https://pay.twitter.com 
+        https://pay.x.com 
+        https://sentry.io 
+        https://ton-staging.atla.twitter.com 
+        https://ton-staging.atla.x.com 
+        https://ton-staging.pdxa.twitter.com 
+        https://ton-staging.pdxa.x.com 
+        https://ton.twitter.com 
+        https://ton.local.twitter.com 
+        https://ton.x.com 
+        https://twitter.com 
+        https://upload.twitter.com 
+        https://upload.x.com 
+        https://www.google-analytics.com 
+        https://x.com 
+        https://grok-api.gcp.mouseion.dev 
+        https://assets.mouseion.dev 
+        https://grok.com 
+        https://assets.grok.com 
+        https://*.adtrafficquality.google 
+        https://*.googlesyndication.com 
+        https://*.doubleclick.net 
+        https://adservice.google.com 
+        https://www.googleadservices.com 
+        https://pagead2.googlesyndication.com 
+        https://www.google.com 
+        https://google.com 
+        https://via.intercom.io 
+        https://api.intercom.io 
+        https://api.au.intercom.io 
+        https://api.eu.intercom.io 
+        https://api-iam.intercom.io 
+        https://api-iam.eu.intercom.io 
+        https://api-iam.au.intercom.io 
+        https://api-ping.intercom.io 
+        https://nexus-websocket-a.intercom.io 
+        wss://nexus-websocket-a.intercom.io 
+        https://nexus-websocket-b.intercom.io 
+        wss://nexus-websocket-b.intercom.io 
+        https://nexus-europe-websocket.intercom.io 
+        wss://nexus-europe-websocket.intercom.io 
+        https://nexus-australia-websocket.intercom.io 
+        wss://nexus-australia-websocket.intercom.io 
+        https://uploads.intercomcdn.com 
+        https://uploads.intercomcdn.eu 
+        https://uploads.au.intercomcdn.com 
+        https://uploads.eu.intercomcdn.com 
+        https://uploads.intercomusercontent.com 
+        https://production.plaid.com/ 
+        https://sandbox.plaid.com/ 
+        https://ingestion.dv.socure.io 
+        https://network.dv.socure.io/ 
+        https://analytics.dv.socure.io/ 
+        https://payments-dev.x.com/customer/wasm/forward-with-v1.wasm 
+        https://payments-staging.x.com/customer/wasm/forward-with-v1.wasm 
+        https://payments-prod.x.com/customer/wasm/forward-with-v1.wasm 
+        https://money-dev.x.com/customer/wasm/forward-with-v1.wasm 
+        https://money-staging.x.com/customer/wasm/forward-with-v1.wasm 
+        https://money.x.com/customer/wasm/forward-with-v1.wasm 
+        https://api.stripe.com 
+        https://m.castle.io 
+        https://checkoutshopper-live.adyen.com 
+        wss://*.pscp.tv 
+        https://vmap.snappytv.com 
+        https://vmapstage.snappytv.com 
+        https://vmaprel.snappytv.com 
+        https://vmap.grabyo.com 
+        https://dhdsnappytv-vh.akamaihd.net 
+        https://pdhdsnappytv-vh.akamaihd.net 
+        https://mdhdsnappytv-vh.akamaihd.net 
+        https://mdhdsnappytv-vh.akamaihd.net 
+        https://mpdhdsnappytv-vh.akamaihd.net 
+        https://mmdhdsnappytv-vh.akamaihd.net 
+        https://mdhdsnappytv-vh.akamaihd.net 
+        https://mpdhdsnappytv-vh.akamaihd.net 
+        https://mmdhdsnappytv-vh.akamaihd.net 
+        https://dwo3ckksxlb0v.cloudfront.net 
+        https://media.riffsy.com 
+        https://*.giphy.com 
+        https://media.tenor.com 
+        https://c.tenor.com 
+        wss://chat-ws.x.com 
+        https://d1muhwhmpsz4u8.cloudfront.net/ 
+        https://d2bchqfeno8n2m.cloudfront.net/ 
+        https://d2shtph9y6bxk.cloudfront.net/ 
+        https://xchat-hsm-staging.x.com/ 
+        https://realm-a.x.com 
+        https://realm-b.x.com 
+        https://realm-west1.x.com 
+        https://realm-east1.x.com 
+        https://hsm-staging.x.com 
+        https://ads-twitter.com 
+        https://analytics.twitter.com https://analytics.x.com         ;
+
+    default-src &#39;self&#39;;
+
+    form-action &#39;self&#39; 
+        https://twitter.com 
+        https://*.twitter.com 
+        https://x.com 
+        https://*.x.com 
+        https://localhost.twitter.com:3443 
+        https://localhost.x.com:3443 
+        https://intercom.help 
+        https://api-iam.intercom.io 
+        https://api-iam.eu.intercom.io 
+        https://api-iam.au.intercom.io;
+
+    font-src &#39;self&#39; 
+        https://*.twimg.com 
+        https://js.intercomcdn.com 
+        https://fonts.intercomcdn.com;
+
+    frame-src &#39;self&#39; 
+        https://accounts.google.com/ 
+        https://accounts.google.com/gsi/ 
+        https://cards-frame.twitter.com 
+        https://cdn.plaid.com/ 
+        https://client-api.arkoselabs.com/ 
+        https://content.googleapis.com/ 
+        https://iframe.arkoselabs.com/ 
+        https://mobile.twitter.com 
+        https://mobile.x.com 
+        https://pay.twitter.com 
+        https://pay.x.com 
+        https://google.com 
+        https://www.google.com 
+        https://intercom-sheets.com 
+        https://www.intercom-reporting.com 
+        https://www.youtube.com 
+        https://player.vimeo.com 
+        https://fast.wistia.net 
+        https://console.googletagservices.com 
+        https://*.doubleclick.net 
+        https://*.adtrafficquality.google 
+        https://*.safeframe.googlesyndication.com 
+        https://www.googleadservices.com 
+        https://googleadservices.com 
+        https://adservice.google.com 
+        https://*.googlesyndication.com 
+        https://td.doubleclick.net 
+        https://payments-dev.x.com/ 
+        https://payments-staging.x.com/ 
+        https://payments-prod.x.com/ 
+        https://sdn.payments-dev.x.com/ 
+        https://sdn.payments-staging.x.com/ 
+        https://sdn.payments-prod.x.com/ 
+        https://money-dev.x.com/ 
+        https://money-staging.x.com/ 
+        https://money.x.com/ 
+        https://sdn.money-dev.x.com/ 
+        https://sdn.money-staging.x.com/ 
+        https://sdn.money.x.com/ 
+        https://p2pcreditcardiframesandbox.crbcos.com 
+        https://p2pcreditcardiframe.crbcos.com 
+        https://verify-sandbox.plaid.com/ 
+        https://*.js.stripe.com 
+        https://js.stripe.com 
+        https://hooks.stripe.com 
+        https://cdn.getpinwheel.com/ 
+        https://artifacts.grokusercontent.com 
+        https://twitter.com 
+        https://x.com  
+        https://recaptcha.net/recaptcha/;
+
+    img-src &#39;self&#39; 
+        blob: data: 
+        https://www.google.com/maps/place/ 
+        https://imgs.search.brave.com 
+        https://*.cdn.twitter.com 
+        https://*.cdn.x.com 
+        https://ton.twitter.com 
+        https://ton.x.com 
+        https://*.twimg.com 
+        https://analytics.twitter.com 
+        https://analytics.x.com 
+        https://cm.g.doubleclick.net 
+        https://www.google-analytics.com 
+        https://maps.googleapis.com 
+        https://www.periscope.tv 
+        https://www.pscp.tv 
+        https://ads-twitter.com 
+        https://ads-api.twitter.com 
+        https://ads-api.x.com 
+        https://api.x.com 
+        https://developer.x.com 
+        blob: data: 
+        https://js.intercomcdn.com 
+        https://static.intercomassets.com 
+        https://downloads.intercomcdn.com 
+        https://downloads.intercomcdn.eu 
+        https://downloads.au.intercomcdn.com 
+        https://uploads.intercomusercontent.com 
+        https://gifs.intercomcdn.com 
+        https://video-messages.intercomcdn.com 
+        https://messenger-apps.intercom.io 
+        https://messenger-apps.eu.intercom.io 
+        https://messenger-apps.au.intercom.io 
+        https://*.intercom-attachments-1.com 
+        https://*.intercom-attachments.eu 
+        https://*.au.intercom-attachments.com 
+        https://*.intercom-attachments-2.com 
+        https://*.intercom-attachments-3.com 
+        https://*.intercom-attachments-4.com 
+        https://*.intercom-attachments-5.com 
+        https://*.intercom-attachments-6.com 
+        https://*.intercom-attachments-7.com 
+        https://*.intercom-attachments-8.com 
+        https://*.intercom-attachments-9.com 
+        https://static.intercomassets.eu 
+        https://static.au.intercomassets.com 
+        https://media.riffsy.com 
+        https://*.giphy.com 
+        https://media.tenor.com 
+        https://c.tenor.com 
+        https://*.pscp.tv 
+        https://*.periscope.tv 
+        https://prod-periscope-profile.s3-us-west-2.amazonaws.com 
+        https://platform-lookaside.fbsbx.com 
+        https://scontent.xx.fbcdn.net 
+        https://scontent-sea1-1.xx.fbcdn.net 
+        https://*.googleusercontent.com 
+        https://t.co/1/i/adsct 
+        https://*.googleusercontent.com 
+        https://*.gstatic.com 
+        https://*.googlesyndication.com 
+        https://*.adtrafficquality.google 
+        https://www.google.com/ads/measurement/ 
+        https://*.google.com/ads/measurement/ 
+        https://googleads.g.doubleclick.net 
+        https://google.com 
+        https://www.google.com 
+        https://plaid-merchant-logos.plaid.com 
+        https://plaid-counterparty-logos.plaid.com 
+        https://assets.mouseion.dev 
+        https://assets.grok.com;
+
+    manifest-src &#39;self&#39;;
+
+    media-src &#39;self&#39; data: blob: 
+        https://twitter.com 
+        https://x.com 
+        https://*.twimg.com 
+        https://*.vine.co 
+        https://*.pscp.tv 
+        https://*.video.pscp.tv 
+        https://js.intercomcdn.com 
+        https://downloads.intercomcdn.com 
+        https://downloads.intercomcdn.eu 
+        https://downloads.au.intercomcdn.com 
+        https://dhdsnappytv-vh.akamaihd.net 
+        https://pdhdsnappytv-vh.akamaihd.net 
+        https://mdhdsnappytv-vh.akamaihd.net 
+        https://mdhdsnappytv-vh.akamaihd.net 
+        https://mpdhdsnappytv-vh.akamaihd.net 
+        https://mmdhdsnappytv-vh.akamaihd.net 
+        https://mdhdsnappytv-vh.akamaihd.net 
+        https://mpdhdsnappytv-vh.akamaihd.net 
+        https://mmdhdsnappytv-vh.akamaihd.net 
+        https://dwo3ckksxlb0v.cloudfront.net;
+
+    object-src &#39;none&#39;;
+
+    script-src &#39;self&#39; &#39;unsafe-inline&#39; 
+        https://maps.googleapis.com 
+        https://*.twimg.com 
+        https://recaptcha.net/recaptcha/ 
+        http://www.gstatic.com/cast/sdk/libs/caf_receiver/v3/cast_receiver_framework.js 
+        https://accounts.google.com/gsi/client 
+        https://apis.google.com/js/api.js 
+        https://appleid.cdn-apple.com/appleauth/static/jsapi/appleid/1/en_US/appleid.auth.js 
+        https://client-api.arkoselabs.com/ 
+        https://static.ads-twitter.com 
+        https://twitter.com 
+        https://www.google-analytics.com 
+        https://www.gstatic.com/cast/sdk/libs/caf_receiver/v3/cast_receiver_framework.js 
+        https://x.com 
+        https://sdn.payments-dev.x.com/assets/loader.min.js 
+        https://sdn.payments-staging.x.com/assets/loader.min.js 
+        https://sdn.payments-prod.x.com/assets/loader.min.js 
+        https://sdn.money-dev.x.com/assets/loader.min.js 
+        https://sdn.money-staging.x.com/assets/loader.min.js 
+        https://sdn.money.x.com/assets/loader.min.js 
+        https://sdk.dv.socure.io/latest/device-risk-sdk.js 
+        https://cdn.plaid.com/link/v2/stable/link-initialize.js 
+        https://payments-dev.x.com/customer/wasm/xxp-forward-with-sdk.js 
+        https://payments-staging.x.com/customer/wasm/xxp-forward-with-sdk.js 
+        https://payments-prod.x.com/customer/wasm/xxp-forward-with-sdk.js 
+        https://money-dev.x.com/customer/wasm/xxp-forward-with-sdk.js 
+        https://money-staging.x.com/customer/wasm/xxp-forward-with-sdk.js 
+        https://money.x.com/customer/wasm/xxp-forward-with-sdk.js 
+        https://js.stripe.com 
+        https://*.js.stripe.com 
+        https://cdn.getpinwheel.com/pinwheel-v3.1.0.js 
+        https://securepubads.g.doubleclick.net 
+        https://www.googletagservices.com 
+        https://*.googletagservices.com 
+        https://pagead2.googlesyndication.com 
+        https://adservice.google.com 
+        https://www.googleadservices.com 
+        https://ads.google.com 
+        https://tpc.googlesyndication.com 
+        https://*.tpc.googlesyndication.com 
+        https://www.google.com 
+        https://googleads.g.doubleclick.net 
+        https://app.intercom.io 
+        https://widget.intercom.io 
+        https://js.intercomcdn.com   
+        &#39;wasm-unsafe-eval&#39;  &#39;nonce-MjIxYzQzMjktMGJmMi00YWNhLTg4MmUtMDNiMjhiZTRmMTg1&#39;;
+
+    style-src &#39;self&#39; &#39;unsafe-inline&#39; 
+        https://accounts.google.com/gsi/style 
+        https://*.twimg.com;
+
+    worker-src &#39;self&#39; blob:; report-uri https://x.com/i/csp_report?a=O5RXE%3D%3D%3D&amp;ro=false
+</code></pre><p>Second &ldquo;offender&rdquo; is <strong>link</strong> header in the HTTP response.</p>
+<p><strong>Link</strong> header in HTTP is used by servers to provide relationships between resources. It can convey information like:
+Pagination links, Related resources, Preloading or prefetching instructions,
+Canonical URLs.</p>
+<p>This is used to help browsers to preload some resources, might help with SEO
+optimization etc. Some websites don&rsquo;t use it at all but other use it quite
+extensively. Here is how it looks for <a href="https://www.logitech.com">www.logitech.com</a> (which has second largest
+header in our set):</p>
+<pre tabindex="0"><code>link: 
+    &lt;./_app/immutable/assets/0.BmUwg0OD.css&gt;; rel=&#34;preload&#34;;as=&#34;style&#34;; nopush, 
+    &lt;./_app/immutable/assets/Tooltip.CIt8wLqd.css&gt;; rel=&#34;preload&#34;;as=&#34;style&#34;; nopush, 
+    &lt;./_app/immutable/assets/TextField.BO3MU91H.css&gt;; rel=&#34;preload&#34;;as=&#34;style&#34;; nopush, 
+    &lt;./_app/immutable/assets/Picture.uZYgJ1kR.css&gt;; rel=&#34;preload&#34;;as=&#34;style&#34;; nopush, 
+    &lt;./_app/immutable/assets/Modal.BA7QV53T.css&gt;; rel=&#34;preload&#34;;as=&#34;style&#34;; nopush, 
+    &lt;./_app/immutable/assets/Drawer.BrNLa59s.css&gt;; rel=&#34;preload&#34;;as=&#34;style&#34;; nopush, 
+    &lt;./_app/immutable/assets/OrderStatus.C_W6J39V.css&gt;; rel=&#34;preload&#34;;as=&#34;style&#34;; nopush, 
+    &lt;./_app/immutable/assets/SwatchGroup.BIXu1SoU.css&gt;; rel=&#34;preload&#34;;as=&#34;style&#34;; nopush, 
+    &lt;./_app/immutable/assets/Badges.CuhXVqRm.css&gt;; rel=&#34;preload&#34;;as=&#34;style&#34;; nopush, 
+    &lt;./_app/immutable/assets/Skeleton.ByVz-TnP.css&gt;; rel=&#34;preload&#34;;as=&#34;style&#34;; nopush, 
+    &lt;./_app/immutable/assets/ProductCard.ChIpM_2K.css&gt;; rel=&#34;preload&#34;;as=&#34;style&#34;; nopush, 
+    &lt;./_app/immutable/assets/DropdownSelect.Dx4C0AFL.css&gt;; rel=&#34;preload&#34;;as=&#34;style&#34;; nopush, 
+    &lt;./_app/immutable/assets/EmblaCarousel.DeZlrFLh.css&gt;; rel=&#34;preload&#34;;as=&#34;style&#34;; nopush, 
+    &lt;./_app/immutable/assets/GridColumns.BLhBfQ1D.css&gt;; rel=&#34;preload&#34;;as=&#34;style&#34;; nopush, 
+    &lt;./_app/immutable/assets/MyAccountAccordion.Di-g4IEv.css&gt;; rel=&#34;preload&#34;;as=&#34;style&#34;; nopush, 
+    &lt;./_app/immutable/assets/NotifyMe.4I_RbR00.css&gt;; rel=&#34;preload&#34;;as=&#34;style&#34;; nopush, 
+    &lt;./_app/immutable/assets/RibbonMessage.V6U_ZgGI.css&gt;; rel=&#34;preload&#34;;as=&#34;style&#34;; nopush, 
+    &lt;./_app/immutable/assets/ProductSetModal.BesSfSWX.css&gt;; rel=&#34;preload&#34;;as=&#34;style&#34;; nopush, 
+    &lt;./_app/immutable/assets/2.BjqyT-KM.css&gt;; rel=&#34;preload&#34;;as=&#34;style&#34;; nopush, 
+    &lt;./_app/immutable/assets/Gift.Dg0qapQA.css&gt;; rel=&#34;preload&#34;;as=&#34;style&#34;; nopush, 
+    &lt;./_app/immutable/assets/LegalPage.D38gJJjk.css&gt;; rel=&#34;preload&#34;;as=&#34;style&#34;; nopush, 
+    &lt;./_app/immutable/assets/GiftGuidePlp.DELFs5n8.css&gt;; rel=&#34;preload&#34;;as=&#34;style&#34;; nopush, 
+    &lt;./_app/immutable/assets/WheelConfigurator.DvLw9yMs.css&gt;; rel=&#34;preload&#34;;as=&#34;style&#34;; nopush, 
+    &lt;./_app/immutable/assets/PlayButton.9m-L7Ujp.css&gt;; rel=&#34;preload&#34;;as=&#34;style&#34;; nopush, 
+    &lt;./_app/immutable/assets/EditorialCards.D7aqCbSh.css&gt;; rel=&#34;preload&#34;;as=&#34;style&#34;; nopush, 
+    &lt;./_app/immutable/assets/Configurators.DSjYh2FM.css&gt;; rel=&#34;preload&#34;;as=&#34;style&#34;; nopush, 
+    &lt;./_app/immutable/assets/CategoryCards.bx2JviTG.css&gt;; rel=&#34;preload&#34;;as=&#34;style&#34;; nopush, 
+    &lt;./_app/immutable/assets/BackgroundBanner.BEGwdjAs.css&gt;; rel=&#34;preload&#34;;as=&#34;style&#34;; nopush, 
+    &lt;./_app/immutable/assets/SeeMore.DHvzwpve.css&gt;; rel=&#34;preload&#34;;as=&#34;style&#34;; nopush, 
+    &lt;./_app/immutable/assets/Faqs.Su8zDiUM.css&gt;; rel=&#34;preload&#34;;as=&#34;style&#34;; nopush, 
+    &lt;./_app/immutable/assets/ReasonsToBuy.Dvaw2BUv.css&gt;; rel=&#34;preload&#34;;as=&#34;style&#34;; nopush, 
+    &lt;./_app/immutable/assets/Breadcrumb.DiRfzvE-.css&gt;; rel=&#34;preload&#34;;as=&#34;style&#34;; nopush, 
+    &lt;./_app/immutable/assets/QuickLinks.BhJZGJ6R.css&gt;; rel=&#34;preload&#34;;as=&#34;style&#34;; nopush, 
+    &lt;./_app/immutable/assets/Card.DY6KeWXA.css&gt;; rel=&#34;preload&#34;;as=&#34;style&#34;; nopush, 
+    &lt;./_app/immutable/assets/BladeIntro.BjWOuH9Z.css&gt;; rel=&#34;preload&#34;;as=&#34;style&#34;; nopush, 
+    &lt;./_app/immutable/assets/StandardCards.DJ4U0L2o.css&gt;; rel=&#34;preload&#34;;as=&#34;style&#34;; nopush, 
+    &lt;./_app/immutable/assets/ProductGrid.CBYoD17i.css&gt;; rel=&#34;preload&#34;;as=&#34;style&#34;; nopush, 
+    &lt;./_app/immutable/assets/FilterBar.B2A9O1Tg.css&gt;; rel=&#34;preload&#34;;as=&#34;style&#34;; nopush, 
+    &lt;./_app/immutable/assets/Bottomline.CWWui-fC.css&gt;; rel=&#34;preload&#34;;as=&#34;style&#34;; nopush, 
+    &lt;./_app/immutable/assets/ProductBanner.wLQs3Mvm.css&gt;; rel=&#34;preload&#34;;as=&#34;style&#34;; nopush, 
+    &lt;./_app/immutable/assets/BoutiqueHeroBanner.omPf8uR1.css&gt;; rel=&#34;preload&#34;;as=&#34;style&#34;; nopush, 
+    &lt;./_app/immutable/assets/Checkerboard.CnUcPnhG.css&gt;; rel=&#34;preload&#34;;as=&#34;style&#34;; nopush, 
+    &lt;./_app/immutable/assets/JumbotronAndMediaCards.BhkDG4XB.css&gt;; rel=&#34;preload&#34;;as=&#34;style&#34;; nopush, 
+    &lt;./_app/immutable/assets/Highlights.cLdA_vzO.css&gt;; rel=&#34;preload&#34;;as=&#34;style&#34;; nopush, 
+    &lt;./_app/immutable/assets/AudioPlayer.Dnx6PVqL.css&gt;; rel=&#34;preload&#34;;as=&#34;style&#34;; nopush, 
+    &lt;./_app/immutable/assets/MediaCards.4hcQMSeV.css&gt;; rel=&#34;preload&#34;;as=&#34;style&#34;; nopush, 
+    &lt;./_app/immutable/assets/ImageGallery.ClV1Q7uT.css&gt;; rel=&#34;preload&#34;;as=&#34;style&#34;; nopush, 
+    &lt;./_app/immutable/assets/FeaturedSlideshow.CIsn24t1.css&gt;; rel=&#34;preload&#34;;as=&#34;style&#34;; nopush, 
+    &lt;./_app/immutable/assets/EmailCapture.s7vQIoQl.css&gt;; rel=&#34;preload&#34;;as=&#34;style&#34;; nopush, 
+    &lt;./_app/immutable/assets/BackgroundImage.DwlZo5tE.css&gt;; rel=&#34;preload&#34;;as=&#34;style&#34;; nopush, 
+    &lt;./_app/immutable/assets/InteractiveHeroBanner.DxragpLp.css&gt;; rel=&#34;preload&#34;;as=&#34;style&#34;; nopush, 
+    &lt;./_app/immutable/assets/PromoSlideshow.Cgz8DbdB.css&gt;; rel=&#34;preload&#34;;as=&#34;style&#34;; nopush, 
+    &lt;./_app/immutable/assets/CountdownBanner.CpnrTeAh.css&gt;; rel=&#34;preload&#34;;as=&#34;style&#34;; nopush, 
+    &lt;./_app/immutable/entry/start.Bo9X7LCa.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/DkX4V_4r.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/vqdJvOLt.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/ae09DoGu.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/D0C9qiCV.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/CTFNgzZY.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/DpaXFcUM.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/owOoXXu1.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/entry/app.3XqFV2zw.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/Dp1pzeXC.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/CKLPxLCL.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/CWj6FrbW.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/pHaOfS12.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/CgSAfupW.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/Xogsordm.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/BifgfUVB.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/nodes/0.Dzkrss74.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/6Nlpsswe.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/Bgwlalhc.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/Bl7uWzAQ.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/nodes/2.Ds8jGgVp.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/D3MoPhG0.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/Jcrk9AUK.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/CwSf_6Oo.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/DFfcXFJY.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/DR26F1ww.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/svCTgsbl.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/CxeSUyL0.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/DgxvQK41.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/CnsIcpcx.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/CPKwXkwV.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/COaciFmb.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/DnRILV_f.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/CYIqOY2g.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/toVdKOst.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/DC0bqrkQ.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/BtKAxfA3.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/BWHp0Vsr.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/De6nu5MR.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/BDcPnI-Z.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/DiIMQyML.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/BF6Ytkcr.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/Bt-4VhZM.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/Csbk5jSW.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/Cg-ONzKS.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/Dme6TEhe.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/DwAdCQdj.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/BfLEW3ss.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/BLeZixJ6.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/B9jBDwK_.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/IJVLHI5p.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/DcihOCFz.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/gqeLmaaO.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/DR0-zYLf.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/B8gu9aFp.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/H_q5vUyg.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/D6pw74BZ.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/CD4MRKs4.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/CcRZZGcE.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/CPGb2Ha8.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/CH7BE6MN.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/CLw_WQ5l.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/BFADZywx.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/CJ01Vb4c.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/DysaiVgm.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/zGzYgxqd.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/CWmzcjye.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/C7CoQe0o.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/CuEM3MOL.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/BVvXFXiJ.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/PT7ERBxL.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/htl6zqkE.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/CtaOvT8R.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/BBmOzkJw.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/BOyEWY4K.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/C1gpZCO_.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/E1e8QwvJ.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/Cycr3KLS.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/BoKTXoh4.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/BKpiWXUB.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/BSLEhssX.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/BAAlleYb.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/B8B85e8Q.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/_1l_qwxM.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/DSlhB7PO.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/SznIFsVG.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/yROr9UHf.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/BIcwaRCq.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/BaZXYk2g.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/DIEOYCeo.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/CDk7q2ng.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/Gv5466mM.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/CWmWDg4N.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/LVnR6bjH.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/BZ6IGNqI.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/JdOuQZ8H.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/wG8eApaj.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/aBPCaKf1.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/DXsNBmiM.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/Bri3zkjy.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/CIC-jhmz.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/BNr6liSM.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/SiraxVBd.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/j3SyHAGr.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/a9Tn--oZ.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/QyMysE8m.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/DkK28eBK.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/CZcxppUj.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/B4P5_jGO.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/Bny1nKgg.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/BwiTatk4.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/Dqgy_uMd.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/B_fHgl1t.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/OBgJsU14.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/BK_KtU3Q.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/BWTJsKEf.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/_TnfFlQp.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/BGRsod_p.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/Bz58EIw4.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/CFPu4TTR.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/B6b3zP9u.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/B0tIWchx.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/FAk7kFvN.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/B8OxPEOE.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/F1Ofg1lG.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/SgK5LUoG.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/B2Lz-WBb.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/CejpDeAX.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/CTndWtUC.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/kDFV6buO.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/BcXaC3iu.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/DcOYx2D6.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/BkUPqegt.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/BEJZVMde.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/DdBsBbbE.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/CNQS9sZG.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/Di1fwpOV.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/dryfmCJt.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/nodes/6.DyXqgdxg.js&gt;; rel=&#34;modulepreload&#34;; nopush, 
+    &lt;./_app/immutable/chunks/CuEwkyQi.js&gt;; rel=&#34;modulepreload&#34;; nopush
+</code></pre><p>Some sites might use both of this headers and you can see how it can easily get
+bigger. For example &lsquo;finance.yahoo.com&rsquo; uses both.</p>
+<p><img src="/posts/http-header-body-size/images/finance-yahoo-com-headers.png" alt="Finance yahoo
+headers"></p>
+<p>This is <strong>28KB</strong> HTTP header. I got it using a basic socket through proxy.
+Getting this page through other methods gives other sizes. For example
+downloading it through the browser gave 15KB header size.</p>
+<h2 id="compression">Compression</h2>
+<p>The sizes that we discussed in this article are all without compression. They
+are raw, not compressed data sizes. This is what we can expect from HTTP/1.1 because
+it does not support header compression. It has only compression for body
+content.</p>
+<p>HTTP2 and HTTP3 were designed around to reduce HTTP overhead and so their binary
+format support compression headers. HTTP2 uses HPACK and HTTP3 uses QPACK. In
+this post I didn&rsquo;t explore those but I think it is safe to assume that for
+larger HTTP headers could provide 40-60% size reduction. Unfortunately I
+didn&rsquo;t have easy to use tools at hand to explore that area. Maybe we could look
+into it in one of the future posts.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>HTTP header sizes usually not included in the approximation of budget for page
+sizes. It is hard to calculate exactly due to its very dynamic nature and each
+website and page might have wide variety of sizes from very small ones with 250
+byte to huge 28KB headers. But averaging most popular websites we can have a
+rough estimate of 1-2KB for regular HTTP header.</p>
+
+    </div>
+</div>
+
+<div class="page-wrap coffee">
+</div>
+
+        </div><div class='footer'>
+    <div class='page-wrap container'>
+        <div class='copyright'> &copy; 2025, Hereket </div>
+        <div class='menu'> <a href="/index.xml">RSS feed</a> </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

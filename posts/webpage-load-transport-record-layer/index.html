@@ -1,14 +1,17 @@
 <!DOCTYPE html>
 <html>
+
     
     <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start': new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0], j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src= 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f); })(window,document,'script','dataLayer','GTM-5QJQQZSG');</script>
-    <head>
+    
+<head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     
     
-    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start': new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0], j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src= 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f); })(window,document,'script','dataLayer','GTM-5QJQQZSG');</script>
+    
+    
     
     
 
@@ -20,9 +23,9 @@
     
     
 
-    <link rel="stylesheet" type="text/css" href="/css/base.css?1757374871">
+    <link rel="stylesheet" type="text/css" href="/css/base.css?1758364855">
 
-    <script type="text/javascript" src="/js/base.js?1757374871" ></script>
+    <script type="text/javascript" src="/js/base.js?1758364855" ></script>
 
     <link rel="alternate" type="application/rss+xml" href="https://hereket.com//index.xml" title="Hereket">
 
@@ -32,8 +35,6 @@
     <title>Exploring why decreasing TLS record size can improve webpage load | Hereket</title>
 </head>
 <body>
-        
-        <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5QJQQZSG" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         
         
         
@@ -132,6 +133,12 @@ IP/TCP headers). The TLS record is about 16410 bytes. If we divide 16410/1460 we
 about 12 TCP segments that need to be transported. This is already larger than
 congestion windows and it means that there will be even more delay for initial
 read.</p>
+<p>On the client side:</p>
+<ul>
+<li>The library buffers it until it has full ciphertext + tag</li>
+<li>Decrypts it</li>
+<li>Delivers plaintex to the app</li>
+</ul>
 <h2 id="interpretation">Interpretation</h2>
 <p>You might say so what? I can wait not only for first records but for the whole
 document to be downloaded and start working with it as soon as the whole is
