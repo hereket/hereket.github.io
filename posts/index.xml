@@ -10,7 +10,7 @@
     <lastBuildDate>Thu, 11 Sep 2025 14:12:36 +0500</lastBuildDate>
     <atom:link href="https://hereket.com/posts/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>How much overhead do http headers add on average?</title>
+      <title>How much overhead do HTTP headers add on average?</title>
       <link>https://hereket.com/posts/http-header-body-size/</link>
       <pubDate>Thu, 11 Sep 2025 14:12:36 +0500</pubDate>
       <guid>https://hereket.com/posts/http-header-body-size/</guid>
