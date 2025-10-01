@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>
+
+    
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start': new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0], j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src= 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f); })(window,document,'script','dataLayer','GTM-5QJQQZSG');</script>
+    
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    
+    
+    
+    
+    
+    
+
+    <link rel="icon" type="image/x-icon" href="/image/favicon.ico">
+    <link rel="canonical" href="https://hereket.com/posts/how-much-of-14kb-for-page/" />
+
+    
+    
+    
+    
+
+    <link rel="stylesheet" type="text/css" href="/css/base.css?1759339647">
+
+    <script type="text/javascript" src="/js/base.js?1759339647" ></script>
+
+    <link rel="alternate" type="application/rss+xml" href="https://hereket.com//index.xml" title="Hereket">
+
+
+    
+    
+    <title>Exploring rough TLS size overhead | Hereket</title>
+</head>
+<body>
+        
+        
+        
+        <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5QJQQZSG" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+        
+        <div id="nav-border" class="container header">
+    <div class='page-wrap content'>
+        <a href="/"><div class="header-logo"> Hereket </div></a>
+        <nav id="nav" class="nav">
+            
+            <a class="nav-link" href="/">
+            
+            Posts
+            </a>
+            
+            <a class="nav-link" href="/tiny/">
+            
+            Tiny
+            </a>
+            
+        </nav>
+        <div class="contacts">
+            <a class="item" href="mailto:info123@hereket.com"><img src="/image/icon-email.png"></a>
+            <a class="item" href="https://twitter.com/alfred_tweet"><img src="/image/icon-twitter.png"></a>
+    <link rel="icon" type="image/x-icon" href="/image/favicon.ico">
+        </div>
+    </div>
+</div>
+<div id="content">
+<div class="page-wrap article">
+    <div class='main-content article'>
+        <h1>Exploring rough TLS size overhead</h1>
+        
+        <div><time class='post-time' datetime="2025-09-24">2025-09-24</time></div>
+        
+        <br><br>
+        <nav id="TableOfContents">
+  <ul>
+    <li><a href="#basic-http">Basic HTTP</a></li>
+    <li><a href="#secure-connection">Secure connection</a></li>
+    <li><a href="#overhead">Overhead</a></li>
+  </ul>
+</nav>
+        <p>This is a small exploration to see how much overhead does TLS add for a regular
+connection. We look into regular HTTP and how it changes with adding TLS to
+secure it.</p>
+<h2 id="basic-http">Basic HTTP</h2>
+<p>Initially let&rsquo;s start setting up some baseline and get values that we can
+compare with our other results. For this we will need a simple HTTP response
+without any encryption. For data I will use just simple string &ldquo;<strong>abc</strong>&rdquo;.
+It will be 4 byte body. Three charcters and ending newline character.</p>
+<p>This 4 byte file is on a real production server. For this test I set up a
+separate nginx location specifically for static files. The locations are exact
+for both http and https requests without any redirection. Just raw static file
+serving.</p>
+<p><img src="/posts/how-much-of-14kb-for-page/raw-http-wireshark.png" alt="raw http wireshark"></p>
+<p>This is whole duplex network communicationn to get this one 4 byte document. If
+we take just response from the server we will just 4 responses:</p>
+<pre tabindex="0"><code>31 	 2.243422216 	 xx.xx.xx.xx   	 192.168.1.122 	 TCP  	 74  	 80 → 48488 [SYN, ACK] Seq=0 Ack=1 Win=65160 Len=0 MSS=1420 SACK_PERM TSval=3890739 TSecr=3139042754 WS=128
+34 	 2.245724418 	 xx.xx.xx.xx   	 192.168.1.122 	 TCP  	 66  	 80 → 48488 [ACK] Seq=1 Ack=96 Win=65152 Len=0 TSval=3890741 TSecr=3139042756
+35 	 2.246058111 	 xx.xx.xx.xx   	 192.168.1.122 	 HTTP 	 304 	 HTTP/1.1 200 OK  (text/html)
+38 	 2.248563653 	 xx.xx.xx.xx   	 192.168.1.122 	 TCP  	 66  	 80 → 48488 [FIN, ACK] Seq=239 Ack=97 Win=65152 Len=0 TSval=3890744 TSecr=3139042760
+</code></pre><p>There is 14 bytes for ethernet. It is level 2 of OSI model and we don&rsquo;t care
+about those as they are not transfered through internet. They are used just for
+local network. If we remove 14 bytes from each response we get a total of 454
+byte response. 3 of them are just TCP &ldquo;management&rdquo; response used start and
+maintain connection. So real data response packet is 304 - 14 = 290 bytes. Of
+these 20 bytes are for IP  header, 32 bytes for TCP header. This gives us 290 -
+20 - 32 = 238 bytes. From these we get 234 bytes for HTTP headers and 4 bytes
+for our actual data.</p>
+<p><img src="/posts/how-much-of-14kb-for-page/raw-http-sizes.png" alt="raw http sizes drawing"></p>
+<p>For current example the largest part is HTTP header. It is 234 bytes and consist
+of these headers:</p>
+<pre tabindex="0"><code>HTTP/1.1 200 OK
+Server: nginx/1.26.3
+Date: Tue, 25 Sep 2025 15:45:22 GMT
+Content-Type: text/html
+Content-Length: 4
+Last-Modified: Sun, 20 Sep 2025 16:28:35 GMT
+Connection: keep-alive
+ETag: &#34;68d96233-4&#34;
+Accept-Ranges: bytes
+</code></pre><p>These headers are for more or less a default nginx setup for serving static
+files. The same server which serves php projects has 1KB header with additinal
+headers like setting cookies and etc. Neighboring server that serves a python
+project also has 1KB headers but those were mostly due to required HTTP security
+headers (this is just for comparison).</p>
+<h2 id="secure-connection">Secure connection</h2>
+<p>This is the default type for modern internet and all production communications
+should be measured and tested in this environment. It does not matter if you
+send HTML document for a webpage, send JSON for an iOS app or getting getting or
+sending email over IMAP/SMPT.</p>
+<p><img src="/posts/how-much-of-14kb-for-page/https-wireshark.png" alt="HTTPs wireshark log"></p>
+<p>Now let&rsquo;s try to look at the same data &ldquo;<strong>abc</strong>&rdquo; but for secure connection. Our
+data is still 4 bytes and our HTTP headers is exactly the same as in first
+version 234 bytes.</p>
+<p>Total send and recieve bytes:
+(74 + 74 + 66 + 1639+ 66 + 1474 + 66 + 1474 + 66 + 1346 + 66 + 1474 + 66 + 1664 + 66 + 146 + 183 + 66 + 369 + 369 + 66 + 326 + 90 + 66 + 66 + 66 + 66) - (27*14) =
+11560 - 378 = <strong>11182</strong> (sent+recieve) bytes.</p>
+<p>The client sent (excluding ethernet) a total of <strong>2530</strong> bytes. This includes connection,
+ack&rsquo;s and closing. So for the whole session server sent back 11182 - 2530 = <strong>8652</strong>
+bytes.</p>
+<p><img src="/posts/how-much-of-14kb-for-page/osi-tls-http.png" alt="OSI model with HTTP and TLS"></p>
+<p>Let&rsquo;s try to figure out how much more overhead we get in this sample case. For
+insecure HTTP case we had 454 bytes total. If we remove all IP and TCP related
+bytes then we are left with <strong>238 bytes</strong> (Data + HTTP).</p>
+<p>Current raw estimate for response size is 8652 bytes. This includes IP and TCP
+and everything else. From the wireshark dump above we can see that there are 13
+packets returned in total. The very first returned packet is taking 60 bytes: 20
+bytes for IP and 40 for TCP. All the rest 12 packets used 20 bytes for IP and 32
+bytes for TCP or 52 bytes of non data bytes per packet. So 8652 - 60 - (12*52) =
+<strong>7968</strong> bytes. There were 2 new session ticket packets with around 350 bytes
+each and our content were 238 bytes of HTTP+Data. Removing all this leaves us
+with about 6800 bytes. I am not counting all exact bytes (for example exact header size
+for TLS record) since we are not trying to get exact numbers but get rough
+ballbark numbers.</p>
+<p>Since I have acess to this server I went and checked the certificate size in DER
+format. It was around 6.5KB in total or 4 certificate chain of about 1.5KB each.
+I ran the same query again but provided SSLKeys to let wireshark decrypt data to
+verify it and is it close enough to our estimates.</p>
+<p><img src="/posts/how-much-of-14kb-for-page/cert-chain-size.png" alt="Certificate chain sizes"></p>
+<h2 id="overhead">Overhead</h2>
+<p>As we can clearly see there is some overhead and it is big enough. Server hello
+is couple hundred bytes, there are some additional few hundred bytes for session
+ticket and the main overhead is added by certificate size. So we can estimate
+overhead just by looking at certificate chain. In our case it was 6.5KB. Probaly
+we could estimate it to be in the rage of 3KB-9KB.</p>
+<p>Some sites and their certificate chain sizes:</p>
+<ul>
+<li>google.com - 5050 bytes</li>
+<li><a href="https://www.google.com">www.google.com</a> - 2506 bytes</li>
+<li>github.com - 3127 bytes</li>
+<li>wikipedia.org - 2760 bytes</li>
+<li><a href="https://www.wikipedia.org">www.wikipedia.org</a> - 2760 bytes</li>
+<li>yandex.com - 3700 bytes</li>
+<li>play.google.com - 5050 bytes</li>
+</ul>
+
+    </div>
+</div>
+
+<div class="page-wrap coffee">
+</div>
+
+        </div><div class='footer'>
+    <div class='page-wrap container'>
+        <div class='copyright'> &copy; 2025, Hereket </div>
+        <div class='menu'> <a href="/index.xml">RSS feed</a> </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>
