@@ -11,9 +11,9 @@
     <atom:link href="https://hereket.com/posts/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Exploring rough TLS size overhead</title>
-      <link>https://hereket.com/posts/how-much-of-14kb-for-page/</link>
+      <link>https://hereket.com/posts/http-tls-size-overhead/</link>
       <pubDate>Wed, 24 Sep 2025 12:47:01 +0500</pubDate>
-      <guid>https://hereket.com/posts/how-much-of-14kb-for-page/</guid>
+      <guid>https://hereket.com/posts/http-tls-size-overhead/</guid>
       <description>&lt;p&gt;This is a small exploration to see how much overhead does TLS add for a regular&#xA;connection. We look into regular HTTP and how it changes with adding TLS to&#xA;secure it.&lt;/p&gt;&#xA;&lt;h2 id=&#34;basic-http&#34;&gt;Basic HTTP&lt;/h2&gt;&#xA;&lt;p&gt;Initially let&amp;rsquo;s start setting up some baseline and get values that we can&#xA;compare with our other results. For this we will need a simple HTTP response&#xA;without any encryption. For data I will use just simple string &amp;ldquo;&lt;strong&gt;abc&lt;/strong&gt;&amp;rdquo;.&#xA;It will be 4 byte body. Three charcters and ending newline character.&lt;/p&gt;</description>
     </item>
     <item>

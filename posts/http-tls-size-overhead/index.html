@@ -1,22 +1,33 @@
 <!DOCTYPE html>
 <html>
-<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+
+    
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start': new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0], j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src= 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f); })(window,document,'script','dataLayer','GTM-5QJQQZSG');</script>
+    
+<head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     
+    
+    
+    
+    
+    
 
     <link rel="icon" type="image/x-icon" href="/image/favicon.ico">
-    <link rel="canonical" href="http://localhost:1313/posts/how-much-of-14kb-for-page/" />
+    <link rel="canonical" href="https://hereket.com/posts/http-tls-size-overhead/" />
 
     
     
+    
+    
 
-    <link rel="stylesheet" type="text/css" href="/css/base.css?0">
+    <link rel="stylesheet" type="text/css" href="/css/base.css?1759389525">
 
-    <script type="text/javascript" src="/js/base.js?0" ></script>
+    <script type="text/javascript" src="/js/base.js?1759389525" ></script>
 
-    <link rel="alternate" type="application/rss+xml" href="http://localhost:1313//index.xml" title="Hereket">
+    <link rel="alternate" type="application/rss+xml" href="https://hereket.com//index.xml" title="Hereket">
 
 
     
@@ -24,6 +35,10 @@
     <title>Exploring rough TLS size overhead | Hereket</title>
 </head>
 <body>
+        
+        
+        
+        <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5QJQQZSG" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         
         <div id="nav-border" class="container header">
     <div class='page-wrap content'>
@@ -75,7 +90,7 @@ It will be 4 byte body. Three charcters and ending newline character.</p>
 separate nginx location specifically for static files. The locations are exact
 for both http and https requests without any redirection. Just raw static file
 serving.</p>
-<p><img src="/posts/how-much-of-14kb-for-page/raw-http-wireshark.png" alt="raw http wireshark"></p>
+<p><img src="/posts/http-tls-size-overhead/raw-http-wireshark.png" alt="raw http wireshark"></p>
 <p>This is whole duplex network communicationn to get this one 4 byte document. If
 we take just response from the server we will just 4 responses:</p>
 <pre tabindex="0"><code>31 	 2.243422216 	 xx.xx.xx.xx   	 192.168.1.122 	 TCP  	 74  	 80 → 48488 [SYN, ACK] Seq=0 Ack=1 Win=65160 Len=0 MSS=1420 SACK_PERM TSval=3890739 TSecr=3139042754 WS=128
@@ -90,7 +105,7 @@ maintain connection. So real data response packet is 304 - 14 = 290 bytes. Of
 these 20 bytes are for IP  header, 32 bytes for TCP header. This gives us 290 -
 20 - 32 = 238 bytes. From these we get 234 bytes for HTTP headers and 4 bytes
 for our actual data.</p>
-<p><img src="/posts/how-much-of-14kb-for-page/raw-http-sizes.png" alt="raw http sizes drawing"></p>
+<p><img src="/posts/http-tls-size-overhead/raw-http-sizes.png" alt="raw http sizes drawing"></p>
 <p>For current example the largest part is HTTP header. It is 234 bytes and consist
 of these headers:</p>
 <pre tabindex="0"><code>HTTP/1.1 200 OK
@@ -112,7 +127,7 @@ headers (this is just for comparison).</p>
 should be measured and tested in this environment. It does not matter if you
 send HTML document for a webpage, send JSON for an iOS app or getting getting or
 sending email over IMAP/SMPT.</p>
-<p><img src="/posts/how-much-of-14kb-for-page/https-wireshark.png" alt="HTTPs wireshark log"></p>
+<p><img src="/posts/http-tls-size-overhead/https-wireshark.png" alt="HTTPs wireshark log"></p>
 <p>Now let&rsquo;s try to look at the same data &ldquo;<strong>abc</strong>&rdquo; but for secure connection. Our
 data is still 4 bytes and our HTTP headers is exactly the same as in first
 version 234 bytes.</p>
@@ -122,7 +137,7 @@ version 234 bytes.</p>
 <p>The client sent (excluding ethernet) a total of <strong>2530</strong> bytes. This includes connection,
 ack&rsquo;s and closing. So for the whole session server sent back 11182 - 2530 = <strong>8652</strong>
 bytes.</p>
-<p><img src="/posts/how-much-of-14kb-for-page/osi-tls-http.png" alt="OSI model with HTTP and TLS"></p>
+<p><img src="/posts/http-tls-size-overhead/osi-tls-http.png" alt="OSI model with HTTP and TLS"></p>
 <p>Let&rsquo;s try to figure out how much more overhead we get in this sample case. For
 insecure HTTP case we had 454 bytes total. If we remove all IP and TCP related
 bytes then we are left with <strong>238 bytes</strong> (Data + HTTP).</p>
@@ -140,7 +155,7 @@ ballbark numbers.</p>
 format. It was around 6.5KB in total or 4 certificate chain of about 1.5KB each.
 I ran the same query again but provided SSLKeys to let wireshark decrypt data to
 verify it and is it close enough to our estimates.</p>
-<p><img src="/posts/how-much-of-14kb-for-page/cert-chain-size.png" alt="Certificate chain sizes"></p>
+<p><img src="/posts/http-tls-size-overhead/cert-chain-size.png" alt="Certificate chain sizes"></p>
 <h2 id="overhead">Overhead</h2>
 <p>As we can clearly see there is some overhead and it is big enough. Server hello
 is couple hundred bytes, there are some additional few hundred bytes for session
@@ -170,6 +185,68 @@ we could estimate it to be in the rage of 3KB-9KB.</p>
         <div class='menu'> <a href="/index.xml">RSS feed</a> </div>
     </div>
 </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 </body>
