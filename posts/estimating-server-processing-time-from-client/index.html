@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html>
+
+    
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start': new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0], j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src= 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f); })(window,document,'script','dataLayer','GTM-5QJQQZSG');</script>
+    
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    
+    
+    
+    
+    
+    
+
+    <link rel="icon" type="image/x-icon" href="/image/favicon.ico">
+    <link rel="canonical" href="https://hereket.com/posts/estimating-server-processing-time-from-client/" />
+
+    
+    
+    
+    
+
+    <link rel="stylesheet" type="text/css" href="/css/base.css?1759966616">
+
+    <script type="text/javascript" src="/js/base.js?1759966616" ></script>
+
+    <link rel="alternate" type="application/rss+xml" href="https://hereket.com//index.xml" title="Hereket">
+
+
+    
+    
+    <title>Is server slow? Estimating server endpoint processing time from client perspective | Hereket</title>
+</head>
+<body>
+        
+        
+        
+        <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5QJQQZSG" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+        
+        <div id="nav-border" class="container header">
+    <div class='page-wrap content'>
+        <a href="/"><div class="header-logo"> Hereket </div></a>
+        <nav id="nav" class="nav">
+            
+            <a class="nav-link" href="/">
+            
+            Posts
+            </a>
+            
+            <a class="nav-link" href="/tiny/">
+            
+            Tiny
+            </a>
+            
+        </nav>
+        <div class="contacts">
+            <a class="item" href="mailto:info123@hereket.com"><img src="/image/icon-email.png"></a>
+            <a class="item" href="https://twitter.com/alfred_tweet"><img src="/image/icon-twitter.png"></a>
+    <link rel="icon" type="image/x-icon" href="/image/favicon.ico">
+        </div>
+    </div>
+</div>
+<div id="content">
+<div class="page-wrap article">
+    <div class='main-content article'>
+        <h1>Is server slow? Estimating server endpoint processing time from client perspective</h1>
+        
+        <div><time class='post-time' datetime="2025-10-08">2025-10-08</time></div>
+        
+        <br><br>
+        <nav id="TableOfContents">
+  <ul>
+    <li><a href="#intro">Intro</a></li>
+    <li><a href="#chrome--firefox--etc">Chrome / Firefox / etc</a></li>
+    <li><a href="#using-curl">Using Curl</a></li>
+    <li><a href="#using-app">Using App</a></li>
+    <li><a href="#conclusion">Conclusion</a></li>
+  </ul>
+</nav>
+        <h2 id="intro">Intro</h2>
+<p>Sometimes when I work on some mobile apps I get an issue of having slow response
+times which in turn make the app &ldquo;work slow&rdquo; and all complaints come to me. For
+an app user or business owner it does not matter who is responsible. The app
+works slow so for them &ldquo;whoever developed the app did a bad job&rdquo;. Sometimes it
+is easy to solve by just talking to backend guys, making proper measurements on
+the backend and after verifying the issue just let them do their backend magic.
+Other times it is a lot more harder because either backend guys don&rsquo;t want to
+spend time looking into it, they are beginners and don&rsquo;t know how and where to
+look or just begin malicious. I had all of these issues and everytime had to
+prove my point to start moving conversation in the right direction. It could
+also be that we messed up or the network is/was bad. So first of all we need to
+verify that it is not us and the network is fine.</p>
+<p>So what do we look for? I usually look into these 5 areas.</p>
+<ul>
+<li>(1) DNS</li>
+<li>(2) Initial Connection</li>
+<li>(3) TLS setup</li>
+<li><strong>(4) Server processing</strong></li>
+<li>(5) Download contents</li>
+</ul>
+<p>Ideal for our use case is the number 4. In this case we assume that it is the server
+that takes a lot of time to process request and thus pass it to the backend
+guys. What are the others?</p>
+<p>First of all is <strong>DNS</strong>. I have never had issues with DNS slowing anything down.
+Even if it is slow it will be slow just for one request and then just be cached.
+But it is very often the case that it is the reason when request do not work
+completely.</p>
+<p>After DNS step the app has IP address and ready to create <strong>initial
+connection</strong>. This is step (2). For me this is a good indicatin if there is
+network (sometimes server) overload. This is where initial TCP handshake will
+happen and mostly should happen pretty quickly. If the network is unreliable or
+overloaded then we will either have high roundtrip times.</p>
+<p><strong>TLS setup</strong> setup starts right after TCP handshake it is usually in the range
+of 2KB to 8KB and should not take much time. I had issues with this when users
+where behind corporate or other firewalls which tried to pick into and process
+TLS packets. During peak times the firewall couldn&rsquo;t handle all the requests and
+thus delayed start of the communication.</p>
+<p>Then there is <strong>Content download</strong>. This happens after server got request,
+processed it, got all data from the database, prepared a response and sent it back.
+This is second place to look for network issues after looking at connection
+setup. Time spent in this step is from delivering first byte up until the very
+last delivered byte.</p>
+<p>So after all these are within acceptable margin we can look into how much time
+does <strong>Server processing</strong> takes. But where do we find that information? We can
+estimate it as the time between sending a request and getting the first byte (TTFB).
+So after we got IP address, created connection and exchanged TLS keys the client
+will send a <strong>request</strong>. It will take RTT/2 time and the rest of the time is
+server processing and preparing response with another RTT/2 time for delivering
+first byte. If network is &ldquo;good enough&rdquo; then this RTT could be ignored and we
+can assume that this whole time was used to process requests. Of course if server
+processing time is 10ms and RTT is 500ms then this calculation is wrong. But we
+are talking about good networks and problematic servers. In my case it usually
+was a few seconds TTFB with small RTT times. We are not trying exactly calculate
+request processing time but rather trying to find cases which we can safely
+assume that issue is with slow server processing.</p>
+<h2 id="chrome--firefox--etc">Chrome / Firefox / etc</h2>
+<p>The simplest thing is too just use developer tools from chrome, firefox or any
+other browsers. Here is an example of looking at google main page from chromium.</p>
+<p><img src="/posts/estimating-server-processing-time-from-client/chrome-google.png" alt="Chrome dev tools to see page load timings"></p>
+<p>This might seem good enough for simple and quick test but during my tests it was
+a bit hard to use. For example why the initial connection and TLS setup was 0? Is it
+reusing older connections or is there something else in the play? Also since I
+was mostly testing API endpoints (website was fine and API seemed slow) I had to
+send extra information in the header, requests needed to be sending some dynamic
+information and be able to different and quick experiments with ability to log a
+a lot of different requests. This made browser tools a bit unreliable for my use
+case.</p>
+<h2 id="using-curl">Using Curl</h2>
+<p>It seems like the next to best solution after using development tools from a
+browser is to use a plugin that will add missing parts. But since I wanted to
+more control over execution and I already used curl pretty heavily it natural
+next solution for me.</p>
+<p>For this we can curl&rsquo;s option of showing extra information <code>-w, --write-out &lt;format&gt;</code>
+<strong><!-- raw HTML omitted --></strong> part is quite big and has all sorts of meta information about the
+connection. It can show how many TLS certificates there were, how many headers,
+what was the IP or how many redirects. For our case we care only about meta
+information related to request timing. To see how much time it took to connect
+to the website we can use request similar to this:
+<code>curl https://www.google.com -w &quot;\n\nConnect:%{time_connect}\n&quot;</code></p>
+<p>This will output whole response with additional line showing how much time it
+took to connect to the website. To make it more useful for our task we would
+need to use something like this:</p>
+<pre tabindex="0"><code>curl -o /dev/null -s -w \
+&#34;\n--------------------------------------------------
+   namelookup : %{time_namelookup}\n\
+      connect : %{time_connect}\n\
+   appconnect : %{time_appconnect}\n\
+  pretransfer : %{time_pretransfer}\n\
+starttransfer : %{time_starttransfer}\n\
+     redirect : %{time_redirect}s\n
+--------\n\
+          size: %{size_download}\n\
+         total: %{time_total}\n&#34; \
+https://www.google.com
+</code></pre><p>with the output that might look something like this:</p>
+<pre tabindex="0"><code>--------------------------------------------------
+   namelookup : 0.003658
+      connect : 0.095526
+   appconnect : 0.198420
+  pretransfer : 0.198568
+starttransfer : 0.320381
+     redirect : 0.000000s
+
+--------
+          size: 17632
+         total: 0.343240
+</code></pre><p>Here is description of params man pages:</p>
+<ul>
+<li><strong>time_namelookup</strong>: The time, in seconds, it took from the start until the name resolving was completed.</li>
+<li><strong>time_connect</strong>: The time, in seconds, it took from the start until the TCP connect to the remote host (or proxy) was completed.</li>
+<li><strong>time_appconnect</strong>: The time, in seconds, it took from the start until the SSL/SSH/etc connect/handshake to the remote host was completed.</li>
+<li><strong>time_pretransfer</strong>: The time, in seconds, it took from the start until the file transfer was just about to begin. This includes all pre-transfer commands and negotiations that are specific to the particular protocol(s) involved.</li>
+<li><strong>time_starttransfer</strong>: The time, in seconds, it took from the start until the first byte was received.  This includes time_pretransfer and also the time the server needed to calculate the result.</li>
+<li><strong>redirect</strong>: The time, in seconds, it took for all redirection steps including name lookup, connect, pretransfer and transfer before the final transaction was started. &ldquo;time_redirect&rdquo; shows the complete execution time for multiple redirections.</li>
+</ul>
+<p><strong>Namelookup</strong> is our DNS or how much time it took to resolve ip address before
+we are starting to connect. <strong>Connect</strong> is time time when connection to remote
+server has been established. <strong>redirect</strong> is not really important here as we are
+supposed to use final urls but I still have that just to as check which when not
+zero tells us that we messed up. <strong>pretransfer</strong> is when we did all setup and
+are about ready to send data. <strong>starttransfer</strong> is our TTFB or time when the
+the very first byte was received.</p>
+<p>So to estimate server latency we can just <strong>pretransfer</strong> from <strong>starttransfer</strong>
+or <code>server_processing_estimate = starttransfer - pretransfer</code></p>
+<p>We could write a bash script to do that calculation automatically but I didn&rsquo;t
+do that because I could calculate rough estimate in my head and it was enough
+at the time. But what we could do is to use file configuration instead of
+passing those &ndash;write-out params each time. For this we can put the format into
+a file somewhere in the filesystem. For example create a file curl-format.txt:</p>
+<pre tabindex="0"><code>\n--------------------------------------------------\n
+   namelookup : %{time_namelookup}\n
+      connect : %{time_connect}\n
+   appconnect : %{time_appconnect}\n
+  pretransfer : %{time_pretransfer}\n
+starttransfer : %{time_starttransfer}\n
+     redirect : %{time_redirect}\n
+--------\n
+          size: %{size_download}\n
+         total: %{time_total}\n
+</code></pre><p>and then we can call curl to test timings with
+<code>curl -o /dev/null -s -w @curl-format.txt </code></p>
+<p>Since I used this a lot I just created an alias in bash</p>
+<pre tabindex="0"><code>alias curltt=&#39; curl -w &#34;@/home/alfred/inbox/curl-format.txt&#34; -o /dev/null -s &#39;
+</code></pre><p>and just call it with: <strong>&ldquo;curltt <a href="https://www.google.com">https://www.google.com</a>&rdquo;</strong></p>
+<p>Next logical iteration is just to repeat the same request several times to get
+better understanding of how a request behaves over multiple samples. Getting one
+sample could be erroneous. Maybe network was bad at the time or just random
+variability. Looking into multiple repeating request solves this (well actually
+doing statistics is better but this version is good enough).</p>
+<p>For me I used a curl library and wrote a simple program that runs the same
+request multiple times over the same connection. But we could have used script
+for it (but keeping connection could&rsquo;ve been problematic). Here is example for
+requestion google and it&rsquo;s <strong>&lsquo;www&rsquo;</strong> final subdomain.</p>
+
+    
+<video height="400px" controls>
+    <source src="/posts/estimating-server-processing-time-from-client/multiple-measure-curl.mp4" type="video/mp4">
+    Your browser does not support the video tag.  
+</video>
+
+
+
+<h2 id="using-app">Using App</h2>
+<p>The app could be downloaded here: <a href="https://play.google.com/store/apps/details?id=com.hereket.netops">Network tools - netops</a></p>
+<p>Curl is mostly fine for these types of explorations but recently I have been
+collecting and porting all my tiny utilities into one crossplatform app that I
+can be used on different platforms and expect to behave the same on all of them.
+Also it is useful to give to regular people instead of asking them to download
+and run some terminal apps. Also I get a lot more control and can experiment with
+data extraction and visualisation.</p>
+<p>This is how this would look into single connection from the client:</p>
+<p><img src="/posts/estimating-server-processing-time-from-client/app-connection-test.png" alt="App connectino test"></p>
+<p>It provides pretty much all the same information. There is no DNS because I
+don&rsquo;t really need it in my tests and it would have required some extra work to
+add to this screen. The timings are cumulative. So when it says that it 228ms for
+writing it means that it started writing 228ms after the test has started. 414ms -
+228ms gives us 186ms between when we sent a request and the first byte came back. In this
+case of course it does not mean that google spent 228ms rendering HTML page. If
+we look at other parts and we see that the current network is very stable. It has a
+high ping and RTT. But it does not matter because even if it was true that page
+was being prepared for 200ms it is not the issue that I used to get. The
+complaints I get are when it takes more than second (in the last case that I
+had it was 8 seconds for an API endpoint).</p>
+<p>But it is best not to look into individual connection but rather run several
+tests and look at aggregated statistics. In contrast to the curl version these
+do not run in the same connection but rather in a separate HTTP/1.1 connection.
+This is done because currently I have issues with testing networks and I want to
+see aggregated stats on connection,TLS etc.</p>
+
+    
+<video height="600px" controls>
+    <source src="/posts/estimating-server-processing-time-from-client/multiple-measure-app.mp4" type="video/mp4">
+    Your browser does not support the video tag.  
+</video>
+
+
+
+<p>Let&rsquo;s now look at how it might look when we access the api endpoint but one is
+fast and second is before it was fixed. The stats is in short version and thus
+does not show when writing started. But here we can estimate time difference
+between secure connection establishment and first byte arriving as good enough
+approximation to server processing time.</p>
+<p><img src="/posts/estimating-server-processing-time-from-client/quick-slow-reply-stats.png" alt="App connectino test"></p>
+<h2 id="conclusion">Conclusion</h2>
+<p>The post was about approximating server processing time for the times when we
+need but do not have access to the backend or backend guys are
+busy/not_helpful/not_ready. To do that reliably we looked at different things
+that could affect document download time. Sometimes it is really just problem
+with the network and there is not much that we can do. But when the network is
+good and stable we can look at the times between writing of the request stared
+and return of the first response byte. If other metrics are stable and quick
+then we can assume that there is issue with server processing time at this
+endpoint and increase priority of fixing (or at least having a better look at)
+this endpoint.</p>
+
+    </div>
+</div>
+
+<div class="page-wrap coffee">
+</div>
+
+        </div><div class='footer'>
+    <div class='page-wrap container'>
+        <div class='copyright'> &copy; 2025, Hereket </div>
+        <div class='menu'> <a href="/index.xml">RSS feed</a> </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

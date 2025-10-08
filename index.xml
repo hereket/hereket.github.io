@@ -7,8 +7,15 @@
     <generator>Hugo</generator>
     <language>en-us</language>
     <copyright>Hereket All rights reserved</copyright>
-    <lastBuildDate>Wed, 24 Sep 2025 12:47:01 +0500</lastBuildDate>
+    <lastBuildDate>Wed, 08 Oct 2025 16:53:58 +0500</lastBuildDate>
     <atom:link href="https://hereket.com/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Is server slow? Estimating server endpoint processing time from client perspective</title>
+      <link>https://hereket.com/posts/estimating-server-processing-time-from-client/</link>
+      <pubDate>Wed, 08 Oct 2025 16:53:58 +0500</pubDate>
+      <guid>https://hereket.com/posts/estimating-server-processing-time-from-client/</guid>
+      <description>&lt;h2 id=&#34;intro&#34;&gt;Intro&lt;/h2&gt;&#xA;&lt;p&gt;Sometimes when I work on some mobile apps I get an issue of having slow response&#xA;times which in turn make the app &amp;ldquo;work slow&amp;rdquo; and all complaints come to me. For&#xA;an app user or business owner it does not matter who is responsible. The app&#xA;works slow so for them &amp;ldquo;whoever developed the app did a bad job&amp;rdquo;. Sometimes it&#xA;is easy to solve by just talking to backend guys, making proper measurements on&#xA;the backend and after verifying the issue just let them do their backend magic.&#xA;Other times it is a lot more harder because either backend guys don&amp;rsquo;t want to&#xA;spend time looking into it, they are beginners and don&amp;rsquo;t know how and where to&#xA;look or just begin malicious. I had all of these issues and everytime had to&#xA;prove my point to start moving conversation in the right direction. It could&#xA;also be that we messed up or the network is/was bad. So first of all we need to&#xA;verify that it is not us and the network is fine.&lt;/p&gt;</description>
+    </item>
     <item>
       <title>Exploring rough TLS size overhead</title>
       <link>https://hereket.com/posts/http-tls-size-overhead/</link>
