@@ -23,9 +23,9 @@
     
     
 
-    <link rel="stylesheet" type="text/css" href="/css/base.css?1760000002">
+    <link rel="stylesheet" type="text/css" href="/css/base.css?1760007825">
 
-    <script type="text/javascript" src="/js/base.js?1760000002" ></script>
+    <script type="text/javascript" src="/js/base.js?1760007825" ></script>
 
     <link rel="alternate" type="application/rss+xml" href="https://hereket.com//index.xml" title="Hereket">
 
@@ -196,6 +196,7 @@ starttransfer : 0.320381
 <li><strong>time_starttransfer</strong>: The time, in seconds, it took from the start until the first byte was received.  This includes time_pretransfer and also the time the server needed to calculate the result.</li>
 <li><strong>redirect</strong>: The time, in seconds, it took for all redirection steps including name lookup, connect, pretransfer and transfer before the final transaction was started. &ldquo;time_redirect&rdquo; shows the complete execution time for multiple redirections.</li>
 </ul>
+<p><img src="/posts/estimating-server-processing-time-from-client/curl-time-params.png" alt="App connection test"></p>
 <p><strong>Namelookup</strong> is our DNS or how much time it took to resolve ip address before
 we are starting to connect. <strong>Connect</strong> is time time when connection to remote
 server has been established. <strong>redirect</strong> is not really important here as we are
@@ -252,7 +253,7 @@ Also it is useful to give to regular people instead of asking them to download
 and run some terminal apps. Also I get a lot more control and can experiment with
 data extraction and visualisation.</p>
 <p>This is how this would look into single connection from the client:</p>
-<p><img src="/posts/estimating-server-processing-time-from-client/app-connection-test.png" alt="App connectino test"></p>
+<p><img src="/posts/estimating-server-processing-time-from-client/app-connection-test.png" alt="App connection test"></p>
 <p>It provides pretty much all the same information. There is no DNS because I
 don&rsquo;t really need it in my tests and it would have required some extra work to
 add to this screen. The timings are cumulative. So when it says that it 228ms for
