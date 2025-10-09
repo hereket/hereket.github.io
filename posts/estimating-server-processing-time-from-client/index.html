@@ -23,9 +23,9 @@
     
     
 
-    <link rel="stylesheet" type="text/css" href="/css/base.css?1759966616">
+    <link rel="stylesheet" type="text/css" href="/css/base.css?1760000002">
 
-    <script type="text/javascript" src="/js/base.js?1759966616" ></script>
+    <script type="text/javascript" src="/js/base.js?1760000002" ></script>
 
     <link rel="alternate" type="application/rss+xml" href="https://hereket.com//index.xml" title="Hereket">
 
@@ -284,6 +284,26 @@ does not show when writing started. But here we can estimate time difference
 between secure connection establishment and first byte arriving as good enough
 approximation to server processing time.</p>
 <p><img src="/posts/estimating-server-processing-time-from-client/quick-slow-reply-stats.png" alt="App connectino test"></p>
+<p>As we can see the network is not great but we can safely assume that processing
+is taking not more than 207 - 66 = 141 milliseconds. On the right screen it is
+clear taht network is fine since transfering content take just few milliseconds
+but time between securing connection and starting reading is several seconds at
+least.</p>
+<p>But there is sometimes cases where our logic of counting difference between full
+connection setup and getting first byte is not working. It is when responses
+are streamed. It could be that nginx is sending initial response right away but
+is stuck waiting upstream to prepare response. For example let&rsquo;s look at bellow
+example:</p>
+<p><img src="/posts/estimating-server-processing-time-from-client/slow-streaming.png" alt="App connectino test"></p>
+<p>As we can see that network is fine. Initial response is quick. But there sharp
+delay after initial response. In this example responses split in weird 8k chunks
+but it due to dart&rsquo;s decryption buffering split. In this example we can see that
+first 16KB are returned quickly (default TLS record size in nginx). Then it is
+probably waiting or buffering data from upstream which takes more than 2
+seconds. In this example I used single connection exploring because looking at
+multiconnection testing statistics will give wrong imporession that results are
+returned quickly. But in reality we see that there is still issue with network
+response preparing times. When in doubt it is good to look at different angles.</p>
 <h2 id="conclusion">Conclusion</h2>
 <p>The post was about approximating server processing time for the times when we
 need but do not have access to the backend or backend guys are
